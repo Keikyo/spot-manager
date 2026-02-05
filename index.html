@@ -85,9 +85,137 @@
         .header-cloud-2::before { width: 50px; height: 50px; top: -25px; left: 15px; }
         .header-cloud-2::after { width: 60px; height: 40px; top: -18px; left: 45px; }
 
+        .header-cloud-3 {
+            width: 60px;
+            height: 22px;
+            top: 45px;
+            left: 35%;
+            animation: cloud-drift 18s ease-in-out infinite;
+            animation-delay: -3s;
+            opacity: 0.7;
+        }
+        .header-cloud-3::before { width: 30px; height: 30px; top: -15px; left: 8px; }
+        .header-cloud-3::after { width: 35px; height: 25px; top: -10px; left: 25px; }
+
+        .header-cloud-4 {
+            width: 50px;
+            height: 18px;
+            top: 55px;
+            right: 25%;
+            animation: cloud-drift 20s ease-in-out infinite;
+            animation-delay: -8s;
+            opacity: 0.6;
+        }
+        .header-cloud-4::before { width: 25px; height: 25px; top: -12px; left: 5px; }
+        .header-cloud-4::after { width: 30px; height: 20px; top: -8px; left: 20px; }
+
         @keyframes cloud-drift {
             0%, 100% { transform: translateX(-15px); }
             50% { transform: translateX(15px); }
+        }
+
+        /* 背景漂浮白雲 */
+        .floating-cloud {
+            position: fixed;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .floating-cloud::before,
+        .floating-cloud::after {
+            content: '';
+            position: absolute;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+        }
+
+        .floating-cloud-1 {
+            width: 120px;
+            height: 45px;
+            top: 20%;
+            left: -150px;
+            animation: float-across 45s linear infinite;
+        }
+        .floating-cloud-1::before { width: 60px; height: 60px; top: -30px; left: 20px; }
+        .floating-cloud-1::after { width: 70px; height: 50px; top: -25px; left: 55px; }
+
+        .floating-cloud-2 {
+            width: 100px;
+            height: 38px;
+            top: 35%;
+            left: -120px;
+            animation: float-across 55s linear infinite;
+            animation-delay: -20s;
+            opacity: 0.6;
+        }
+        .floating-cloud-2::before { width: 50px; height: 50px; top: -25px; left: 15px; }
+        .floating-cloud-2::after { width: 55px; height: 40px; top: -18px; left: 45px; }
+
+        .floating-cloud-3 {
+            width: 80px;
+            height: 30px;
+            top: 50%;
+            left: -100px;
+            animation: float-across 40s linear infinite;
+            animation-delay: -10s;
+            opacity: 0.5;
+        }
+        .floating-cloud-3::before { width: 40px; height: 40px; top: -20px; left: 10px; }
+        .floating-cloud-3::after { width: 45px; height: 32px; top: -14px; left: 35px; }
+
+        .floating-cloud-4 {
+            width: 140px;
+            height: 52px;
+            top: 65%;
+            left: -160px;
+            animation: float-across 60s linear infinite;
+            animation-delay: -35s;
+            opacity: 0.55;
+        }
+        .floating-cloud-4::before { width: 70px; height: 70px; top: -35px; left: 25px; }
+        .floating-cloud-4::after { width: 80px; height: 55px; top: -28px; left: 65px; }
+
+        .floating-cloud-5 {
+            width: 90px;
+            height: 34px;
+            top: 80%;
+            left: -110px;
+            animation: float-across 50s linear infinite;
+            animation-delay: -5s;
+            opacity: 0.45;
+        }
+        .floating-cloud-5::before { width: 45px; height: 45px; top: -22px; left: 12px; }
+        .floating-cloud-5::after { width: 50px; height: 36px; top: -16px; left: 40px; }
+
+        .floating-cloud-6 {
+            width: 70px;
+            height: 26px;
+            top: 28%;
+            left: -90px;
+            animation: float-across 38s linear infinite;
+            animation-delay: -25s;
+            opacity: 0.5;
+        }
+        .floating-cloud-6::before { width: 35px; height: 35px; top: -17px; left: 8px; }
+        .floating-cloud-6::after { width: 40px; height: 28px; top: -12px; left: 30px; }
+
+        .floating-cloud-7 {
+            width: 110px;
+            height: 42px;
+            top: 45%;
+            left: -130px;
+            animation: float-across 52s linear infinite;
+            animation-delay: -40s;
+            opacity: 0.6;
+        }
+        .floating-cloud-7::before { width: 55px; height: 55px; top: -27px; left: 18px; }
+        .floating-cloud-7::after { width: 62px; height: 44px; top: -20px; left: 50px; }
+
+        @keyframes float-across {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(calc(100vw + 200px)); }
         }
 
         /* Header Login Area */
@@ -1082,10 +1210,21 @@
     </style>
 </head>
 <body>
+    <!-- 背景漂浮白雲 -->
+    <div class="floating-cloud floating-cloud-1"></div>
+    <div class="floating-cloud floating-cloud-2"></div>
+    <div class="floating-cloud floating-cloud-3"></div>
+    <div class="floating-cloud floating-cloud-4"></div>
+    <div class="floating-cloud floating-cloud-5"></div>
+    <div class="floating-cloud floating-cloud-6"></div>
+    <div class="floating-cloud floating-cloud-7"></div>
+
     <!-- Header -->
     <div class="header">
         <div class="header-cloud header-cloud-1"></div>
         <div class="header-cloud header-cloud-2"></div>
+        <div class="header-cloud header-cloud-3"></div>
+        <div class="header-cloud header-cloud-4"></div>
         
         <!-- 右上角登入區域 -->
         <div class="header-login-area">
