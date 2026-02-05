@@ -1129,9 +1129,9 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         // ==================== Supabase 設定 ====================
-        const SUPABASE_URL = 'https://iojmxiijtvmjglodauai.supabase.co';
+        const SUPABASE_URL = 'https://iojmxiijtvmjglodauai.supabaseClient.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlvam14aWlqdHZtamdsb2RhdWFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyMzM5MDYsImV4cCI6MjA4NTgwOTkwNn0.4rnjTDXmCH77KwO-1GeZlTKn9xwBrhOJQkQ--FjxQk0';
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const supabase = supabaseClient.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // ==================== 全域變數 ====================
         let spots = [];
@@ -1157,7 +1157,7 @@
         // ==================== 初始化 ====================
         async function init() {
             // 檢查是否已登入
-            const { data: { session } } = await supabase.auth.getSession();
+            const { data: { session } } = await supabaseClient.auth.getSession();
             
             if (session) {
                 currentUser = session.user;
@@ -1168,7 +1168,7 @@
             }
 
             // 監聽驗證狀態變化
-            supabase.auth.onAuthStateChange(async (event, session) => {
+            supabaseClient.auth.onAuthStateChange(async (event, session) => {
                 if (event === 'SIGNED_IN') {
                     currentUser = session.user;
                     await checkAdminStatus();
@@ -1186,7 +1186,7 @@
         // ==================== 登入功能 ====================
         async function loginAsGuest() {
             try {
-                const { data, error } = await supabase.auth.signInAnonymously();
+                const { data, error } = await supabaseClient.auth.signInAnonymously();
                 if (error) throw error;
                 showToast('✅ 訪客登入成功！');
             } catch (error) {
@@ -1203,7 +1203,7 @@
                 // 使用固定的管理員信箱
                 const adminEmail = 'admin@pikminspots.app';
                 
-                const { data, error } = await supabase.auth.signInWithPassword({
+                const { data, error } = await supabaseClient.auth.signInWithPassword({
                     email: adminEmail,
                     password: password
                 });
@@ -1211,7 +1211,7 @@
                 if (error) {
                     // 如果帳號不存在，自動註冊
                     if (error.message.includes('Invalid login credentials')) {
-                        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+                        const { data: signUpData, error: signUpError } = await supabaseClient.auth.signUp({
                             email: adminEmail,
                             password: password
                         });
@@ -1232,7 +1232,7 @@
 
         async function logout() {
             try {
-                await supabase.auth.signOut();
+                await supabaseClient.auth.signOut();
                 spots = [];
                 renderSpots();
                 updateStats();
