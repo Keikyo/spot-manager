@@ -6,7 +6,7 @@
     <title>皮克敏純點管理器</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         * {
             box-sizing: border-box;
@@ -14,32 +14,46 @@
             padding: 0;
         }
 
+        :root {
+            --primary-green: #5FA85F;
+            --light-green: #7BC97B;
+            --dark-green: #2D5016;
+            --bg-gradient-start: #87CEEB;
+            --bg-gradient-mid: #B0E0F0;
+            --bg-gradient-end: #98E4C9;
+            --card-bg: rgba(255,255,255,0.95);
+            --flower-color: #FFB6C1;
+            --pikmin-color: #90EE90;
+            --mushroom-color: #DDA0DD;
+            --postcard-color: #87CEEB;
+        }
+
         body {
-            font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(180deg, #87CEEB 0%, #B0E0F0 40%, #98E4C9 70%, #7BC97B 100%);
+            font-family: 'Noto Sans TC', 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(180deg, var(--bg-gradient-start) 0%, var(--bg-gradient-mid) 40%, var(--bg-gradient-end) 70%, var(--light-green) 100%);
             min-height: 100vh;
-            color: #2D5016;
+            color: var(--dark-green);
             padding-bottom: 100px;
             position: relative;
             overflow-x: hidden;
         }
 
-        /* Header with Sky and Clouds */
+        /* ==================== Header ==================== */
         .header {
             background: linear-gradient(180deg, #87CEEB 0%, #B8E4F0 100%);
-            padding: 30px 16px 40px;
+            padding: 25px 16px 35px;
             text-align: center;
             position: relative;
             overflow: hidden;
-            border-radius: 0 0 40px 40px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border-radius: 0 0 35px 35px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
         }
 
         .header-cloud {
             position: absolute;
             background: #fff;
             border-radius: 50%;
-            opacity: 0.9;
+            opacity: 0.85;
         }
 
         .header-cloud::before,
@@ -53,71 +67,103 @@
         .header-cloud-1 {
             width: 80px;
             height: 30px;
-            top: 15px;
-            left: 10%;
-            animation: cloud-drift 20s linear infinite;
+            top: 12px;
+            left: 8%;
+            animation: cloud-drift 22s ease-in-out infinite;
         }
-        .header-cloud-1::before {
-            width: 40px;
-            height: 40px;
-            top: -20px;
-            left: 10px;
-        }
-        .header-cloud-1::after {
-            width: 50px;
-            height: 35px;
-            top: -15px;
-            left: 35px;
-        }
+        .header-cloud-1::before { width: 40px; height: 40px; top: -20px; left: 10px; }
+        .header-cloud-1::after { width: 50px; height: 35px; top: -15px; left: 35px; }
 
         .header-cloud-2 {
             width: 100px;
             height: 35px;
-            top: 20px;
-            right: 15%;
-            animation: cloud-drift 25s linear infinite;
-            animation-delay: -5s;
+            top: 18px;
+            right: 12%;
+            animation: cloud-drift 26s ease-in-out infinite;
+            animation-delay: -6s;
         }
-        .header-cloud-2::before {
-            width: 50px;
-            height: 50px;
-            top: -25px;
-            left: 15px;
-        }
-        .header-cloud-2::after {
-            width: 60px;
-            height: 40px;
-            top: -18px;
-            left: 45px;
-        }
-
-        .header-cloud-3 {
-            width: 60px;
-            height: 24px;
-            top: 50px;
-            left: 50%;
-            transform: translateX(-50%);
-            animation: cloud-drift 18s linear infinite;
-            animation-delay: -10s;
-            opacity: 0.7;
-        }
-        .header-cloud-3::before {
-            width: 30px;
-            height: 30px;
-            top: -15px;
-            left: 8px;
-        }
-        .header-cloud-3::after {
-            width: 35px;
-            height: 25px;
-            top: -10px;
-            left: 28px;
-        }
+        .header-cloud-2::before { width: 50px; height: 50px; top: -25px; left: 15px; }
+        .header-cloud-2::after { width: 60px; height: 40px; top: -18px; left: 45px; }
 
         @keyframes cloud-drift {
-            0% { transform: translateX(-20px); }
-            50% { transform: translateX(20px); }
-            100% { transform: translateX(-20px); }
+            0%, 100% { transform: translateX(-15px); }
+            50% { transform: translateX(15px); }
+        }
+
+        /* Header Login Area */
+        .header-login-area {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            z-index: 20;
+        }
+
+        .user-info-compact {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.92);
+            padding: 8px 14px;
+            border-radius: 25px;
+            font-size: 0.82rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            backdrop-filter: blur(8px);
+        }
+
+        .user-email {
+            color: #4A7C23;
+            font-weight: 600;
+            max-width: 140px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .user-role {
+            background: linear-gradient(135deg, #FF6B35 0%, #F7931A 100%);
+            color: white;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-logout {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-logout:hover {
+            transform: scale(1.05);
+            box-shadow: 0 2px 8px rgba(238,90,90,0.4);
+        }
+
+        .btn-admin-header {
+            background: transparent;
+            border: 2px solid #FF6B35;
+            color: #FF6B35;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            backdrop-filter: blur(8px);
+        }
+
+        .btn-admin-header:hover {
+            background: #FF6B35;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255,107,53,0.3);
         }
 
         .header-content {
@@ -126,241 +172,160 @@
         }
 
         .seedling-icon {
-            font-size: 3rem;
+            font-size: 2.8rem;
             display: inline-block;
-            animation: seedling-bounce 2s ease-in-out infinite;
+            animation: seedling-bounce 2.5s ease-in-out infinite;
             filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
         }
 
         @keyframes seedling-bounce {
             0%, 100% { transform: translateY(0) rotate(-5deg); }
-            25% { transform: translateY(-8px) rotate(0deg); }
+            25% { transform: translateY(-10px) rotate(0deg); }
             50% { transform: translateY(0) rotate(5deg); }
-            75% { transform: translateY(-4px) rotate(0deg); }
+            75% { transform: translateY(-5px) rotate(0deg); }
         }
 
         .header h1 {
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             font-weight: 800;
             color: #4A7C23;
-            margin-top: 8px;
-            text-shadow: 1px 1px 0 rgba(255,255,255,0.5);
+            margin-top: 6px;
+            text-shadow: 1px 1px 0 rgba(255,255,255,0.6);
         }
 
         .header p {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: #5A8F33;
             font-weight: 600;
-            margin-top: 4px;
+            margin-top: 3px;
         }
 
-        /* User info */
-        .user-info {
-            font-size: 0.8rem;
-            margin-top: 12px;
-            padding: 6px 12px;
-            border-radius: 12px;
-            display: inline-block;
-            background: rgba(255,255,255,0.8);
-            color: #4A7C23;
-        }
-
-        .user-role {
-            font-weight: 700;
-            color: #E65100;
-        }
-
-        .btn-logout {
-            margin-left: 8px;
-            background: #ff6b6b;
-            color: white;
-            border: none;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            cursor: pointer;
-        }
-
-        /* Sync status */
         .sync-status {
-            font-size: 0.75rem;
-            margin-top: 8px;
-            padding: 4px 12px;
-            border-radius: 12px;
+            font-size: 0.72rem;
+            margin-top: 10px;
+            padding: 5px 14px;
+            border-radius: 15px;
             display: inline-block;
+            font-weight: 600;
         }
         .sync-status.syncing { background: #FFF3E0; color: #E65100; }
-        .sync-status.synced { background: #E8F5E9; color: #2E7D32; }
+        .sync-status.synced { background: rgba(232, 245, 233, 0.9); color: #2E7D32; }
         .sync-status.error { background: #FFEBEE; color: #C62828; }
 
-        /* Background clouds */
-        .bg-cloud {
-            position: fixed;
-            background: #fff;
-            border-radius: 50%;
-            opacity: 0.6;
-            z-index: 0;
-            pointer-events: none;
-        }
-
-        .bg-cloud::before,
-        .bg-cloud::after {
-            content: '';
-            position: absolute;
-            background: #fff;
-            border-radius: 50%;
-        }
-
-        .bg-cloud-1 {
-            width: 120px;
-            height: 45px;
-            top: 25%;
-            left: -150px;
-            animation: float-cloud 40s linear infinite;
-        }
-        .bg-cloud-1::before {
-            width: 60px;
-            height: 60px;
-            top: -30px;
-            left: 20px;
-        }
-        .bg-cloud-1::after {
-            width: 70px;
-            height: 50px;
-            top: -25px;
-            left: 55px;
-        }
-
-        .bg-cloud-2 {
-            width: 90px;
-            height: 35px;
-            top: 40%;
-            left: -120px;
-            animation: float-cloud 35s linear infinite;
-            animation-delay: -15s;
-        }
-        .bg-cloud-2::before {
-            width: 45px;
-            height: 45px;
-            top: -22px;
-            left: 12px;
-        }
-        .bg-cloud-2::after {
-            width: 55px;
-            height: 38px;
-            top: -18px;
-            left: 40px;
-        }
-
-        .bg-cloud-3 {
-            width: 110px;
-            height: 40px;
-            top: 60%;
-            left: -140px;
-            animation: float-cloud 45s linear infinite;
-            animation-delay: -30s;
-        }
-        .bg-cloud-3::before {
-            width: 55px;
-            height: 55px;
-            top: -28px;
-            left: 18px;
-        }
-        .bg-cloud-3::after {
-            width: 65px;
-            height: 45px;
-            top: -22px;
-            left: 50px;
-        }
-
-        @keyframes float-cloud {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(calc(100vw + 200px)); }
-        }
-
-        /* Container */
+        /* ==================== Container ==================== */
         .container {
-            max-width: 800px;
+            max-width: 600px;
             margin: 0 auto;
-            padding: 0 16px;
-            position: relative;
-            z-index: 1;
+            padding: 20px 16px;
         }
 
-        /* Stats */
+        /* ==================== Stats Cards ==================== */
         .stats {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 10px;
-            margin: 24px 0;
+            margin-bottom: 20px;
         }
 
         .stat-card {
-            background: rgba(255,255,255,0.95);
+            background: var(--card-bg);
             border-radius: 16px;
-            padding: 16px 12px;
+            padding: 14px 8px;
             text-align: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            border: 2px solid transparent;
-            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border-bottom: 4px solid var(--light-green);
+            transition: transform 0.2s, box-shadow 0.2s;
         }
 
         .stat-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
 
-        .stat-card.flower-card { border-color: #FFB6C1; }
-        .stat-card.pikmin-card { border-color: #90EE90; }
-        .stat-card.mushroom-card { border-color: #DDA0DD; }
-        .stat-card.postcard-card { border-color: #87CEEB; }
+        .stat-card.flower-card { border-bottom-color: var(--flower-color); }
+        .stat-card.pikmin-card { border-bottom-color: var(--pikmin-color); }
+        .stat-card.mushroom-card { border-bottom-color: var(--mushroom-color); }
+        .stat-card.postcard-card { border-bottom-color: var(--postcard-color); }
 
-        .stat-icon {
-            font-size: 1.8rem;
-            margin-bottom: 4px;
+        .stat-icon { font-size: 1.5rem; }
+        .stat-label { font-size: 0.72rem; color: #666; margin-top: 4px; font-weight: 600; }
+        .stat-number { font-size: 1.3rem; font-weight: 800; color: var(--dark-green); margin-top: 2px; }
+
+        /* ==================== Utility Buttons ==================== */
+        .utility-section {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 14px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
 
-        .stat-label {
-            font-size: 0.75rem;
+        .utility-title {
+            font-size: 0.8rem;
             color: #666;
+            margin-bottom: 10px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .utility-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .utility-buttons.two-col {
+            grid-template-columns: repeat(2, 1fr);
+            margin-top: 10px;
+        }
+
+        .btn-utility {
+            padding: 10px 8px;
+            border: 2px solid #E0E0E0;
+            border-radius: 12px;
+            font-size: 0.78rem;
             font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+            background: white;
+            color: #555;
         }
 
-        .stat-number {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: #2D5016;
-            margin-top: 2px;
+        .btn-utility:hover {
+            background: #F5F5F5;
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
         }
 
-        /* Search & Filters */
-        .controls {
-            background: rgba(255,255,255,0.95);
-            border-radius: 20px;
+        .btn-utility.json-backup {
+            background: #E3F2FD;
+            border-color: #2196F3;
+            color: #1565C0;
+        }
+        .btn-utility.json-backup:hover { background: #BBDEFB; }
+
+        .btn-utility.json-import {
+            background: #FFF3E0;
+            border-color: #FF9800;
+            color: #E65100;
+        }
+        .btn-utility.json-import:hover { background: #FFE0B2; }
+
+        /* ==================== Filters Section ==================== */
+        .filters-section {
+            background: var(--card-bg);
+            border-radius: 16px;
             padding: 16px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            margin-bottom: 16px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
 
         .search-box {
             position: relative;
-            margin-bottom: 12px;
-        }
-
-        .search-box input {
-            width: 100%;
-            padding: 12px 16px 12px 40px;
-            border: 2px solid #E0E0E0;
-            border-radius: 12px;
-            font-size: 0.95rem;
-            font-family: inherit;
-            transition: all 0.2s;
-        }
-
-        .search-box input:focus {
-            outline: none;
-            border-color: #7BC97B;
-            box-shadow: 0 0 0 3px rgba(123,201,123,0.1);
+            margin-bottom: 16px;
         }
 
         .search-icon {
@@ -368,11 +333,31 @@
             left: 14px;
             top: 50%;
             transform: translateY(-50%);
-            font-size: 1.1rem;
+            font-size: 1rem;
+            opacity: 0.6;
         }
 
+        .search-input {
+            width: 100%;
+            padding: 12px 14px 12px 42px;
+            border: 2px solid #E8E8E8;
+            border-radius: 14px;
+            font-size: 0.9rem;
+            font-family: inherit;
+            transition: all 0.2s;
+            background: #FAFAFA;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--light-green);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(123,201,123,0.15);
+        }
+
+        /* Type Filter Pills */
         .filter-group {
-            margin-bottom: 12px;
+            margin-bottom: 14px;
         }
 
         .filter-group:last-child {
@@ -380,56 +365,194 @@
         }
 
         .filter-label {
-            font-size: 0.85rem;
+            font-size: 0.78rem;
+            color: #666;
             font-weight: 700;
-            color: #4A7C23;
             margin-bottom: 8px;
-            display: block;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
 
-        .filter-buttons {
+        .type-pills {
             display: flex;
-            gap: 6px;
+            gap: 8px;
             flex-wrap: wrap;
         }
 
-        .filter-btn {
+        .type-pill {
             padding: 8px 14px;
             border: 2px solid #E0E0E0;
-            background: white;
-            border-radius: 10px;
-            font-size: 0.85rem;
+            border-radius: 20px;
+            font-size: 0.82rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
-            font-family: inherit;
-            flex: 1;
-            min-width: fit-content;
+            background: white;
+            color: #666;
         }
 
-        .filter-btn:hover {
+        .type-pill:hover {
             background: #F5F5F5;
         }
 
-        .filter-btn.active {
-            background: #7BC97B;
+        .type-pill.active {
+            background: var(--light-green);
             color: white;
-            border-color: #7BC97B;
+            border-color: var(--light-green);
         }
 
-        .filter-btn.flower { border-color: #FFB6C1; }
-        .filter-btn.flower.active { background: #FFB6C1; border-color: #FFB6C1; }
+        .type-pill.flower { border-color: var(--flower-color); }
+        .type-pill.flower.active { background: var(--flower-color); border-color: var(--flower-color); }
 
-        .filter-btn.pikmin { border-color: #90EE90; }
-        .filter-btn.pikmin.active { background: #90EE90; border-color: #90EE90; }
+        .type-pill.pikmin { border-color: var(--pikmin-color); }
+        .type-pill.pikmin.active { background: var(--pikmin-color); color: var(--dark-green); border-color: var(--pikmin-color); }
 
-        .filter-btn.mushroom { border-color: #DDA0DD; }
-        .filter-btn.mushroom.active { background: #DDA0DD; border-color: #DDA0DD; }
+        .type-pill.mushroom { border-color: var(--mushroom-color); }
+        .type-pill.mushroom.active { background: var(--mushroom-color); border-color: var(--mushroom-color); }
 
-        .filter-btn.postcard { border-color: #87CEEB; }
-        .filter-btn.postcard.active { background: #87CEEB; border-color: #87CEEB; }
+        .type-pill.postcard { border-color: var(--postcard-color); }
+        .type-pill.postcard.active { background: var(--postcard-color); border-color: var(--postcard-color); }
 
-        /* Spot List */
+        /* Searchable Dropdown */
+        .dropdown-filters {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .dropdown-group {
+            position: relative;
+        }
+
+        .dropdown-label {
+            font-size: 0.75rem;
+            color: #888;
+            font-weight: 600;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .searchable-select {
+            position: relative;
+        }
+
+        .select-input {
+            width: 100%;
+            padding: 10px 36px 10px 12px;
+            border: 2px solid #E8E8E8;
+            border-radius: 12px;
+            font-size: 0.88rem;
+            font-family: inherit;
+            cursor: pointer;
+            background: #FAFAFA;
+            transition: all 0.2s;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .select-input:focus {
+            outline: none;
+            border-color: var(--light-green);
+            background: white;
+        }
+
+        .select-arrow {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            font-size: 0.7rem;
+            color: #888;
+            transition: transform 0.2s;
+        }
+
+        .searchable-select.open .select-arrow {
+            transform: translateY(-50%) rotate(180deg);
+        }
+
+        .select-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid var(--light-green);
+            border-radius: 12px;
+            margin-top: 4px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 100;
+            display: none;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+        }
+
+        .searchable-select.open .select-dropdown {
+            display: block;
+            animation: dropdown-appear 0.2s ease-out;
+        }
+
+        @keyframes dropdown-appear {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .select-search {
+            padding: 10px;
+            border-bottom: 1px solid #EEE;
+            position: sticky;
+            top: 0;
+            background: white;
+        }
+
+        .select-search input {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #E0E0E0;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-family: inherit;
+        }
+
+        .select-search input:focus {
+            outline: none;
+            border-color: var(--light-green);
+        }
+
+        .select-options {
+            padding: 6px 0;
+        }
+
+        .select-option {
+            padding: 10px 14px;
+            cursor: pointer;
+            font-size: 0.88rem;
+            transition: background 0.15s;
+        }
+
+        .select-option:hover {
+            background: #F0F9F0;
+        }
+
+        .select-option.active {
+            background: #E8F5E9;
+            color: var(--primary-green);
+            font-weight: 600;
+        }
+
+        .select-option.no-results {
+            color: #999;
+            font-style: italic;
+            cursor: default;
+        }
+
+        .select-option.no-results:hover {
+            background: transparent;
+        }
+
+        /* ==================== Spot List ==================== */
         .spot-list {
             display: flex;
             flex-direction: column;
@@ -437,27 +560,27 @@
         }
 
         .spot-card {
-            background: rgba(255,255,255,0.95);
+            background: var(--card-bg);
             border-radius: 16px;
             padding: 16px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            border-left: 4px solid #7BC97B;
-            transition: all 0.2s;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border-left: 5px solid var(--light-green);
+            transition: all 0.25s;
             position: relative;
         }
 
         .spot-card:hover {
-            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+            transform: translateY(-3px);
         }
 
-        .spot-card.flower-card { border-left-color: #FFB6C1; }
-        .spot-card.pikmin-card { border-left-color: #90EE90; }
-        .spot-card.mushroom-card { border-left-color: #DDA0DD; }
-        .spot-card.postcard-card { border-left-color: #87CEEB; }
+        .spot-card.flower-card { border-left-color: var(--flower-color); }
+        .spot-card.pikmin-card { border-left-color: var(--pikmin-color); }
+        .spot-card.mushroom-card { border-left-color: var(--mushroom-color); }
+        .spot-card.postcard-card { border-left-color: var(--postcard-color); }
 
         .spot-card.select-mode {
-            padding-left: 48px;
+            padding-left: 50px;
         }
 
         .spot-checkbox {
@@ -465,9 +588,10 @@
             left: 16px;
             top: 50%;
             transform: translateY(-50%);
-            width: 20px;
-            height: 20px;
+            width: 22px;
+            height: 22px;
             cursor: pointer;
+            accent-color: var(--primary-green);
         }
 
         .spot-header {
@@ -475,30 +599,34 @@
             justify-content: space-between;
             align-items: flex-start;
             margin-bottom: 8px;
-            gap: 8px;
+            gap: 10px;
         }
 
         .spot-name {
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             font-weight: 700;
-            color: #2D5016;
+            color: var(--dark-green);
             flex: 1;
+            line-height: 1.3;
         }
 
         .spot-badges {
             display: flex;
             flex-wrap: wrap;
-            gap: 6px;
+            gap: 5px;
             align-items: center;
         }
 
         .spot-region, .spot-city {
-            font-size: 0.75rem;
-            padding: 3px 8px;
-            background: #E8F5E9;
-            border-radius: 8px;
-            color: #2E7D32;
+            font-size: 0.7rem;
+            padding: 4px 8px;
+            border-radius: 10px;
             font-weight: 600;
+        }
+
+        .spot-region {
+            background: #E8F5E9;
+            color: #2E7D32;
         }
 
         .spot-city {
@@ -506,47 +634,53 @@
             color: #1565C0;
         }
 
-        .spot-type {
-            font-size: 0.75rem;
-            padding: 3px 8px;
-            border-radius: 8px;
+        .spot-type-badge {
+            font-size: 0.7rem;
+            padding: 4px 10px;
+            border-radius: 10px;
             font-weight: 700;
             background: #F5F5F5;
             color: #666;
         }
 
-        .spot-type.flower { background: #FFE4E9; color: #C2185B; }
-        .spot-type.pikmin { background: #E8F5E9; color: #2E7D32; }
-        .spot-type.mushroom { background: #F3E5F5; color: #7B1FA2; }
-        .spot-type.postcard { background: #E3F2FD; color: #1565C0; }
+        .spot-type-badge.flower { background: #FFE4E9; color: #C2185B; }
+        .spot-type-badge.pikmin { background: #E8F5E9; color: #2E7D32; }
+        .spot-type-badge.mushroom { background: #F3E5F5; color: #7B1FA2; }
+        .spot-type-badge.postcard { background: #E3F2FD; color: #1565C0; }
 
         .spot-coords {
-            font-size: 0.8rem;
-            color: #666;
+            font-size: 0.78rem;
+            color: #888;
             font-family: 'Courier New', monospace;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
+            background: #F8F8F8;
+            padding: 4px 8px;
+            border-radius: 6px;
+            display: inline-block;
         }
 
         .spot-note {
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             color: #555;
-            margin-bottom: 12px;
-            padding: 8px;
-            background: #F9F9F9;
-            border-radius: 8px;
+            margin: 10px 0;
+            padding: 10px 12px;
+            background: linear-gradient(135deg, #FAFAFA 0%, #F5F5F5 100%);
+            border-radius: 10px;
+            border-left: 3px solid #DDD;
         }
 
         .spot-actions {
             display: flex;
             gap: 8px;
             flex-wrap: wrap;
+            margin-top: 12px;
         }
 
         .btn {
-            padding: 8px 14px;
+            padding: 9px 14px;
             border: none;
             border-radius: 10px;
-            font-size: 0.85rem;
+            font-size: 0.82rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
@@ -554,61 +688,145 @@
         }
 
         .btn-copy {
-            background: #E3F2FD;
+            background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
             color: #1565C0;
             flex: 1;
         }
-
-        .btn-copy:hover {
-            background: #BBDEFB;
+        .btn-copy:hover { 
+            background: linear-gradient(135deg, #BBDEFB 0%, #90CAF9 100%);
+            transform: translateY(-2px);
         }
 
         .btn-edit {
-            background: #FFF3E0;
+            background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%);
             color: #E65100;
         }
-
-        .btn-edit:hover {
-            background: #FFE0B2;
+        .btn-edit:hover { 
+            background: linear-gradient(135deg, #FFE0B2 0%, #FFCC80 100%);
+            transform: translateY(-2px);
         }
 
         .btn-delete {
-            background: #FFEBEE;
+            background: linear-gradient(135deg, #FFEBEE 0%, #FFCDD2 100%);
             color: #C62828;
         }
-
-        .btn-delete:hover {
-            background: #FFCDD2;
+        .btn-delete:hover { 
+            background: linear-gradient(135deg, #FFCDD2 0%, #EF9A9A 100%);
+            transform: translateY(-2px);
         }
 
-        /* FAB */
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 16px;
+            animation: seedling-bounce 2.5s ease-in-out infinite;
+        }
+
+        .empty-state-text {
+            font-size: 1rem;
+            color: #888;
+            line-height: 1.6;
+        }
+
+        /* ==================== FAB ==================== */
         .fab {
             position: fixed;
-            bottom: 24px;
+            bottom: 28px;
             right: 24px;
-            width: 64px;
-            height: 64px;
-            background: linear-gradient(135deg, #7BC97B 0%, #5FA85F 100%);
+            width: 62px;
+            height: 62px;
+            background: linear-gradient(135deg, var(--light-green) 0%, var(--primary-green) 100%);
             border-radius: 50%;
             border: none;
             font-size: 2rem;
             color: white;
             cursor: pointer;
-            box-shadow: 0 6px 20px rgba(123,201,123,0.4);
+            box-shadow: 0 6px 24px rgba(123,201,123,0.45);
             transition: all 0.3s ease;
             z-index: 100;
         }
 
         .fab:hover {
             transform: scale(1.1) rotate(90deg);
-            box-shadow: 0 8px 25px rgba(123,201,123,0.5);
+            box-shadow: 0 8px 28px rgba(123,201,123,0.55);
         }
 
         .fab:active {
             transform: scale(0.95);
         }
 
-        /* Modal */
+        /* ==================== Select Bar ==================== */
+        .select-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 14px 20px;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.12);
+            z-index: 200;
+            display: none;
+        }
+
+        .select-bar.active {
+            display: block;
+            animation: slide-up 0.3s ease-out;
+        }
+
+        @keyframes slide-up {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .select-bar-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            max-width: 600px;
+            margin: 0 auto;
+            gap: 12px;
+        }
+
+        .select-count {
+            font-weight: 700;
+            color: var(--dark-green);
+            font-size: 0.95rem;
+        }
+
+        .btn-select-action {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.88rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-select-cancel {
+            background: #F5F5F5;
+            color: #666;
+        }
+        .btn-select-cancel:hover { background: #EEEEEE; }
+
+        .btn-select-export {
+            background: linear-gradient(135deg, var(--light-green) 0%, var(--primary-green) 100%);
+            color: white;
+        }
+        .btn-select-export:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(95,168,95,0.4);
+        }
+
+        /* ==================== Modal ==================== */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -624,6 +842,7 @@
             visibility: hidden;
             transition: all 0.3s;
             padding: 16px;
+            backdrop-filter: blur(4px);
         }
 
         .modal-overlay.active {
@@ -635,24 +854,27 @@
             background: white;
             border-radius: 24px;
             padding: 28px 24px;
-            max-width: 500px;
+            max-width: 480px;
             width: 100%;
-            max-height: 90vh;
+            max-height: 88vh;
             overflow-y: auto;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            transform: scale(0.9);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+            transform: scale(0.92) translateY(20px);
             transition: all 0.3s;
         }
 
         .modal-overlay.active .modal {
-            transform: scale(1);
+            transform: scale(1) translateY(0);
         }
 
         .modal h2 {
-            font-size: 1.5rem;
-            color: #2D5016;
+            font-size: 1.4rem;
+            color: var(--dark-green);
             margin-bottom: 20px;
             font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .form-group {
@@ -661,216 +883,107 @@
 
         .form-label {
             display: block;
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             font-weight: 700;
             color: #4A7C23;
             margin-bottom: 6px;
         }
 
+        .form-label .required {
+            color: #E65100;
+            margin-left: 2px;
+        }
+
         .form-input {
             width: 100%;
-            padding: 12px;
-            border: 2px solid #E0E0E0;
+            padding: 12px 14px;
+            border: 2px solid #E8E8E8;
             border-radius: 12px;
             font-size: 0.95rem;
             font-family: inherit;
             transition: all 0.2s;
+            background: #FAFAFA;
         }
 
         .form-input:focus {
             outline: none;
-            border-color: #7BC97B;
-            box-shadow: 0 0 0 3px rgba(123,201,123,0.1);
+            border-color: var(--light-green);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(123,201,123,0.12);
         }
 
         .type-options {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
+            gap: 10px;
         }
 
         .type-option {
-            padding: 12px;
-            border: 2px solid #E0E0E0;
-            border-radius: 12px;
+            padding: 14px 10px;
+            border: 2px solid #E8E8E8;
+            border-radius: 14px;
             text-align: center;
             cursor: pointer;
             transition: all 0.2s;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.92rem;
+            background: #FAFAFA;
         }
 
         .type-option:hover {
+            border-color: #CCC;
             background: #F5F5F5;
         }
 
         .type-option.selected {
-            background: #7BC97B;
-            color: white;
-            border-color: #7BC97B;
+            border-width: 3px;
+            background: white;
         }
 
-        .type-option.flower.selected { background: #FFB6C1; border-color: #FFB6C1; }
-        .type-option.pikmin.selected { background: #90EE90; border-color: #90EE90; color: #2D5016; }
-        .type-option.mushroom.selected { background: #DDA0DD; border-color: #DDA0DD; }
-        .type-option.postcard.selected { background: #87CEEB; border-color: #87CEEB; }
+        .type-option.flower.selected { border-color: var(--flower-color); background: #FFF5F7; }
+        .type-option.pikmin.selected { border-color: var(--pikmin-color); background: #F0FFF0; }
+        .type-option.mushroom.selected { border-color: var(--mushroom-color); background: #FDF5FF; }
+        .type-option.postcard.selected { border-color: var(--postcard-color); background: #F5FAFF; }
 
         .modal-actions {
             display: flex;
-            gap: 10px;
+            gap: 12px;
             margin-top: 24px;
-        }
-
-        .btn-submit {
-            flex: 1;
-            padding: 14px;
-            background: linear-gradient(135deg, #7BC97B 0%, #5FA85F 100%);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .btn-submit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(123,201,123,0.3);
         }
 
         .btn-cancel {
             flex: 1;
             padding: 14px;
             background: #F5F5F5;
-            color: #666;
             border: none;
-            border-radius: 12px;
-            font-size: 1rem;
+            border-radius: 14px;
+            font-size: 0.95rem;
             font-weight: 700;
             cursor: pointer;
+            color: #666;
             transition: all 0.2s;
         }
 
         .btn-cancel:hover {
-            background: #E0E0E0;
+            background: #EEEEEE;
         }
 
-        /* Toast */
-        .toast {
-            position: fixed;
-            bottom: 100px;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: rgba(45,80,22,0.95);
-            color: white;
-            padding: 14px 24px;
-            border-radius: 12px;
-            font-weight: 600;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-            z-index: 2000;
-            opacity: 0;
-            transition: all 0.3s;
+        .btn-submit {
+            flex: 2;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--light-green) 0%, var(--primary-green) 100%);
+            border: none;
+            border-radius: 14px;
             font-size: 0.95rem;
-        }
-
-        .toast.show {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-        }
-
-        /* Empty state */
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-        }
-
-        .empty-state-icon {
-            font-size: 4rem;
-            margin-bottom: 16px;
-            opacity: 0.6;
-        }
-
-        .empty-state-text {
-            font-size: 1.1rem;
-            color: #666;
-            font-weight: 600;
-        }
-
-        /* Import/Export buttons */
-        .utility-buttons {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 16px;
-        }
-
-        .btn-utility {
-            flex: 1;
-            padding: 10px;
-            background: white;
-            border: 2px solid #7BC97B;
-            color: #4A7C23;
-            border-radius: 12px;
-            font-size: 0.85rem;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
+            color: white;
             transition: all 0.2s;
         }
 
-        .btn-utility:hover {
-            background: #7BC97B;
-            color: white;
-        }
-
-        /* Select mode */
-        .select-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: white;
-            padding: 16px;
-            box-shadow: 0 -4px 12px rgba(0,0,0,0.1);
-            transform: translateY(100%);
-            transition: transform 0.3s;
-            z-index: 99;
-        }
-
-        .select-bar.active {
-            transform: translateY(0);
-        }
-
-        .select-bar-content {
-            max-width: 800px;
-            margin: 0 auto;
-            display: flex;
-            gap: 12px;
-            align-items: center;
-        }
-
-        .select-count {
-            font-weight: 700;
-            color: #4A7C23;
-            flex: 1;
-        }
-
-        .btn-select-action {
-            padding: 10px 16px;
-            border: none;
-            border-radius: 10px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .btn-select-cancel {
-            background: #F5F5F5;
-            color: #666;
-        }
-
-        .btn-select-export {
-            background: #7BC97B;
-            color: white;
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(95,168,95,0.4);
         }
 
         /* Login Modal */
@@ -880,137 +993,108 @@
             padding: 32px 28px;
             max-width: 400px;
             width: 100%;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+            transform: scale(0.92) translateY(20px);
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .modal-overlay.active .login-modal {
+            transform: scale(1) translateY(0);
         }
 
         .login-title {
-            font-size: 1.8rem;
-            color: #2D5016;
-            margin-bottom: 24px;
+            font-size: 1.5rem;
+            color: var(--dark-green);
+            margin: 16px 0 10px;
             font-weight: 800;
-            text-align: center;
         }
 
         .login-subtitle {
             font-size: 0.9rem;
             color: #666;
             margin-bottom: 24px;
-            text-align: center;
-        }
-
-        .btn-login {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #7BC97B 0%, #5FA85F 100%);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s;
-            margin-bottom: 12px;
-        }
-
-        .btn-login:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(123,201,123,0.3);
-        }
-
-        .login-divider {
-            text-align: center;
-            margin: 20px 0;
-            color: #999;
-            font-size: 0.85rem;
+            line-height: 1.6;
         }
 
         .btn-admin {
             width: 100%;
             padding: 14px;
-            background: #FFF3E0;
-            color: #E65100;
-            border: 2px solid #E65100;
-            border-radius: 12px;
+            background: linear-gradient(135deg, #FF6B35 0%, #F7931A 100%);
+            border: none;
+            border-radius: 14px;
             font-size: 1rem;
             font-weight: 700;
             cursor: pointer;
+            color: white;
             transition: all 0.2s;
         }
 
         .btn-admin:hover {
-            background: #E65100;
-            color: white;
-        }
-
-        /* 右上角登入區域 */
-        .header-login-area {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            z-index: 20;
-        }
-
-        .user-info-compact,
-        .guest-info-compact {
-            display: inline-block;
-        }
-
-        .btn-admin-header {
-            background: transparent;
-            color: #E65100;
-            border: 2px solid #E65100;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 8px rgba(230, 81, 0, 0.2);
-            backdrop-filter: blur(10px);
-        }
-
-        .btn-admin-header:hover {
-            background: #E65100;
-            color: white;
             transform: translateY(-2px);
-            box-shadow: 0 4px 16px rgba(230, 81, 0, 0.4);
+            box-shadow: 0 6px 18px rgba(255,107,53,0.4);
         }
 
-        .btn-admin-header:active {
-            transform: translateY(0);
+        /* ==================== Toast ==================== */
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: rgba(45,80,22,0.95);
+            color: white;
+            padding: 14px 24px;
+            border-radius: 14px;
+            font-size: 0.92rem;
+            font-weight: 600;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 2000;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+            backdrop-filter: blur(8px);
         }
 
-        @media (max-width: 600px) {
+        .toast.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* ==================== Responsive ==================== */
+        @media (max-width: 400px) {
             .stats {
                 grid-template-columns: repeat(2, 1fr);
             }
-
-            .type-options {
+            
+            .dropdown-filters {
                 grid-template-columns: 1fr;
+            }
+            
+            .utility-buttons {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .type-pills {
+                justify-content: center;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Background Clouds -->
-    <div class="bg-cloud bg-cloud-1"></div>
-    <div class="bg-cloud bg-cloud-2"></div>
-    <div class="bg-cloud bg-cloud-3"></div>
-
     <!-- Header -->
     <div class="header">
         <div class="header-cloud header-cloud-1"></div>
         <div class="header-cloud header-cloud-2"></div>
-        <div class="header-cloud header-cloud-3"></div>
         
         <!-- 右上角登入區域 -->
         <div class="header-login-area">
             <div id="userInfo" class="user-info-compact" style="display: none;">
-                <span id="userEmail"></span>
+                <span id="userEmail" class="user-email"></span>
                 <span id="userRole" class="user-role"></span>
                 <button class="btn-logout" onclick="logout()">登出</button>
             </div>
-            <div id="guestInfo" class="guest-info-compact" style="display: inline-block;">
+            <div id="guestInfo" style="display: inline-block;">
                 <button class="btn-admin-header" onclick="showLoginModal()">🔑 管理員登入</button>
             </div>
         </div>
@@ -1049,46 +1133,67 @@
             </div>
         </div>
 
-        <!-- Import/Export Buttons -->
-        <div class="utility-buttons">
-            <button class="btn-utility" onclick="importGpx()">📥 匯入 GPX</button>
-            <button class="btn-utility" onclick="exportAllGpx()">📤 匯出 GPX</button>
-            <button class="btn-utility" onclick="enterSelectMode()">✅ 選擇匯出</button>
-        </div>
-        <div class="utility-buttons" style="margin-top: 8px;">
-            <button class="btn-utility" onclick="exportJson()" style="background: #E3F2FD; border-color: #2196F3; color: #1565C0;">💾 備份 JSON</button>
-            <button class="btn-utility" onclick="importJson()" style="background: #FFF3E0; border-color: #FF9800; color: #E65100;">📂 匯入 JSON</button>
+        <!-- Utility Section -->
+        <div class="utility-section">
+            <div class="utility-title">📦 匯入 / 匯出</div>
+            <div class="utility-buttons">
+                <button class="btn-utility" onclick="importGpx()">📥 匯入 GPX</button>
+                <button class="btn-utility" onclick="exportAllGpx()">📤 匯出 GPX</button>
+                <button class="btn-utility" onclick="enterSelectMode()">✅ 選擇匯出</button>
+            </div>
+            <div class="utility-buttons two-col">
+                <button class="btn-utility json-backup" onclick="exportJson()">💾 備份 JSON</button>
+                <button class="btn-utility json-import" onclick="importJson()">📂 匯入 JSON</button>
+            </div>
         </div>
 
-        <!-- Search & Filters -->
-        <div class="controls">
+        <!-- Filters Section -->
+        <div class="filters-section">
             <div class="search-box">
                 <span class="search-icon">🔍</span>
-                <input type="text" id="searchInput" placeholder="搜尋純點名稱、備註、地點...">
+                <input type="text" class="search-input" id="searchInput" placeholder="搜尋名稱、備註、地點...">
             </div>
 
             <div class="filter-group">
-                <div class="filter-label">純點類型</div>
-                <div class="filter-buttons">
-                    <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">🌈 全部</button>
-                    <button class="filter-btn flower" data-filter="flower" onclick="setFilter('flower')">🌸 大花</button>
-                    <button class="filter-btn pikmin" data-filter="pikmin" onclick="setFilter('pikmin')">🌱 皮克敏</button>
-                    <button class="filter-btn mushroom" data-filter="mushroom" onclick="setFilter('mushroom')">🍄 蘑菇</button>
-                    <button class="filter-btn postcard" data-filter="postcard" onclick="setFilter('postcard')">🏠 明信片</button>
+                <div class="filter-label">🏷️ 純點類型</div>
+                <div class="type-pills">
+                    <div class="type-pill active" data-filter="all" onclick="setFilter('all')">🌈 全部</div>
+                    <div class="type-pill flower" data-filter="flower" onclick="setFilter('flower')">🌸 大花</div>
+                    <div class="type-pill pikmin" data-filter="pikmin" onclick="setFilter('pikmin')">🌱 皮克敏</div>
+                    <div class="type-pill mushroom" data-filter="mushroom" onclick="setFilter('mushroom')">🍄 蘑菇</div>
+                    <div class="type-pill postcard" data-filter="postcard" onclick="setFilter('postcard')">🏠 明信片</div>
                 </div>
             </div>
 
             <div class="filter-group">
-                <div class="filter-label">國家</div>
-                <div class="filter-buttons" id="countryFilters">
-                    <button class="filter-btn active" data-country="all" onclick="setCountryFilter('all')">🌍 全部</button>
-                </div>
-            </div>
-
-            <div class="filter-group">
-                <div class="filter-label">縣市</div>
-                <div class="filter-buttons" id="cityFilters">
-                    <button class="filter-btn active" data-city="all" onclick="setCityFilter('all')">🏙️ 全部</button>
+                <div class="filter-label">📍 地區篩選</div>
+                <div class="dropdown-filters">
+                    <div class="dropdown-group">
+                        <label class="dropdown-label">國家</label>
+                        <div class="searchable-select" id="countrySelect">
+                            <input type="text" class="select-input" id="countryInput" placeholder="選擇國家" readonly>
+                            <span class="select-arrow">▼</span>
+                            <div class="select-dropdown">
+                                <div class="select-search">
+                                    <input type="text" id="countrySearch" placeholder="搜尋國家...">
+                                </div>
+                                <div class="select-options" id="countryOptions"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dropdown-group">
+                        <label class="dropdown-label">縣市</label>
+                        <div class="searchable-select" id="citySelect">
+                            <input type="text" class="select-input" id="cityInput" placeholder="選擇縣市" readonly>
+                            <span class="select-arrow">▼</span>
+                            <div class="select-dropdown">
+                                <div class="select-search">
+                                    <input type="text" id="citySearch" placeholder="搜尋縣市...">
+                                </div>
+                                <div class="select-options" id="cityOptions"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1112,15 +1217,15 @@
     <!-- Add/Edit Modal -->
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal">
-            <h2 id="modalTitle">新增純點</h2>
+            <h2 id="modalTitle">🌱 新增純點</h2>
             <form id="spotForm">
                 <div class="form-group">
-                    <label class="form-label">名稱 <span style="color: #E65100;">*</span></label>
+                    <label class="form-label">名稱 <span class="required">*</span></label>
                     <input type="text" class="form-input" id="inputName" placeholder="純點名稱" required>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">國家 <span style="color: #E65100;">*</span></label>
+                    <label class="form-label">國家 <span class="required">*</span></label>
                     <input type="text" class="form-input" id="inputCountry" placeholder="例：台灣" required>
                 </div>
 
@@ -1130,17 +1235,17 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">緯度 <span style="color: #E65100;">*</span></label>
+                    <label class="form-label">緯度 <span class="required">*</span></label>
                     <input type="number" step="any" class="form-input" id="inputLat" placeholder="例：25.0330" required>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">經度 <span style="color: #E65100;">*</span></label>
+                    <label class="form-label">經度 <span class="required">*</span></label>
                     <input type="number" step="any" class="form-input" id="inputLng" placeholder="例：121.5654" required>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">類型 <span style="color: #E65100;">*</span></label>
+                    <label class="form-label">類型 <span class="required">*</span></label>
                     <div class="type-options">
                         <div class="type-option flower" data-type="flower" onclick="selectType('flower')">🌸 大花</div>
                         <div class="type-option pikmin selected" data-type="pikmin" onclick="selectType('pikmin')">🌱 皮克敏</div>
@@ -1165,11 +1270,14 @@
     <!-- Login Modal -->
     <div class="modal-overlay" id="loginModal">
         <div class="login-modal">
-            <div class="seedling-icon" style="font-size: 4rem; text-align: center;">🌱</div>
+            <div class="seedling-icon" style="font-size: 4rem;">🌱</div>
             <h2 class="login-title">皮克敏純點管理器</h2>
-            <p class="login-subtitle">你已經可以查看、新增和編輯所有資料！<br>只有管理員需要登入以使用刪除功能。</p>
+            <p class="login-subtitle">
+                你已經可以查看、新增和編輯所有資料！<br>
+                只有管理員需要登入以使用刪除功能。
+            </p>
             <button class="btn-admin" onclick="loginAsAdmin()">🔑 管理員登入</button>
-            <button class="btn-cancel" onclick="closeLoginModal()" style="margin-top: 10px;">關閉</button>
+            <button class="btn-cancel" onclick="closeLoginModal()" style="margin-top: 12px; width: 100%;">關閉</button>
         </div>
     </div>
 
@@ -1179,9 +1287,13 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         // ==================== Supabase 設定 ====================
-        // 👇 請在這裡填入你的新 Supabase 專案資訊
-        const SUPABASE_URL = 'https://byeyuxfhmackhmngksij.supabase.co';  // 例如：'https://xxxxx.supabase.co'
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ5ZXl1eGZobWFja2htbmdrc2lqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyNTcyMDgsImV4cCI6MjA4NTgzMzIwOH0.ckXTWnDCksvDJMdd8MR9iykh6iu1IBtKi4zuLF4W87I';  // 例如：'eyJhbGciOiJIUzI...'
+        // 👇 請在這裡填入你的 Supabase 專案資訊
+        const SUPABASE_URL = 'https://byeyuxfhmackhmngksij.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ5ZXl1eGZobWFja2htbmdrc2lqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyNTcyMDgsImV4cCI6MjA4NTgzMzIwOH0.ckXTWnDCksvDJMdd8MR9iykh6iu1IBtKi4zuLF4W87I';
+        
+        // 管理員 Email（與 Supabase users 表對應）
+        const ADMIN_EMAIL = 'hangonroku@gmail.com';
+        
         const { createClient } = supabase;
         const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -1218,7 +1330,7 @@
                 currentUser = session.user;
                 await checkAdminStatus();
                 updateUserInfo();
-                await loadSpots(); // 重新載入以顯示使用者的私人資料
+                renderSpots(); // 重新渲染以顯示刪除按鈕
             }
 
             // 監聽驗證狀態變化
@@ -1228,80 +1340,255 @@
                     await checkAdminStatus();
                     loginModal.classList.remove('active');
                     updateUserInfo();
-                    await loadSpots();
+                    renderSpots();
+                    showToast('✅ 登入成功！');
                 } else if (event === 'SIGNED_OUT') {
                     currentUser = null;
                     isAdmin = false;
-                    await loadSpots(); // 重新載入只顯示公開資料
                     updateUserInfo();
+                    renderSpots();
                 }
+            });
+
+            // 初始化下拉選單
+            initSearchableSelects();
+        }
+
+        // ==================== 可搜尋下拉選單 ====================
+        function initSearchableSelects() {
+            // 國家選單
+            const countrySelect = document.getElementById('countrySelect');
+            const countryInput = document.getElementById('countryInput');
+            const countrySearch = document.getElementById('countrySearch');
+            
+            countryInput.addEventListener('click', (e) => {
+                e.stopPropagation();
+                closeAllDropdowns();
+                countrySelect.classList.add('open');
+                countrySearch.value = '';
+                countrySearch.focus();
+                renderCountryOptions('');
+            });
+
+            countrySearch.addEventListener('input', (e) => {
+                renderCountryOptions(e.target.value);
+            });
+
+            countrySearch.addEventListener('click', (e) => e.stopPropagation());
+
+            // 城市選單
+            const citySelect = document.getElementById('citySelect');
+            const cityInput = document.getElementById('cityInput');
+            const citySearch = document.getElementById('citySearch');
+            
+            cityInput.addEventListener('click', (e) => {
+                e.stopPropagation();
+                closeAllDropdowns();
+                citySelect.classList.add('open');
+                citySearch.value = '';
+                citySearch.focus();
+                renderCityOptions('');
+            });
+
+            citySearch.addEventListener('input', (e) => {
+                renderCityOptions(e.target.value);
+            });
+
+            citySearch.addEventListener('click', (e) => e.stopPropagation());
+
+            // 點擊外部關閉
+            document.addEventListener('click', () => {
+                closeAllDropdowns();
             });
         }
 
-        // ==================== 登入功能 ====================
-        async function loginAsGuest() {
-            try {
-                const { data, error } = await supabaseClient.auth.signInAnonymously();
-                if (error) throw error;
-                showToast('✅ 訪客登入成功！');
-            } catch (error) {
-                console.error('Guest login error:', error);
-                showToast('❌ 登入失敗，請重試');
-            }
+        function closeAllDropdowns() {
+            document.querySelectorAll('.searchable-select').forEach(el => {
+                el.classList.remove('open');
+            });
         }
 
+        function renderCountryOptions(search = '') {
+            const countries = ['all', ...new Set(spots.map(s => s.country).filter(Boolean))];
+            const filtered = countries.filter(c => 
+                c === 'all' || c.toLowerCase().includes(search.toLowerCase())
+            );
+            
+            const container = document.getElementById('countryOptions');
+            
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="select-option no-results">找不到結果</div>';
+                return;
+            }
+            
+            container.innerHTML = filtered.map(country => `
+                <div class="select-option ${country === currentCountry ? 'active' : ''}" 
+                     onclick="selectCountry('${country}')">
+                    ${country === 'all' ? '🌍 全部國家' : country}
+                </div>
+            `).join('');
+        }
+
+        function renderCityOptions(search = '') {
+            const filteredByCountry = currentCountry === 'all' 
+                ? spots 
+                : spots.filter(s => s.country === currentCountry);
+            
+            const cities = ['all', ...new Set(filteredByCountry.map(s => s.city).filter(Boolean))];
+            const filtered = cities.filter(c => 
+                c === 'all' || c.toLowerCase().includes(search.toLowerCase())
+            );
+            
+            const container = document.getElementById('cityOptions');
+            
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="select-option no-results">找不到結果</div>';
+                return;
+            }
+            
+            container.innerHTML = filtered.map(city => `
+                <div class="select-option ${city === currentCity ? 'active' : ''}" 
+                     onclick="selectCity('${city}')">
+                    ${city === 'all' ? '🏙️ 全部縣市' : city}
+                </div>
+            `).join('');
+        }
+
+        function selectCountry(country) {
+            currentCountry = country;
+            currentCity = 'all'; // 重置城市
+            document.getElementById('countryInput').value = country === 'all' ? '🌍 全部國家' : country;
+            document.getElementById('cityInput').value = '🏙️ 全部縣市';
+            closeAllDropdowns();
+            renderSpots();
+        }
+
+        function selectCity(city) {
+            currentCity = city;
+            document.getElementById('cityInput').value = city === 'all' ? '🏙️ 全部縣市' : city;
+            closeAllDropdowns();
+            renderSpots();
+        }
+
+        // ==================== 登入功能 ====================
         async function loginAsAdmin() {
             const password = prompt('請輸入管理員密碼：');
             if (!password) return;
 
             try {
-                // 使用固定的管理員信箱
-                const adminEmail = 'hangonroku@gmail.com';
+                setSyncStatus('syncing');
                 
+                // 使用管理員信箱登入
                 const { data, error } = await supabaseClient.auth.signInWithPassword({
-                    email: adminEmail,
+                    email: ADMIN_EMAIL,
                     password: password
                 });
 
                 if (error) {
                     // 如果帳號不存在，自動註冊
                     if (error.message.includes('Invalid login credentials')) {
+                        const confirmCreate = confirm('帳號尚未建立，是否使用此密碼建立管理員帳號？');
+                        if (!confirmCreate) {
+                            setSyncStatus('synced');
+                            return;
+                        }
+                        
                         const { data: signUpData, error: signUpError } = await supabaseClient.auth.signUp({
-                            email: adminEmail,
+                            email: ADMIN_EMAIL,
                             password: password
                         });
                         
                         if (signUpError) throw signUpError;
-                        showToast('✅ 管理員帳號已建立！');
+                        
+                        // 註冊成功後，將使用者加入 users 表並設為 admin
+                        if (signUpData.user) {
+                            const { error: insertError } = await supabaseClient
+                                .from('users')
+                                .upsert({
+                                    id: signUpData.user.id,
+                                    email: ADMIN_EMAIL,
+                                    role: 'admin'
+                                }, { onConflict: 'id' });
+                            
+                            if (insertError) {
+                                console.error('設定管理員角色失敗:', insertError);
+                            }
+                        }
+                        
+                        showToast('✅ 管理員帳號已建立！請檢查信箱確認（如有啟用郵件驗證）');
                     } else {
                         throw error;
                     }
-                } else {
-                    showToast('✅ 管理員登入成功！');
                 }
+                
+                setSyncStatus('synced');
             } catch (error) {
                 console.error('Admin login error:', error);
-                showToast('❌ 登入失敗，請檢查密碼');
+                setSyncStatus('error');
+                showToast('❌ 登入失敗：' + error.message);
             }
         }
 
         async function logout() {
             try {
                 await supabaseClient.auth.signOut();
-                spots = [];
+                currentUser = null;
+                isAdmin = false;
+                updateUserInfo();
                 renderSpots();
-                updateStats();
                 showToast('👋 已登出');
             } catch (error) {
                 console.error('Logout error:', error);
             }
         }
 
+        // ==================== 管理員狀態檢查 ====================
         async function checkAdminStatus() {
-            if (!currentUser) return;
+            if (!currentUser) {
+                isAdmin = false;
+                return;
+            }
             
-            // 檢查是否為管理員 email
-            isAdmin = currentUser.email === 'admin@pikminspots.app';
+            console.log('🔍 檢查管理員狀態，使用者:', currentUser.email);
+            
+            // 方法 1：檢查 email 是否為管理員 email
+            if (currentUser.email === ADMIN_EMAIL) {
+                // 方法 2：同時從 users 表確認 role
+                try {
+                    const { data, error } = await supabaseClient
+                        .from('users')
+                        .select('role')
+                        .eq('id', currentUser.id)
+                        .single();
+                    
+                    if (error) {
+                        console.log('⚠️ 查詢 users 表失敗，但 email 匹配，設為管理員');
+                        isAdmin = true;
+                    } else if (data && data.role === 'admin') {
+                        console.log('✅ 確認為管理員（資料庫驗證）');
+                        isAdmin = true;
+                    } else {
+                        console.log('⚠️ Email 匹配但 role 不是 admin，嘗試更新');
+                        // 如果 email 匹配但 role 不對，更新它
+                        const { error: updateError } = await supabaseClient
+                            .from('users')
+                            .upsert({
+                                id: currentUser.id,
+                                email: ADMIN_EMAIL,
+                                role: 'admin'
+                            }, { onConflict: 'id' });
+                        
+                        isAdmin = true;
+                    }
+                } catch (err) {
+                    console.log('⚠️ users 表查詢異常，根據 email 設為管理員');
+                    isAdmin = true;
+                }
+            } else {
+                isAdmin = false;
+            }
+            
+            console.log('📊 管理員狀態:', isAdmin);
         }
 
         function updateUserInfo() {
@@ -1310,17 +1597,12 @@
             const userEmail = document.getElementById('userEmail');
             const userRole = document.getElementById('userRole');
 
-            if (currentUser) {
-                userInfo.style.display = 'inline-block';
+            if (currentUser && !currentUser.is_anonymous) {
+                userInfo.style.display = 'flex';
                 guestInfo.style.display = 'none';
-                
-                if (currentUser.is_anonymous) {
-                    userEmail.textContent = '訪客';
-                    userRole.textContent = '';
-                } else {
-                    userEmail.textContent = currentUser.email;
-                    userRole.textContent = isAdmin ? '[管理員]' : '';
-                }
+                userEmail.textContent = currentUser.email;
+                userRole.textContent = isAdmin ? '管理員' : '';
+                userRole.style.display = isAdmin ? 'inline-block' : 'none';
             } else {
                 userInfo.style.display = 'none';
                 guestInfo.style.display = 'inline-block';
@@ -1331,9 +1613,12 @@
             loginModal.classList.add('active');
         }
 
+        function closeLoginModal() {
+            loginModal.classList.remove('active');
+        }
+
         // ==================== 資料載入 ====================
         async function loadSpots() {
-            // 訪客也可以載入資料，不需要登入檢查
             console.log('🔄 開始載入資料...');
             
             try {
@@ -1350,18 +1635,18 @@
                 }
 
                 console.log('✅ 載入成功，共', data?.length || 0, '筆資料');
-                console.log('📊 資料內容:', data);
 
                 spots = data || [];
-                updateCountryFilter();
-                updateCityFilter();
+                
+                // 更新下拉選單顯示
+                document.getElementById('countryInput').value = currentCountry === 'all' ? '🌍 全部國家' : currentCountry;
+                document.getElementById('cityInput').value = currentCity === 'all' ? '🏙️ 全部縣市' : currentCity;
+                
                 renderSpots();
                 updateStats();
                 setSyncStatus('synced');
             } catch (error) {
                 console.error('❌ Load error:', error);
-                console.error('錯誤訊息:', error.message);
-                console.error('錯誤詳情:', error.details);
                 setSyncStatus('error');
                 showToast('❌ 載入失敗');
             }
@@ -1377,57 +1662,12 @@
             syncStatus.textContent = statusText[status] || '';
         }
 
-        // ==================== 篩選器更新 ====================
-        function updateCountryFilter() {
-            const countries = ['all', ...new Set(spots.map(s => s.country).filter(Boolean))];
-            const countryFilters = document.getElementById('countryFilters');
-            
-            countryFilters.innerHTML = countries.map(country => `
-                <button class="filter-btn ${country === currentCountry ? 'active' : ''}" 
-                        data-country="${country}" 
-                        onclick="setCountryFilter('${country}')">
-                    ${country === 'all' ? '🌍 全部' : country}
-                </button>
-            `).join('');
-        }
-
-        function updateCityFilter() {
-            const filteredByCountry = currentCountry === 'all' 
-                ? spots 
-                : spots.filter(s => s.country === currentCountry);
-            
-            const cities = ['all', ...new Set(filteredByCountry.map(s => s.city).filter(Boolean))];
-            const cityFilters = document.getElementById('cityFilters');
-            
-            cityFilters.innerHTML = cities.map(city => `
-                <button class="filter-btn ${city === currentCity ? 'active' : ''}" 
-                        data-city="${city}" 
-                        onclick="setCityFilter('${city}')">
-                    ${city === 'all' ? '🏙️ 全部' : city}
-                </button>
-            `).join('');
-        }
-
         // ==================== 篩選功能 ====================
         function setFilter(type) {
             currentFilter = type;
-            document.querySelectorAll('[data-filter]').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.filter === type);
+            document.querySelectorAll('.type-pill').forEach(pill => {
+                pill.classList.toggle('active', pill.dataset.filter === type);
             });
-            renderSpots();
-        }
-
-        function setCountryFilter(country) {
-            currentCountry = country;
-            currentCity = 'all'; // 重置縣市篩選
-            updateCountryFilter();
-            updateCityFilter();
-            renderSpots();
-        }
-
-        function setCityFilter(city) {
-            currentCity = city;
-            updateCityFilter();
             renderSpots();
         }
 
@@ -1436,342 +1676,7 @@
             renderSpots();
         });
 
-        // ==================== Modal 控制 ====================
-        function openAddModal() {
-            // 訪客也可以新增，不需要登入
-            editingId = null;
-            document.getElementById('modalTitle').textContent = '新增純點';
-            document.getElementById('btnSubmit').textContent = '✨ 新增純點';
-            document.getElementById('spotForm').reset();
-            selectType('pikmin');
-            modalOverlay.classList.add('active');
-        }
-
-        function closeModal() {
-            modalOverlay.classList.remove('active');
-        }
-
-        function closeLoginModal() {
-            loginModal.classList.remove('active');
-        }
-
-        function selectType(type) {
-            selectedType = type;
-            document.querySelectorAll('.type-option').forEach(opt => {
-                opt.classList.toggle('selected', opt.dataset.type === type);
-            });
-        }
-
-        // ==================== 表單提交 ====================
-        document.getElementById('spotForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            // 訪客也可以新增/編輯，不需要登入檢查
-
-            const spotData = {
-                name: document.getElementById('inputName').value,
-                country: document.getElementById('inputCountry').value || null,
-                city: document.getElementById('inputCity').value || null,
-                lat: parseFloat(document.getElementById('inputLat').value),
-                lng: parseFloat(document.getElementById('inputLng').value),
-                type: selectedType,
-                note: document.getElementById('inputNote').value || null
-            };
-
-            console.log('🔍 準備儲存資料:', spotData);
-            console.log('🔍 編輯模式:', editingId ? `編輯 ID: ${editingId}` : '新增');
-
-            try {
-                setSyncStatus('syncing');
-
-                if (editingId) {
-                    // 更新
-                    console.log('📝 執行更新操作...');
-                    const { data, error } = await supabaseClient
-                        .from('spots')
-                        .update(spotData)
-                        .eq('id', editingId)
-                        .select();
-
-                    if (error) {
-                        console.error('❌ 更新錯誤:', error);
-                        throw error;
-                    }
-                    console.log('✅ 更新成功:', data);
-                    showToast('✅ 純點已更新！');
-                } else {
-                    // 新增
-                    console.log('➕ 執行新增操作...');
-                    const { data, error } = await supabaseClient
-                        .from('spots')
-                        .insert([spotData])
-                        .select();
-
-                    if (error) {
-                        console.error('❌ 新增錯誤:', error);
-                        throw error;
-                    }
-                    console.log('✅ 新增成功:', data);
-                    showToast('🎉 純點已新增！');
-                }
-
-                console.log('🔄 重新載入資料...');
-                await loadSpots();
-                closeModal();
-            } catch (error) {
-                console.error('❌ 儲存錯誤 (完整資訊):', error);
-                console.error('錯誤訊息:', error.message);
-                console.error('錯誤詳情:', error.details);
-                console.error('錯誤提示:', error.hint);
-                setSyncStatus('error');
-                showToast('❌ 儲存失敗，請重試');
-            }
-        });
-
-        // ==================== GPX 匯入/匯出 ====================
-        function importGpx() {
-            if (!currentUser) {
-                showToast('❌ 請先登入');
-                return;
-            }
-
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = '.gpx';
-            input.onchange = async (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-
-                try {
-                    const text = await file.text();
-                    const parser = new DOMParser();
-                    const xml = parser.parseFromString(text, 'text/xml');
-                    const wpts = xml.getElementsByTagName('wpt');
-
-                    const newSpots = [];
-                    for (let wpt of wpts) {
-                        const name = wpt.getElementsByTagName('name')[0]?.textContent || '未命名';
-                        const lat = parseFloat(wpt.getAttribute('lat'));
-                        const lng = parseFloat(wpt.getAttribute('lon'));
-                        const desc = wpt.getElementsByTagName('desc')[0]?.textContent || '';
-                        const typeTag = wpt.getElementsByTagName('type')[0]?.textContent || 'pikmin';
-
-                        // 從描述中提取國家/縣市
-                        let country = null, city = null;
-                        const locationMatch = desc.match(/\[([^\]]+)\]/);
-                        if (locationMatch) {
-                            const parts = locationMatch[1].split('/');
-                            country = parts[0] || null;
-                            city = parts[1] || null;
-                        }
-
-                        newSpots.push({
-                            name,
-                            lat,
-                            lng,
-                            type: typeTag,
-                            note: desc.replace(/\[([^\]]+)\]/, '').trim() || null,
-                            country,
-                            city
-                        });
-                    }
-
-                    if (newSpots.length > 0) {
-                        setSyncStatus('syncing');
-                        const { error } = await supabase
-                            .from('spots')
-                            .insert(newSpots);
-
-                        if (error) throw error;
-
-                        await loadSpots();
-                        showToast(`🎉 已匯入 ${newSpots.length} 個純點！`);
-                    }
-                } catch (error) {
-                    console.error('Import error:', error);
-                    showToast('❌ 匯入失敗');
-                }
-            };
-            input.click();
-        }
-
-        function exportAllGpx() {
-            if (spots.length === 0) {
-                showToast('😢 沒有純點可以匯出');
-                return;
-            }
-            exportGpx(spots);
-        }
-
-        function enterSelectMode() {
-            if (spots.length === 0) {
-                showToast('😢 沒有純點可以選擇');
-                return;
-            }
-            selectMode = true;
-            selectedSpots.clear();
-            selectBar.classList.add('active');
-            renderSpots();
-        }
-
-        document.getElementById('btnCancelSelect').addEventListener('click', () => {
-            selectMode = false;
-            selectedSpots.clear();
-            selectBar.classList.remove('active');
-            renderSpots();
-        });
-
-        document.getElementById('btnConfirmExport').addEventListener('click', () => {
-            if (selectedSpots.size === 0) {
-                showToast('😢 請至少選一個純點');
-                return;
-            }
-
-            const selectedData = spots.filter(s => selectedSpots.has(s.id));
-            exportGpx(selectedData);
-
-            selectMode = false;
-            selectedSpots.clear();
-            selectBar.classList.remove('active');
-            renderSpots();
-        });
-
-        function exportGpx(spotsToExport) {
-            const gpxContent = `<?xml version="1.0" encoding="UTF-8"?>
-<gpx version="1.1" creator="PikminSpotManager">
-  <metadata>
-    <n>皮克敏純點</n>
-    <time>${new Date().toISOString()}</time>
-  </metadata>
-${spotsToExport.map(spot => `  <wpt lat="${spot.lat}" lon="${spot.lng}">
-    <n>${escapeXml(spot.name)}</n>
-    <desc>${escapeXml(spot.note || getTypeLabel(spot.type))}${spot.country ? ' [' + escapeXml(spot.country) + (spot.city ? '/' + escapeXml(spot.city) : '') + ']' : ''}</desc>
-    <type>${spot.type}</type>
-  </wpt>`).join('\n')}
-</gpx>`;
-
-            downloadFile(gpxContent, 'pikmin-spots.gpx', 'application/gpx+xml');
-            showToast(`🎉 已匯出 ${spotsToExport.length} 個純點！`);
-        }
-
-        function escapeXml(str) {
-            return str.replace(/&/g, '&amp;')
-                      .replace(/</g, '&lt;')
-                      .replace(/>/g, '&gt;')
-                      .replace(/"/g, '&quot;')
-                      .replace(/'/g, '&apos;');
-        }
-
-        function downloadFile(content, filename, mimeType) {
-            const blob = new Blob([content], { type: mimeType });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
-
-        // ==================== JSON 匯入/匯出 ====================
-        function exportJson() {
-            if (spots.length === 0) {
-                showToast('😢 沒有資料可以備份');
-                return;
-            }
-
-            const exportData = {
-                version: '1.0',
-                exportDate: new Date().toISOString(),
-                totalSpots: spots.length,
-                spots: spots
-            };
-
-            const jsonContent = JSON.stringify(exportData, null, 2);
-            const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
-            downloadFile(jsonContent, `pikmin-spots-backup-${timestamp}.json`, 'application/json');
-            showToast(`💾 已備份 ${spots.length} 筆資料！`);
-        }
-
-        function importJson() {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = '.json';
-            input.onchange = async (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-
-                try {
-                    const text = await file.text();
-                    const importData = JSON.parse(text);
-
-                    // 驗證資料格式
-                    if (!importData.spots || !Array.isArray(importData.spots)) {
-                        throw new Error('無效的 JSON 格式');
-                    }
-
-                    // 確認匯入
-                    const confirmMsg = `即將匯入 ${importData.spots.length} 筆資料\n\n` +
-                        `備份日期: ${importData.exportDate ? new Date(importData.exportDate).toLocaleString('zh-TW') : '未知'}\n` +
-                        `版本: ${importData.version || '未知'}\n\n` +
-                        `確定要匯入嗎？這將會覆蓋目前資料庫中的所有資料！`;
-
-                    if (!confirm(confirmMsg)) return;
-
-                    setSyncStatus('syncing');
-                    showToast('⏳ 匯入中，請稍候...');
-
-                    // 批次插入資料到 Supabase
-                    let successCount = 0;
-                    let errorCount = 0;
-
-                    for (const spot of importData.spots) {
-                        try {
-                            const spotData = {
-                                name: spot.name,
-                                country: spot.country || null,
-                                city: spot.city || null,
-                                lat: parseFloat(spot.lat),
-                                lng: parseFloat(spot.lng),
-                                type: spot.type,
-                                note: spot.note || null
-                            };
-
-                            const { error } = await supabaseClient
-                                .from('spots')
-                                .insert([spotData]);
-
-                            if (error) {
-                                console.error('匯入錯誤:', error);
-                                errorCount++;
-                            } else {
-                                successCount++;
-                            }
-                        } catch (err) {
-                            console.error('處理資料錯誤:', err);
-                            errorCount++;
-                        }
-                    }
-
-                    await loadSpots();
-                    setSyncStatus('synced');
-
-                    if (errorCount === 0) {
-                        showToast(`🎉 成功匯入 ${successCount} 筆資料！`);
-                    } else {
-                        showToast(`⚠️ 匯入完成：成功 ${successCount} 筆，失敗 ${errorCount} 筆`);
-                    }
-                } catch (error) {
-                    console.error('JSON 匯入錯誤:', error);
-                    setSyncStatus('error');
-                    showToast('❌ 匯入失敗，請檢查檔案格式');
-                }
-            };
-            input.click();
-        }
-
-        // ==================== 篩選與渲染 ====================
+        // ==================== 渲染 ====================
         function getFilteredSpots() {
             return spots.filter(spot => {
                 const matchesType = currentFilter === 'all' || spot.type === currentFilter;
@@ -1809,7 +1714,7 @@ ${spotsToExport.map(spot => `  <wpt lat="${spot.lat}" lon="${spot.lng}">
                             <div class="spot-badges">
                                 ${spot.country ? `<span class="spot-region">🌍 ${escapeHtml(spot.country)}</span>` : ''}
                                 ${spot.city ? `<span class="spot-city">🏙️ ${escapeHtml(spot.city)}</span>` : ''}
-                                <span class="spot-type ${spot.type}">${getTypeLabel(spot.type)}</span>
+                                <span class="spot-type-badge ${spot.type}">${getTypeLabel(spot.type)}</span>
                             </div>
                         </div>
                         <div class="spot-coords">${spot.lat}, ${spot.lng}</div>
@@ -1817,8 +1722,8 @@ ${spotsToExport.map(spot => `  <wpt lat="${spot.lat}" lon="${spot.lng}">
                         ${!selectMode ? `
                         <div class="spot-actions">
                             <button class="btn btn-copy" onclick="copyCoords('${spot.lat}, ${spot.lng}')">📋 複製座標</button>
-                            <button class="btn btn-edit" onclick="editSpot('${spot.id}')">✏️</button>
-                            ${isAdmin ? `<button class="btn btn-delete" onclick="deleteSpot('${spot.id}')">🗑️</button>` : ''}
+                            <button class="btn btn-edit" onclick="editSpot('${spot.id}')">✏️ 編輯</button>
+                            ${isAdmin ? `<button class="btn btn-delete" onclick="deleteSpot('${spot.id}')">🗑️ 刪除</button>` : ''}
                         </div>
                         ` : ''}
                     </div>
@@ -1849,10 +1754,6 @@ ${spotsToExport.map(spot => `  <wpt lat="${spot.lat}" lon="${spot.lng}">
             }
         }
 
-        function updateSelectBar() {
-            document.getElementById('selectedCount').textContent = selectedSpots.size;
-        }
-
         function getTypeLabel(type) {
             const labels = {
                 flower: '🌸 大花',
@@ -1864,6 +1765,7 @@ ${spotsToExport.map(spot => `  <wpt lat="${spot.lat}" lon="${spot.lng}">
         }
 
         function escapeHtml(str) {
+            if (!str) return '';
             const div = document.createElement('div');
             div.textContent = str;
             return div.innerHTML;
@@ -1875,6 +1777,70 @@ ${spotsToExport.map(spot => `  <wpt lat="${spot.lat}" lon="${spot.lng}">
             document.getElementById('stat-mushroom').textContent = spots.filter(s => s.type === 'mushroom').length;
             document.getElementById('stat-postcard').textContent = spots.filter(s => s.type === 'postcard').length;
         }
+
+        // ==================== Modal 控制 ====================
+        function openAddModal() {
+            editingId = null;
+            document.getElementById('modalTitle').textContent = '🌱 新增純點';
+            document.getElementById('btnSubmit').textContent = '✨ 新增純點';
+            document.getElementById('spotForm').reset();
+            selectType('pikmin');
+            modalOverlay.classList.add('active');
+        }
+
+        function closeModal() {
+            modalOverlay.classList.remove('active');
+        }
+
+        function selectType(type) {
+            selectedType = type;
+            document.querySelectorAll('.type-option').forEach(opt => {
+                opt.classList.toggle('selected', opt.dataset.type === type);
+            });
+        }
+
+        // ==================== 表單提交 ====================
+        document.getElementById('spotForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const spotData = {
+                name: document.getElementById('inputName').value.trim(),
+                country: document.getElementById('inputCountry').value.trim(),
+                city: document.getElementById('inputCity').value.trim() || null,
+                lat: parseFloat(document.getElementById('inputLat').value),
+                lng: parseFloat(document.getElementById('inputLng').value),
+                type: selectedType,
+                note: document.getElementById('inputNote').value.trim() || null
+            };
+
+            try {
+                setSyncStatus('syncing');
+
+                if (editingId) {
+                    const { error } = await supabaseClient
+                        .from('spots')
+                        .update(spotData)
+                        .eq('id', editingId);
+                    
+                    if (error) throw error;
+                    showToast('✏️ 純點已更新！');
+                } else {
+                    const { error } = await supabaseClient
+                        .from('spots')
+                        .insert([spotData]);
+                    
+                    if (error) throw error;
+                    showToast('🌱 新純點已加入！');
+                }
+
+                closeModal();
+                await loadSpots();
+            } catch (error) {
+                console.error('Save error:', error);
+                setSyncStatus('error');
+                showToast('❌ 儲存失敗：' + error.message);
+            }
+        });
 
         // ==================== 操作功能 ====================
         window.copyCoords = function(coords) {
@@ -1892,13 +1858,11 @@ ${spotsToExport.map(spot => `  <wpt lat="${spot.lat}" lon="${spot.lng}">
         };
 
         window.editSpot = function(id) {
-            // 訪客也可以編輯，不需要登入
-
             const spot = spots.find(s => s.id === id);
             if (!spot) return;
 
             editingId = id;
-            document.getElementById('modalTitle').textContent = '編輯純點';
+            document.getElementById('modalTitle').textContent = '✏️ 編輯純點';
             document.getElementById('btnSubmit').textContent = '✨ 更新純點';
             document.getElementById('inputName').value = spot.name;
             document.getElementById('inputCountry').value = spot.country || '';
@@ -1907,10 +1871,7 @@ ${spotsToExport.map(spot => `  <wpt lat="${spot.lat}" lon="${spot.lng}">
             document.getElementById('inputLng').value = spot.lng;
             document.getElementById('inputNote').value = spot.note || '';
 
-            document.querySelectorAll('.type-option').forEach(opt => {
-                opt.classList.toggle('selected', opt.dataset.type === spot.type);
-            });
-
+            selectType(spot.type);
             modalOverlay.classList.add('active');
         };
 
@@ -1923,7 +1884,7 @@ ${spotsToExport.map(spot => `  <wpt lat="${spot.lat}" lon="${spot.lng}">
             if (confirm('確定要刪除這個純點嗎？')) {
                 try {
                     setSyncStatus('syncing');
-                    const { error } = await supabase
+                    const { error } = await supabaseClient
                         .from('spots')
                         .delete()
                         .eq('id', id);
@@ -1935,17 +1896,253 @@ ${spotsToExport.map(spot => `  <wpt lat="${spot.lat}" lon="${spot.lng}">
                 } catch (error) {
                     console.error('Delete error:', error);
                     setSyncStatus('error');
-                    showToast('❌ 刪除失敗，請重試');
+                    showToast('❌ 刪除失敗：' + error.message);
                 }
             }
         };
+
+        // ==================== 選擇模式 ====================
+        function enterSelectMode() {
+            selectMode = true;
+            selectedSpots.clear();
+            selectBar.classList.add('active');
+            renderSpots();
+            updateSelectBar();
+        }
+
+        function exitSelectMode() {
+            selectMode = false;
+            selectedSpots.clear();
+            selectBar.classList.remove('active');
+            renderSpots();
+        }
+
+        function updateSelectBar() {
+            document.getElementById('selectedCount').textContent = selectedSpots.size;
+        }
+
+        document.getElementById('btnCancelSelect').addEventListener('click', exitSelectMode);
+
+        document.getElementById('btnConfirmExport').addEventListener('click', () => {
+            if (selectedSpots.size === 0) {
+                showToast('⚠️ 請先選擇要匯出的純點');
+                return;
+            }
+            const selectedData = spots.filter(s => selectedSpots.has(s.id));
+            exportGpx(selectedData);
+            exitSelectMode();
+        });
+
+        // ==================== GPX 匯出 ====================
+        function exportGpx(data) {
+            const gpxContent = `<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="Pikmin Spot Manager">
+  <metadata>
+    <name>Pikmin Spots</name>
+    <time>${new Date().toISOString()}</time>
+  </metadata>
+${data.map(spot => `  <wpt lat="${spot.lat}" lon="${spot.lng}">
+    <name>${escapeXml(spot.name)}</name>
+    <desc>${escapeXml((spot.country || '') + (spot.city ? ' ' + spot.city : '') + (spot.note ? ' - ' + spot.note : ''))}</desc>
+    <type>${spot.type}</type>
+  </wpt>`).join('\n')}
+</gpx>`;
+
+            downloadFile(gpxContent, `pikmin_spots_${formatDate()}.gpx`, 'application/gpx+xml');
+            showToast(`📤 已匯出 ${data.length} 個純點`);
+        }
+
+        function exportAllGpx() {
+            if (spots.length === 0) {
+                showToast('⚠️ 沒有資料可匯出');
+                return;
+            }
+            exportGpx(spots);
+        }
+
+        // ==================== GPX 匯入 ====================
+        function importGpx() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.gpx';
+            input.onchange = async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                try {
+                    const text = await file.text();
+                    const parser = new DOMParser();
+                    const xml = parser.parseFromString(text, 'text/xml');
+                    const waypoints = xml.querySelectorAll('wpt');
+
+                    if (waypoints.length === 0) {
+                        showToast('⚠️ GPX 檔案中沒有找到航點');
+                        return;
+                    }
+
+                    setSyncStatus('syncing');
+                    let successCount = 0;
+                    let errorCount = 0;
+
+                    for (const wpt of waypoints) {
+                        try {
+                            const lat = parseFloat(wpt.getAttribute('lat'));
+                            const lng = parseFloat(wpt.getAttribute('lon'));
+                            const name = wpt.querySelector('name')?.textContent || '未命名';
+                            const desc = wpt.querySelector('desc')?.textContent || '';
+                            const type = wpt.querySelector('type')?.textContent || 'pikmin';
+
+                            const validType = ['flower', 'pikmin', 'mushroom', 'postcard'].includes(type) ? type : 'pikmin';
+
+                            const { error } = await supabaseClient
+                                .from('spots')
+                                .insert([{
+                                    name,
+                                    lat,
+                                    lng,
+                                    type: validType,
+                                    note: desc,
+                                    country: '未分類'
+                                }]);
+
+                            if (error) {
+                                errorCount++;
+                            } else {
+                                successCount++;
+                            }
+                        } catch (err) {
+                            errorCount++;
+                        }
+                    }
+
+                    await loadSpots();
+                    setSyncStatus('synced');
+
+                    if (errorCount === 0) {
+                        showToast(`🎉 成功匯入 ${successCount} 個純點！`);
+                    } else {
+                        showToast(`⚠️ 匯入完成：成功 ${successCount} 個，失敗 ${errorCount} 個`);
+                    }
+                } catch (error) {
+                    console.error('GPX 匯入錯誤:', error);
+                    setSyncStatus('error');
+                    showToast('❌ 匯入失敗，請檢查檔案格式');
+                }
+            };
+            input.click();
+        }
+
+        // ==================== JSON 備份/匯入 ====================
+        function exportJson() {
+            if (spots.length === 0) {
+                showToast('⚠️ 沒有資料可備份');
+                return;
+            }
+
+            const jsonContent = JSON.stringify(spots, null, 2);
+            downloadFile(jsonContent, `pikmin_backup_${formatDate()}.json`, 'application/json');
+            showToast(`💾 已備份 ${spots.length} 筆資料`);
+        }
+
+        function importJson() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                try {
+                    const text = await file.text();
+                    const data = JSON.parse(text);
+
+                    if (!Array.isArray(data)) {
+                        showToast('❌ JSON 格式錯誤');
+                        return;
+                    }
+
+                    const confirm = window.confirm(`即將匯入 ${data.length} 筆資料，是否繼續？`);
+                    if (!confirm) return;
+
+                    setSyncStatus('syncing');
+                    let successCount = 0;
+                    let errorCount = 0;
+
+                    for (const spot of data) {
+                        try {
+                            const spotData = {
+                                name: spot.name,
+                                country: spot.country || null,
+                                city: spot.city || null,
+                                lat: parseFloat(spot.lat),
+                                lng: parseFloat(spot.lng),
+                                type: spot.type,
+                                note: spot.note || null
+                            };
+
+                            const { error } = await supabaseClient
+                                .from('spots')
+                                .insert([spotData]);
+
+                            if (error) {
+                                errorCount++;
+                            } else {
+                                successCount++;
+                            }
+                        } catch (err) {
+                            errorCount++;
+                        }
+                    }
+
+                    await loadSpots();
+                    setSyncStatus('synced');
+
+                    if (errorCount === 0) {
+                        showToast(`🎉 成功匯入 ${successCount} 筆資料！`);
+                    } else {
+                        showToast(`⚠️ 匯入完成：成功 ${successCount} 筆，失敗 ${errorCount} 筆`);
+                    }
+                } catch (error) {
+                    console.error('JSON 匯入錯誤:', error);
+                    setSyncStatus('error');
+                    showToast('❌ 匯入失敗，請檢查檔案格式');
+                }
+            };
+            input.click();
+        }
+
+        // ==================== 工具函數 ====================
+        function downloadFile(content, filename, type) {
+            const blob = new Blob([content], { type });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function formatDate() {
+            return new Date().toISOString().slice(0, 10).replace(/-/g, '');
+        }
+
+        function escapeXml(str) {
+            if (!str) return '';
+            return str.replace(/[<>&'"]/g, c => ({
+                '<': '&lt;',
+                '>': '&gt;',
+                '&': '&amp;',
+                "'": '&apos;',
+                '"': '&quot;'
+            }[c]));
+        }
 
         function showToast(message) {
             toast.textContent = message;
             toast.classList.add('show');
             setTimeout(() => {
                 toast.classList.remove('show');
-            }, 2000);
+            }, 2500);
         }
 
         // ==================== 啟動應用 ====================
