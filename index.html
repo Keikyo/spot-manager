@@ -35,7 +35,6 @@
             box-shadow: 0 4px 20px rgba(0,0,0,0.1);
         }
 
-        /* Clouds in header */
         .header-cloud {
             position: absolute;
             background: #fff;
@@ -134,18 +133,10 @@
         }
 
         @keyframes seedling-bounce {
-            0%, 100% { 
-                transform: translateY(0) rotate(-5deg); 
-            }
-            25% {
-                transform: translateY(-8px) rotate(0deg);
-            }
-            50% { 
-                transform: translateY(0) rotate(5deg); 
-            }
-            75% {
-                transform: translateY(-4px) rotate(0deg);
-            }
+            0%, 100% { transform: translateY(0) rotate(-5deg); }
+            25% { transform: translateY(-8px) rotate(0deg); }
+            50% { transform: translateY(0) rotate(5deg); }
+            75% { transform: translateY(-4px) rotate(0deg); }
         }
 
         .header h1 {
@@ -163,7 +154,19 @@
             margin-top: 4px;
         }
 
-        /* Background clouds (behind content) */
+        /* Sync status */
+        .sync-status {
+            font-size: 0.75rem;
+            margin-top: 8px;
+            padding: 4px 12px;
+            border-radius: 12px;
+            display: inline-block;
+        }
+        .sync-status.syncing { background: #FFF3E0; color: #E65100; }
+        .sync-status.synced { background: #E8F5E9; color: #2E7D32; }
+        .sync-status.error { background: #FFEBEE; color: #C62828; }
+
+        /* Background clouds */
         .bg-cloud {
             position: fixed;
             background: #fff;
@@ -245,15 +248,11 @@
         }
 
         @keyframes float-cloud {
-            from {
-                transform: translateX(0);
-            }
-            to {
-                transform: translateX(calc(100vw + 200px));
-            }
+            from { transform: translateX(0); }
+            to { transform: translateX(calc(100vw + 200px)); }
         }
 
-        /* Floating Flowers at Bottom */
+        /* Flowers at bottom */
         .flowers-container {
             position: fixed;
             bottom: 0;
@@ -292,7 +291,7 @@
             z-index: 1;
         }
 
-        /* Stats - Now with 4 items including flower */
+        /* Stats */
         .stats {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -314,25 +313,11 @@
             transition: transform 0.2s;
         }
 
-        .stat-item:active {
-            transform: scale(0.95);
-        }
+        .stat-item:active { transform: scale(0.95); }
 
-        .stat-icon {
-            font-size: 1.3rem;
-            margin-bottom: 2px;
-        }
-
-        .stat-number {
-            font-size: 1.4rem;
-            font-weight: 800;
-        }
-
-        .stat-label {
-            font-size: 11px;
-            font-weight: 700;
-            opacity: 0.9;
-        }
+        .stat-icon { font-size: 1.3rem; margin-bottom: 2px; }
+        .stat-number { font-size: 1.4rem; font-weight: 800; }
+        .stat-label { font-size: 11px; font-weight: 700; opacity: 0.9; }
 
         .stat-item.flower { background: linear-gradient(135deg, #FFE4EC 0%, #FFB6C1 100%); color: #C71585; }
         .stat-item.pikmin { background: linear-gradient(135deg, #E8F5E9 0%, #A5D6A7 100%); color: #2E7D32; }
@@ -374,18 +359,10 @@
             transition: border-color 0.2s;
         }
 
-        .search-input:focus {
-            outline: none;
-            border-color: #81C784;
-        }
+        .search-input:focus { outline: none; border-color: #81C784; }
+        .search-input::placeholder { color: #A5D6A7; }
 
-        .search-input::placeholder {
-            color: #A5D6A7;
-        }
-
-        .filter-group {
-            margin-bottom: 12px;
-        }
+        .filter-group { margin-bottom: 12px; }
 
         .filter-label {
             font-size: 12px;
@@ -393,6 +370,15 @@
             color: #666;
             margin-bottom: 8px;
             display: block;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .filter-row .region-select-wrapper {
+            flex: 1;
         }
 
         .filter-tabs {
@@ -444,10 +430,7 @@
             -webkit-appearance: none;
         }
 
-        .region-select:focus {
-            outline: none;
-            border-color: #9575CD;
-        }
+        .region-select:focus { outline: none; border-color: #9575CD; }
 
         .region-select-wrapper::after {
             content: '▼';
@@ -471,9 +454,7 @@
             display: none;
         }
 
-        .filter-summary.active {
-            display: block;
-        }
+        .filter-summary.active { display: block; }
 
         /* Import Section */
         .import-section {
@@ -510,9 +491,7 @@
             transition: all 0.2s;
         }
 
-        .btn-import:active {
-            transform: scale(0.97);
-        }
+        .btn-import:active { transform: scale(0.97); }
 
         /* Spot List */
         .spot-list {
@@ -546,9 +525,7 @@
         .spot-card.mushroom-card::before { background: linear-gradient(180deg, #FF8A65, #FFCC80); }
         .spot-card.postcard-card::before { background: linear-gradient(180deg, #42A5F5, #90CAF9); }
 
-        .spot-card:active {
-            transform: scale(0.98);
-        }
+        .spot-card:active { transform: scale(0.98); }
 
         .spot-header {
             display: flex;
@@ -573,7 +550,7 @@
             justify-content: flex-end;
         }
 
-        .spot-type, .spot-region {
+        .spot-type, .spot-region, .spot-city {
             padding: 5px 10px;
             border-radius: 10px;
             font-size: 11px;
@@ -587,6 +564,7 @@
         .spot-type.postcard { background: #E3F2FD; color: #1565C0; }
 
         .spot-region { background: #EDE7F6; color: #5E35B1; }
+        .spot-city { background: #FFF8E1; color: #F57F17; }
 
         .spot-coords {
             font-family: 'Courier New', monospace;
@@ -635,21 +613,11 @@
             justify-content: center;
         }
 
-        .btn-edit {
-            background: #E8F5E9;
-            color: #2E7D32;
-        }
+        .btn-edit { background: #E8F5E9; color: #2E7D32; }
+        .btn-delete { background: #FFEBEE; color: #C62828; }
+        .btn:active { transform: scale(0.93); }
 
-        .btn-delete {
-            background: #FFEBEE;
-            color: #C62828;
-        }
-
-        .btn:active {
-            transform: scale(0.93);
-        }
-
-        /* Floating Action Buttons */
+        /* FAB */
         .fab-container {
             position: fixed;
             bottom: 70px;
@@ -674,9 +642,7 @@
             transition: all 0.2s;
         }
 
-        .fab:active {
-            transform: scale(0.9);
-        }
+        .fab:active { transform: scale(0.9); }
 
         .fab-add {
             background: linear-gradient(135deg, #FF6B9D 0%, #FF8A65 100%);
@@ -686,6 +652,12 @@
 
         .fab-export {
             background: linear-gradient(135deg, #66BB6A 0%, #81C784 100%);
+            color: #fff;
+            font-size: 22px;
+        }
+
+        .fab-refresh {
+            background: linear-gradient(135deg, #42A5F5 0%, #64B5F6 100%);
             color: #fff;
             font-size: 22px;
         }
@@ -704,9 +676,7 @@
             justify-content: center;
         }
 
-        .modal-overlay.active {
-            display: flex;
-        }
+        .modal-overlay.active { display: flex; }
 
         .modal {
             background: linear-gradient(180deg, #fff 0%, #F1F8E9 100%);
@@ -751,9 +721,7 @@
             justify-content: center;
         }
 
-        .form-group {
-            margin-bottom: 16px;
-        }
+        .form-group { margin-bottom: 16px; }
 
         .form-label {
             display: block;
@@ -761,6 +729,12 @@
             font-weight: 700;
             margin-bottom: 8px;
             color: #2D5016;
+        }
+
+        .form-label .optional {
+            font-weight: 400;
+            color: #999;
+            font-size: 12px;
         }
 
         .form-input {
@@ -776,24 +750,19 @@
             transition: border-color 0.2s;
         }
 
-        .form-input:focus {
-            outline: none;
-            border-color: #81C784;
-        }
+        .form-input:focus { outline: none; border-color: #81C784; }
 
         .form-textarea {
             resize: vertical;
             min-height: 80px;
         }
 
-        .coord-row {
+        .form-row {
             display: flex;
             gap: 10px;
         }
 
-        .coord-row .form-group {
-            flex: 1;
-        }
+        .form-row .form-group { flex: 1; }
 
         .type-selector {
             display: grid;
@@ -811,44 +780,16 @@
             transition: all 0.2s;
         }
 
-        .type-option.selected {
-            transform: scale(1.05);
-        }
+        .type-option.selected { transform: scale(1.05); }
 
-        .type-option[data-type="flower"].selected {
-            border-color: #FF6B9D;
-            background: #FFE4EC;
-        }
+        .type-option[data-type="flower"].selected { border-color: #FF6B9D; background: #FFE4EC; }
+        .type-option[data-type="pikmin"].selected { border-color: #66BB6A; background: #E8F5E9; }
+        .type-option[data-type="mushroom"].selected { border-color: #FF8A65; background: #FFF3E0; }
+        .type-option[data-type="postcard"].selected { border-color: #42A5F5; background: #E3F2FD; }
 
-        .type-option[data-type="pikmin"].selected {
-            border-color: #66BB6A;
-            background: #E8F5E9;
-        }
-
-        .type-option[data-type="mushroom"].selected {
-            border-color: #FF8A65;
-            background: #FFF3E0;
-        }
-
-        .type-option[data-type="postcard"].selected {
-            border-color: #42A5F5;
-            background: #E3F2FD;
-        }
-
-        .type-icon {
-            font-size: 24px;
-            margin-bottom: 4px;
-        }
-
-        .type-label {
-            font-size: 11px;
-            font-weight: 700;
-            color: #666;
-        }
-
-        .type-option.selected .type-label {
-            color: #333;
-        }
+        .type-icon { font-size: 24px; margin-bottom: 4px; }
+        .type-label { font-size: 11px; font-weight: 700; color: #666; }
+        .type-option.selected .type-label { color: #333; }
 
         .btn-submit {
             width: 100%;
@@ -865,9 +806,8 @@
             box-shadow: 0 4px 15px rgba(255, 107, 157, 0.4);
         }
 
-        .btn-submit:active {
-            transform: scale(0.97);
-        }
+        .btn-submit:active { transform: scale(0.97); }
+        .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
 
         /* Toast */
         .toast {
@@ -918,6 +858,22 @@
             line-height: 1.6;
         }
 
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading-spinner {
+            font-size: 48px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
         /* Select Bar */
         .select-bar {
             display: none;
@@ -937,16 +893,9 @@
             align-items: center;
         }
 
-        .select-bar-text {
-            font-weight: 800;
-            color: #fff;
-            font-size: 15px;
-        }
+        .select-bar-text { font-weight: 800; color: #fff; font-size: 15px; }
 
-        .select-bar-btns {
-            display: flex;
-            gap: 10px;
-        }
+        .select-bar-btns { display: flex; gap: 10px; }
 
         .btn-select-action {
             padding: 10px 20px;
@@ -960,12 +909,8 @@
             color: #fff;
         }
 
-        .btn-select-action:last-child {
-            background: #fff;
-            color: #2E7D32;
-        }
+        .btn-select-action:last-child { background: #fff; color: #2E7D32; }
 
-        /* Checkbox */
         .spot-checkbox {
             width: 26px;
             height: 26px;
@@ -979,9 +924,7 @@
             align-items: flex-start;
         }
 
-        .spot-content {
-            flex: 1;
-        }
+        .spot-content { flex: 1; }
     </style>
 </head>
 <body>
@@ -990,7 +933,7 @@
     <div class="bg-cloud bg-cloud-2"></div>
     <div class="bg-cloud bg-cloud-3"></div>
 
-    <!-- Animated Flowers at Bottom -->
+    <!-- Flowers at Bottom -->
     <div class="flowers-container">
         <div class="flower">🌼</div>
         <div class="flower">❀</div>
@@ -1004,7 +947,7 @@
         <div class="flower">❀</div>
     </div>
     
-    <!-- Header with Sky -->
+    <!-- Header -->
     <div class="header">
         <div class="header-cloud header-cloud-1"></div>
         <div class="header-cloud header-cloud-2"></div>
@@ -1013,11 +956,12 @@
             <div class="seedling-icon">🌱</div>
             <h1>純點管理器</h1>
             <p>收藏你的皮克敏秘境</p>
+            <div class="sync-status synced" id="syncStatus">☁️ 已連線</div>
         </div>
     </div>
 
     <div class="container">
-        <!-- Stats with 4 items: flower, pikmin, mushroom, postcard -->
+        <!-- Stats -->
         <div class="stats" id="stats">
             <div class="stat-item flower">
                 <div class="stat-icon">🌸</div>
@@ -1041,6 +985,7 @@
             </div>
         </div>
 
+        <!-- Search & Filters -->
         <div class="search-section">
             <div class="search-input-wrapper">
                 <span class="search-icon">🔍</span>
@@ -1048,11 +993,18 @@
             </div>
             
             <div class="filter-group">
-                <label class="filter-label">🌍 區域篩選</label>
-                <div class="region-select-wrapper">
-                    <select class="region-select" id="regionFilter">
-                        <option value="all">全部區域</option>
-                    </select>
+                <label class="filter-label">🌍 地區篩選</label>
+                <div class="filter-row">
+                    <div class="region-select-wrapper">
+                        <select class="region-select" id="countryFilter">
+                            <option value="all">全部國家</option>
+                        </select>
+                    </div>
+                    <div class="region-select-wrapper">
+                        <select class="region-select" id="cityFilter">
+                            <option value="all">全部縣市</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
@@ -1070,23 +1022,31 @@
             <div class="filter-summary" id="filterSummary"></div>
         </div>
 
+        <!-- Import/Export -->
         <div class="import-section">
-            <div class="import-title">📦 備份與還原</div>
+            <div class="import-title">📦 匯出資料</div>
             <div class="import-btns">
-                <button class="btn-import" id="btnImportJson">📥 匯入備份</button>
-                <button class="btn-import" id="btnExportJson">📤 匯出備份</button>
+                <button class="btn-import" id="btnExportJson">📤 匯出 JSON</button>
+                <button class="btn-import" id="btnExportGpx">📍 匯出 GPX</button>
             </div>
-            <input type="file" id="fileImport" accept=".json" style="display:none">
         </div>
 
-        <div class="spot-list" id="spotList"></div>
+        <!-- Spot List -->
+        <div class="spot-list" id="spotList">
+            <div class="loading">
+                <div class="loading-spinner">🌱</div>
+                <p>載入中...</p>
+            </div>
+        </div>
     </div>
 
+    <!-- FAB -->
     <div class="fab-container">
-        <button class="fab fab-export" id="btnExportGpx" title="匯出 GPX">📍</button>
+        <button class="fab fab-refresh" id="btnRefresh" title="重新載入">🔄</button>
         <button class="fab fab-add" id="btnAdd" title="新增純點">+</button>
     </div>
 
+    <!-- Select Bar (for GPX export) -->
     <div class="select-bar" id="selectBar">
         <span class="select-bar-text">已選 <span id="selectedCount">0</span> 個純點</span>
         <div class="select-bar-btns">
@@ -1095,7 +1055,7 @@
         </div>
     </div>
 
-    <!-- Add/Edit Modal -->
+    <!-- Modal -->
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal">
             <div class="modal-header">
@@ -1107,12 +1067,19 @@
                     <label class="form-label">📍 純點名稱</label>
                     <input type="text" class="form-input" id="inputName" placeholder="例：東京鐵塔大花" required>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">🌍 區域/國家</label>
-                    <input type="text" class="form-input" id="inputRegion" placeholder="例：日本、台灣、東京..." list="regionList">
-                    <datalist id="regionList"></datalist>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">🌍 國家</label>
+                        <input type="text" class="form-input" id="inputCountry" placeholder="例：日本、台灣" list="countryList">
+                        <datalist id="countryList"></datalist>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">🏙️ 縣市/區域 <span class="optional">(選填)</span></label>
+                        <input type="text" class="form-input" id="inputCity" placeholder="例：東京、台北" list="cityList">
+                        <datalist id="cityList"></datalist>
+                    </div>
                 </div>
-                <div class="coord-row">
+                <div class="form-row">
                     <div class="form-group">
                         <label class="form-label">緯度</label>
                         <input type="text" class="form-input" id="inputLat" placeholder="35.6586" required>
@@ -1148,7 +1115,7 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">📝 備註</label>
+                    <label class="form-label">📝 備註 <span class="optional">(選填)</span></label>
                     <textarea class="form-input form-textarea" id="inputNote" placeholder="例：隱藏版明信片、每天 12:00 刷新..."></textarea>
                 </div>
                 <input type="hidden" id="editId">
@@ -1160,10 +1127,38 @@
     <div class="toast" id="toast"></div>
 
     <script>
-        // Data
-        let spots = JSON.parse(localStorage.getItem('pikminSpots')) || [];
+        // Supabase Config
+        const SUPABASE_URL = 'https://iojmxiijtvmjglodauai.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlvam14aWlqdHZtamdsb2RhdWFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyMzM5MDYsImV4cCI6MjA4NTgwOTkwNn0.4rnjTDXmCH77KwO-1GeZlTKn9xwBrhOJQkQ--FjxQk0';
+
+        // API Helper
+        async function supabaseRequest(method, endpoint, body = null) {
+            const options = {
+                method,
+                headers: {
+                    'apikey': SUPABASE_KEY,
+                    'Authorization': `Bearer ${SUPABASE_KEY}`,
+                    'Content-Type': 'application/json',
+                    'Prefer': method === 'POST' ? 'return=representation' : undefined
+                }
+            };
+            if (body) options.body = JSON.stringify(body);
+            
+            const response = await fetch(`${SUPABASE_URL}/rest/v1/${endpoint}`, options);
+            
+            if (!response.ok) {
+                throw new Error(`API Error: ${response.status}`);
+            }
+            
+            const text = await response.text();
+            return text ? JSON.parse(text) : null;
+        }
+
+        // State
+        let spots = [];
         let currentFilter = 'all';
-        let currentRegion = 'all';
+        let currentCountry = 'all';
+        let currentCity = 'all';
         let searchQuery = '';
         let editingId = null;
         let selectMode = false;
@@ -1173,21 +1168,42 @@
         const spotList = document.getElementById('spotList');
         const searchInput = document.getElementById('searchInput');
         const filterTabs = document.querySelectorAll('.filter-tab');
-        const regionFilter = document.getElementById('regionFilter');
+        const countryFilter = document.getElementById('countryFilter');
+        const cityFilter = document.getElementById('cityFilter');
         const filterSummary = document.getElementById('filterSummary');
         const modalOverlay = document.getElementById('modalOverlay');
         const spotForm = document.getElementById('spotForm');
         const btnAdd = document.getElementById('btnAdd');
-        const btnExportGpx = document.getElementById('btnExportGpx');
+        const btnRefresh = document.getElementById('btnRefresh');
         const modalClose = document.getElementById('modalClose');
         const toast = document.getElementById('toast');
         const selectBar = document.getElementById('selectBar');
+        const syncStatus = document.getElementById('syncStatus');
         const inputGmapUrl = document.getElementById('inputGmapUrl');
 
         // Initialize
-        updateRegionOptions();
-        renderSpots();
-        updateStats();
+        loadSpots();
+
+        // Load spots from Supabase
+        async function loadSpots() {
+            try {
+                setSyncStatus('syncing', '⏳ 同步中...');
+                spots = await supabaseRequest('GET', 'spots?order=created_at.desc');
+                setSyncStatus('synced', '☁️ 已連線');
+                updateFilterOptions();
+                renderSpots();
+                updateStats();
+            } catch (error) {
+                console.error('Load error:', error);
+                setSyncStatus('error', '❌ 連線失敗');
+                showToast('❌ 載入失敗，請重試');
+            }
+        }
+
+        function setSyncStatus(status, text) {
+            syncStatus.className = `sync-status ${status}`;
+            syncStatus.textContent = text;
+        }
 
         // Event Listeners
         searchInput.addEventListener('input', (e) => {
@@ -1206,18 +1222,29 @@
             });
         });
 
-        regionFilter.addEventListener('change', (e) => {
-            currentRegion = e.target.value;
+        countryFilter.addEventListener('change', (e) => {
+            currentCountry = e.target.value;
+            currentCity = 'all'; // Reset city when country changes
+            updateCityOptions();
             renderSpots();
             updateFilterSummary();
         });
 
+        cityFilter.addEventListener('change', (e) => {
+            currentCity = e.target.value;
+            renderSpots();
+            updateFilterSummary();
+        });
+
+        btnRefresh.addEventListener('click', loadSpots);
+
         function updateFilterSummary() {
             const typeLabel = currentFilter === 'all' ? '' : getTypeLabel(currentFilter);
-            const regionLabel = currentRegion === 'all' ? '' : currentRegion;
+            const countryLabel = currentCountry === 'all' ? '' : currentCountry;
+            const cityLabel = currentCity === 'all' ? '' : currentCity;
             const searchLabel = searchQuery ? `「${searchQuery}」` : '';
 
-            const parts = [regionLabel, typeLabel, searchLabel].filter(Boolean);
+            const parts = [countryLabel, cityLabel, typeLabel, searchLabel].filter(Boolean);
             
             if (parts.length > 0) {
                 const filteredCount = getFilteredSpots().length;
@@ -1228,32 +1255,68 @@
             }
         }
 
-        function updateRegionOptions() {
-            const regions = [...new Set(spots.map(s => s.region).filter(Boolean))].sort();
-            const currentValue = regionFilter.value;
+        function updateFilterOptions() {
+            updateCountryOptions();
+            updateCityOptions();
+        }
+
+        function updateCountryOptions() {
+            const countries = [...new Set(spots.map(s => s.country).filter(Boolean))].sort();
+            const currentValue = countryFilter.value;
             
-            regionFilter.innerHTML = '<option value="all">全部區域</option>';
-            regions.forEach(region => {
-                const count = spots.filter(s => s.region === region).length;
+            countryFilter.innerHTML = '<option value="all">全部國家</option>';
+            countries.forEach(country => {
+                const count = spots.filter(s => s.country === country).length;
                 const option = document.createElement('option');
-                option.value = region;
-                option.textContent = `${region} (${count})`;
-                regionFilter.appendChild(option);
+                option.value = country;
+                option.textContent = `${country} (${count})`;
+                countryFilter.appendChild(option);
             });
 
-            if (regions.includes(currentValue) || currentValue === 'all') {
-                regionFilter.value = currentValue;
+            if (countries.includes(currentValue) || currentValue === 'all') {
+                countryFilter.value = currentValue;
             }
 
-            const datalist = document.getElementById('regionList');
+            // Update datalist
+            const datalist = document.getElementById('countryList');
             datalist.innerHTML = '';
-            regions.forEach(region => {
+            countries.forEach(country => {
                 const option = document.createElement('option');
-                option.value = region;
+                option.value = country;
                 datalist.appendChild(option);
             });
         }
 
+        function updateCityOptions() {
+            // Filter cities based on selected country
+            let filteredSpots = spots;
+            if (currentCountry !== 'all') {
+                filteredSpots = spots.filter(s => s.country === currentCountry);
+            }
+            
+            const cities = [...new Set(filteredSpots.map(s => s.city).filter(Boolean))].sort();
+            
+            cityFilter.innerHTML = '<option value="all">全部縣市</option>';
+            cities.forEach(city => {
+                const count = filteredSpots.filter(s => s.city === city).length;
+                const option = document.createElement('option');
+                option.value = city;
+                option.textContent = `${city} (${count})`;
+                cityFilter.appendChild(option);
+            });
+
+            // Update datalist
+            const datalist = document.getElementById('cityList');
+            datalist.innerHTML = '';
+            const allCities = [...new Set(spots.map(s => s.city).filter(Boolean))].sort();
+            allCities.forEach(city => {
+                const option = document.createElement('option');
+                option.value = city;
+                datalist.appendChild(option);
+            });
+        }
+
+        // Add spot
         btnAdd.addEventListener('click', () => {
             editingId = null;
             document.getElementById('modalTitle').textContent = '新增純點';
@@ -1281,6 +1344,7 @@
             });
         });
 
+        // Parse Google Maps URL
         inputGmapUrl.addEventListener('input', (e) => {
             const url = inputGmapUrl.value;
             if (url.length > 20) {
@@ -1310,58 +1374,71 @@
             return null;
         }
 
-        spotForm.addEventListener('submit', (e) => {
+        // Form submit
+        spotForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            
+            const submitBtn = document.getElementById('btnSubmit');
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ 儲存中...';
 
             const name = document.getElementById('inputName').value.trim();
-            const region = document.getElementById('inputRegion').value.trim();
-            const lat = document.getElementById('inputLat').value.trim();
-            const lng = document.getElementById('inputLng').value.trim();
-            const note = document.getElementById('inputNote').value.trim();
+            const country = document.getElementById('inputCountry').value.trim() || null;
+            const city = document.getElementById('inputCity').value.trim() || null;
+            const lat = parseFloat(document.getElementById('inputLat').value.trim());
+            const lng = parseFloat(document.getElementById('inputLng').value.trim());
+            const note = document.getElementById('inputNote').value.trim() || null;
             const type = document.querySelector('.type-option.selected').dataset.type;
 
-            const latNum = parseFloat(lat);
-            const lngNum = parseFloat(lng);
-
-            if (isNaN(latNum) || latNum < -90 || latNum > 90) {
+            if (isNaN(lat) || lat < -90 || lat > 90) {
                 showToast('❌ 緯度要在 -90 到 90 之間');
+                submitBtn.disabled = false;
+                submitBtn.textContent = editingId ? '✨ 更新純點' : '✨ 儲存純點';
                 return;
             }
 
-            if (isNaN(lngNum) || lngNum < -180 || lngNum > 180) {
+            if (isNaN(lng) || lng < -180 || lng > 180) {
                 showToast('❌ 經度要在 -180 到 180 之間');
+                submitBtn.disabled = false;
+                submitBtn.textContent = editingId ? '✨ 更新純點' : '✨ 儲存純點';
                 return;
             }
 
-            const spot = {
-                id: editingId || Date.now().toString(),
-                name,
-                region: region || null,
-                lat: latNum,
-                lng: lngNum,
-                type,
-                note,
-                createdAt: editingId ? spots.find(s => s.id === editingId)?.createdAt : new Date().toISOString()
-            };
+            const spotData = { name, country, city, lat, lng, type, note };
 
-            if (editingId) {
-                const index = spots.findIndex(s => s.id === editingId);
-                spots[index] = spot;
-                showToast('✅ 純點已更新！');
-            } else {
-                spots.unshift(spot);
-                showToast('🎉 純點已儲存！');
+            try {
+                if (editingId) {
+                    await supabaseRequest('PATCH', `spots?id=eq.${editingId}`, spotData);
+                    showToast('✅ 純點已更新！');
+                } else {
+                    await supabaseRequest('POST', 'spots', spotData);
+                    showToast('🎉 純點已儲存！');
+                }
+
+                await loadSpots();
+                modalOverlay.classList.remove('active');
+                spotForm.reset();
+            } catch (error) {
+                console.error('Save error:', error);
+                showToast('❌ 儲存失敗，請重試');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = editingId ? '✨ 更新純點' : '✨ 儲存純點';
             }
-
-            saveSpots();
-            updateRegionOptions();
-            renderSpots();
-            updateStats();
-            modalOverlay.classList.remove('active');
-            spotForm.reset();
         });
 
-        btnExportGpx.addEventListener('click', () => {
+        // Export
+        document.getElementById('btnExportJson').addEventListener('click', () => {
+            if (spots.length === 0) {
+                showToast('😢 還沒有純點可匯出');
+                return;
+            }
+            const json = JSON.stringify(spots, null, 2);
+            downloadFile(json, 'pikmin-spots.json', 'application/json');
+            showToast(`📦 已匯出 ${spots.length} 個純點！`);
+        });
+
+        document.getElementById('btnExportGpx').addEventListener('click', () => {
             if (spots.length === 0) {
                 showToast('😢 還沒有純點可匯出');
                 return;
@@ -1404,12 +1481,12 @@
             const gpxContent = `<?xml version="1.0" encoding="UTF-8"?>
 <gpx version="1.1" creator="PikminSpotManager">
   <metadata>
-    <n>皮克敏純點</n>
+    <name>皮克敏純點</name>
     <time>${new Date().toISOString()}</time>
   </metadata>
 ${spotsToExport.map(spot => `  <wpt lat="${spot.lat}" lon="${spot.lng}">
-    <n>${escapeXml(spot.name)}</n>
-    <desc>${escapeXml(spot.note || getTypeLabel(spot.type))}${spot.region ? ' [' + escapeXml(spot.region) + ']' : ''}</desc>
+    <name>${escapeXml(spot.name)}</name>
+    <desc>${escapeXml(spot.note || getTypeLabel(spot.type))}${spot.country ? ' [' + escapeXml(spot.country) + (spot.city ? '/' + escapeXml(spot.city) : '') + ']' : ''}</desc>
     <type>${spot.type}</type>
   </wpt>`).join('\n')}
 </gpx>`;
@@ -1426,57 +1503,6 @@ ${spotsToExport.map(spot => `  <wpt lat="${spot.lat}" lon="${spot.lng}">
                       .replace(/'/g, '&apos;');
         }
 
-        document.getElementById('btnImportJson').addEventListener('click', () => {
-            document.getElementById('fileImport').click();
-        });
-
-        document.getElementById('fileImport').addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                try {
-                    const importedSpots = JSON.parse(event.target.result);
-                    if (Array.isArray(importedSpots)) {
-                        let newCount = 0;
-                        importedSpots.forEach(imported => {
-                            const exists = spots.some(s => 
-                                Math.abs(s.lat - imported.lat) < 0.0001 && 
-                                Math.abs(s.lng - imported.lng) < 0.0001
-                            );
-                            if (!exists) {
-                                spots.push({
-                                    ...imported,
-                                    id: Date.now().toString() + Math.random().toString(36).substr(2, 9)
-                                });
-                                newCount++;
-                            }
-                        });
-                        saveSpots();
-                        updateRegionOptions();
-                        renderSpots();
-                        updateStats();
-                        showToast(`🎉 匯入 ${newCount} 個新純點！`);
-                    }
-                } catch (err) {
-                    showToast('❌ 檔案格式錯誤');
-                }
-            };
-            reader.readAsText(file);
-            e.target.value = '';
-        });
-
-        document.getElementById('btnExportJson').addEventListener('click', () => {
-            if (spots.length === 0) {
-                showToast('😢 還沒有純點可匯出');
-                return;
-            }
-            const json = JSON.stringify(spots, null, 2);
-            downloadFile(json, 'pikmin-spots-backup.json', 'application/json');
-            showToast(`📦 已備份 ${spots.length} 個純點！`);
-        });
-
         function downloadFile(content, filename, mimeType) {
             const blob = new Blob([content], { type: mimeType });
             const url = URL.createObjectURL(blob);
@@ -1489,17 +1515,21 @@ ${spotsToExport.map(spot => `  <wpt lat="${spot.lat}" lon="${spot.lng}">
             URL.revokeObjectURL(url);
         }
 
+        // Filter spots
         function getFilteredSpots() {
             return spots.filter(spot => {
                 const matchesType = currentFilter === 'all' || spot.type === currentFilter;
-                const matchesRegion = currentRegion === 'all' || spot.region === currentRegion;
+                const matchesCountry = currentCountry === 'all' || spot.country === currentCountry;
+                const matchesCity = currentCity === 'all' || spot.city === currentCity;
                 const matchesSearch = spot.name.toLowerCase().includes(searchQuery) ||
                                      (spot.note && spot.note.toLowerCase().includes(searchQuery)) ||
-                                     (spot.region && spot.region.toLowerCase().includes(searchQuery));
-                return matchesType && matchesRegion && matchesSearch;
+                                     (spot.country && spot.country.toLowerCase().includes(searchQuery)) ||
+                                     (spot.city && spot.city.toLowerCase().includes(searchQuery));
+                return matchesType && matchesCountry && matchesCity && matchesSearch;
             });
         }
 
+        // Render spots
         function renderSpots() {
             const filteredSpots = getFilteredSpots();
 
@@ -1522,7 +1552,8 @@ ${spotsToExport.map(spot => `  <wpt lat="${spot.lat}" lon="${spot.lng}">
                         <div class="spot-header">
                             <div class="spot-name">${escapeHtml(spot.name)}</div>
                             <div class="spot-badges">
-                                ${spot.region ? `<span class="spot-region">🌍 ${escapeHtml(spot.region)}</span>` : ''}
+                                ${spot.country ? `<span class="spot-region">🌍 ${escapeHtml(spot.country)}</span>` : ''}
+                                ${spot.city ? `<span class="spot-city">🏙️ ${escapeHtml(spot.city)}</span>` : ''}
                                 <span class="spot-type ${spot.type}">${getTypeLabel(spot.type)}</span>
                             </div>
                         </div>
@@ -1590,6 +1621,7 @@ ${spotsToExport.map(spot => `  <wpt lat="${spot.lat}" lon="${spot.lng}">
             document.getElementById('stat-postcard').textContent = spots.filter(s => s.type === 'postcard').length;
         }
 
+        // Actions
         window.copyCoords = function(coords) {
             navigator.clipboard.writeText(coords).then(() => {
                 showToast('📋 座標已複製！');
@@ -1612,7 +1644,8 @@ ${spotsToExport.map(spot => `  <wpt lat="${spot.lat}" lon="${spot.lng}">
             document.getElementById('modalTitle').textContent = '編輯純點';
             document.getElementById('btnSubmit').textContent = '✨ 更新純點';
             document.getElementById('inputName').value = spot.name;
-            document.getElementById('inputRegion').value = spot.region || '';
+            document.getElementById('inputCountry').value = spot.country || '';
+            document.getElementById('inputCity').value = spot.city || '';
             document.getElementById('inputLat').value = spot.lat;
             document.getElementById('inputLng').value = spot.lng;
             document.getElementById('inputNote').value = spot.note || '';
@@ -1624,20 +1657,18 @@ ${spotsToExport.map(spot => `  <wpt lat="${spot.lat}" lon="${spot.lng}">
             modalOverlay.classList.add('active');
         };
 
-        window.deleteSpot = function(id) {
+        window.deleteSpot = async function(id) {
             if (confirm('確定要刪除這個純點嗎？')) {
-                spots = spots.filter(s => s.id !== id);
-                saveSpots();
-                updateRegionOptions();
-                renderSpots();
-                updateStats();
-                showToast('🗑️ 純點已刪除');
+                try {
+                    await supabaseRequest('DELETE', `spots?id=eq.${id}`);
+                    await loadSpots();
+                    showToast('🗑️ 純點已刪除');
+                } catch (error) {
+                    console.error('Delete error:', error);
+                    showToast('❌ 刪除失敗，請重試');
+                }
             }
         };
-
-        function saveSpots() {
-            localStorage.setItem('pikminSpots', JSON.stringify(spots));
-        }
 
         function showToast(message) {
             toast.textContent = message;
