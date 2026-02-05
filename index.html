@@ -1112,14 +1112,13 @@
     </div>
 
     <!-- Login Modal -->
-    <div class="modal-overlay active" id="loginModal">
+    <div class="modal-overlay" id="loginModal">
         <div class="login-modal">
             <div class="seedling-icon" style="font-size: 4rem; text-align: center;">🌱</div>
             <h2 class="login-title">皮克敏純點管理器</h2>
-            <p class="login-subtitle">登入以同步你的純點資料</p>
-            <button class="btn-login" onclick="loginAsGuest()">🚀 訪客登入（可新增/編輯）</button>
-            <div class="login-divider">或</div>
-            <button class="btn-admin" onclick="loginAsAdmin()">🔑 管理員登入（完整權限）</button>
+            <p class="login-subtitle">你已經可以查看、新增和編輯所有資料！<br>只有管理員需要登入以使用刪除功能。</p>
+            <button class="btn-admin" onclick="loginAsAdmin()">🔑 管理員登入</button>
+            <button class="btn-cancel" onclick="closeLoginModal()" style="margin-top: 10px;">關閉</button>
         </div>
     </div>
 
@@ -1129,8 +1128,8 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         // ==================== Supabase 設定 ====================
-        const SUPABASE_URL = 'YOUR_SUPABASE_URL';
-        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+        const SUPABASE_URL = 'https://iojmxiijtvmjglodauai.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlvam14aWlqdHZtamdsb2RhdWFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyMzM5MDYsImV4cCI6MjA4NTgwOTkwNn0.4rnjTDXmCH77KwO-1GeZlTKn9xwBrhOJQkQ--FjxQk0';
         const { createClient } = supabase;
         const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -1157,15 +1156,17 @@
 
         // ==================== 初始化 ====================
         async function init() {
+            // 先載入所有公開資料（訪客也能看）
+            await loadSpots();
+            
             // 檢查是否已登入
             const { data: { session } } = await supabaseClient.auth.getSession();
             
             if (session) {
                 currentUser = session.user;
                 await checkAdminStatus();
-                loginModal.classList.remove('active');
                 updateUserInfo();
-                await loadSpots();
+                await loadSpots(); // 重新載入以顯示使用者的私人資料
             }
 
             // 監聽驗證狀態變化
@@ -1179,7 +1180,8 @@
                 } else if (event === 'SIGNED_OUT') {
                     currentUser = null;
                     isAdmin = false;
-                    loginModal.classList.add('active');
+                    await loadSpots(); // 重新載入只顯示公開資料
+                    updateUserInfo();
                 }
             });
         }
@@ -1368,11 +1370,7 @@
 
         // ==================== Modal 控制 ====================
         function openAddModal() {
-            if (!currentUser) {
-                showToast('❌ 請先登入');
-                return;
-            }
-
+            // 訪客也可以新增，不需要登入
             editingId = null;
             document.getElementById('modalTitle').textContent = '新增純點';
             document.getElementById('btnSubmit').textContent = '✨ 新增純點';
@@ -1383,6 +1381,10 @@
 
         function closeModal() {
             modalOverlay.classList.remove('active');
+        }
+
+        function closeLoginModal() {
+            loginModal.classList.remove('active');
         }
 
         function selectType(type) {
@@ -1396,10 +1398,7 @@
         document.getElementById('spotForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            if (!currentUser) {
-                showToast('❌ 請先登入');
-                return;
-            }
+            // 訪客也可以新增/編輯，不需要登入檢查
 
             const spotData = {
                 name: document.getElementById('inputName').value,
@@ -1416,7 +1415,7 @@
 
                 if (editingId) {
                     // 更新
-                    const { error } = await supabase
+                    const { error } = await supabaseClient
                         .from('spots')
                         .update(spotData)
                         .eq('id', editingId);
@@ -1425,7 +1424,7 @@
                     showToast('✅ 純點已更新！');
                 } else {
                     // 新增
-                    const { error } = await supabase
+                    const { error } = await supabaseClient
                         .from('spots')
                         .insert([spotData]);
 
@@ -1709,10 +1708,7 @@ ${spotsToExport.map(spot => `  <wpt lat="${spot.lat}" lon="${spot.lng}">
         };
 
         window.editSpot = function(id) {
-            if (!currentUser) {
-                showToast('❌ 請先登入');
-                return;
-            }
+            // 訪客也可以編輯，不需要登入
 
             const spot = spots.find(s => s.id === id);
             if (!spot) return;
