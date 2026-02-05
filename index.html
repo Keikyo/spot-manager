@@ -3,245 +3,1772 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>皮克敏純點管理器 v7</title>
+    <title>皮克敏純點管理器</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        /* 此處省略與 v6 相同的 CSS 以節省空間，請保留你原始檔案中的 <style> 內容 */
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif; background: linear-gradient(180deg, #87CEEB 0%, #B0E0F0 40%, #98E4C9 70%, #7BC97B 100%); min-height: 100vh; color: #2D5016; padding-bottom: 100px; position: relative; overflow-x: hidden; }
-        .header { background: linear-gradient(180deg, #87CEEB 0%, #B8E4F0 100%); padding: 30px 16px 40px; text-align: center; position: relative; overflow: hidden; border-radius: 0 0 40px 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
-        .header-cloud { position: absolute; background: #fff; border-radius: 50%; opacity: 0.9; }
-        .header-cloud::before, .header-cloud::after { content: ''; position: absolute; background: #fff; border-radius: 50%; }
-        .header-cloud-1 { width: 80px; height: 30px; top: 15px; left: 10%; animation: cloud-drift 20s linear infinite; }
-        .header-cloud-1::before { width: 40px; height: 40px; top: -20px; left: 10px; }
-        .header-cloud-1::after { width: 50px; height: 35px; top: -15px; left: 35px; }
-        .header-cloud-2 { width: 100px; height: 35px; top: 20px; right: 15%; animation: cloud-drift 25s linear infinite; animation-delay: -5s; }
-        .header-cloud-2::before { width: 50px; height: 50px; top: -25px; left: 15px; }
-        .header-cloud-2::after { width: 60px; height: 40px; top: -18px; left: 45px; }
-        .header-cloud-3 { width: 60px; height: 24px; top: 50px; left: 50%; transform: translateX(-50%); animation: cloud-drift 18s linear infinite; animation-delay: -10s; opacity: 0.7; }
-        .header-cloud-3::before { width: 30px; height: 30px; top: -15px; left: 8px; }
-        .header-cloud-3::after { width: 35px; height: 25px; top: -10px; left: 28px; }
-        @keyframes cloud-drift { 0% { transform: translateX(-20px); } 50% { transform: translateX(20px); } 100% { transform: translateX(-20px); } }
-        .header-content { position: relative; z-index: 10; }
-        .seedling-icon { font-size: 3rem; display: inline-block; animation: seedling-bounce 2s ease-in-out infinite; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1)); }
-        @keyframes seedling-bounce { 0%, 100% { transform: translateY(0) rotate(-5deg); } 25% { transform: translateY(-8px) rotate(0deg); } 50% { transform: translateY(0) rotate(5deg); } 75% { transform: translateY(-4px) rotate(0deg); } }
-        .header h1 { font-size: 1.5rem; font-weight: 800; color: #4A7C23; margin-top: 8px; text-shadow: 1px 1px 0 rgba(255,255,255,0.5); }
-        .header p { font-size: 0.9rem; color: #5A8F33; font-weight: 600; margin-top: 4px; }
-        .sync-status { font-size: 0.75rem; margin-top: 8px; padding: 4px 12px; border-radius: 12px; display: inline-block; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(180deg, #87CEEB 0%, #B0E0F0 40%, #98E4C9 70%, #7BC97B 100%);
+            min-height: 100vh;
+            color: #2D5016;
+            padding-bottom: 100px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Header with Sky and Clouds */
+        .header {
+            background: linear-gradient(180deg, #87CEEB 0%, #B8E4F0 100%);
+            padding: 30px 16px 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            border-radius: 0 0 40px 40px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .header-cloud {
+            position: absolute;
+            background: #fff;
+            border-radius: 50%;
+            opacity: 0.9;
+        }
+
+        .header-cloud::before,
+        .header-cloud::after {
+            content: '';
+            position: absolute;
+            background: #fff;
+            border-radius: 50%;
+        }
+
+        .header-cloud-1 {
+            width: 80px;
+            height: 30px;
+            top: 15px;
+            left: 10%;
+            animation: cloud-drift 20s linear infinite;
+        }
+        .header-cloud-1::before {
+            width: 40px;
+            height: 40px;
+            top: -20px;
+            left: 10px;
+        }
+        .header-cloud-1::after {
+            width: 50px;
+            height: 35px;
+            top: -15px;
+            left: 35px;
+        }
+
+        .header-cloud-2 {
+            width: 100px;
+            height: 35px;
+            top: 20px;
+            right: 15%;
+            animation: cloud-drift 25s linear infinite;
+            animation-delay: -5s;
+        }
+        .header-cloud-2::before {
+            width: 50px;
+            height: 50px;
+            top: -25px;
+            left: 15px;
+        }
+        .header-cloud-2::after {
+            width: 60px;
+            height: 40px;
+            top: -18px;
+            left: 45px;
+        }
+
+        .header-cloud-3 {
+            width: 60px;
+            height: 24px;
+            top: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: cloud-drift 18s linear infinite;
+            animation-delay: -10s;
+            opacity: 0.7;
+        }
+        .header-cloud-3::before {
+            width: 30px;
+            height: 30px;
+            top: -15px;
+            left: 8px;
+        }
+        .header-cloud-3::after {
+            width: 35px;
+            height: 25px;
+            top: -10px;
+            left: 28px;
+        }
+
+        @keyframes cloud-drift {
+            0% { transform: translateX(-20px); }
+            50% { transform: translateX(20px); }
+            100% { transform: translateX(-20px); }
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 10;
+        }
+
+        .seedling-icon {
+            font-size: 3rem;
+            display: inline-block;
+            animation: seedling-bounce 2s ease-in-out infinite;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+        }
+
+        @keyframes seedling-bounce {
+            0%, 100% { transform: translateY(0) rotate(-5deg); }
+            25% { transform: translateY(-8px) rotate(0deg); }
+            50% { transform: translateY(0) rotate(5deg); }
+            75% { transform: translateY(-4px) rotate(0deg); }
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #4A7C23;
+            margin-top: 8px;
+            text-shadow: 1px 1px 0 rgba(255,255,255,0.5);
+        }
+
+        .header p {
+            font-size: 0.9rem;
+            color: #5A8F33;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        /* User info */
+        .user-info {
+            font-size: 0.8rem;
+            margin-top: 12px;
+            padding: 6px 12px;
+            border-radius: 12px;
+            display: inline-block;
+            background: rgba(255,255,255,0.8);
+            color: #4A7C23;
+        }
+
+        .user-role {
+            font-weight: 700;
+            color: #E65100;
+        }
+
+        .btn-logout {
+            margin-left: 8px;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+
+        /* Sync status */
+        .sync-status {
+            font-size: 0.75rem;
+            margin-top: 8px;
+            padding: 4px 12px;
+            border-radius: 12px;
+            display: inline-block;
+        }
         .sync-status.syncing { background: #FFF3E0; color: #E65100; }
         .sync-status.synced { background: #E8F5E9; color: #2E7D32; }
         .sync-status.error { background: #FFEBEE; color: #C62828; }
-        .bg-cloud { position: fixed; background: #fff; border-radius: 50%; opacity: 0.6; z-index: 0; pointer-events: none; }
-        .bg-cloud::before, .bg-cloud::after { content: ''; position: absolute; background: #fff; border-radius: 50%; }
-        .bg-cloud-1 { width: 120px; height: 45px; top: 25%; left: -150px; animation: float-cloud 40s linear infinite; }
-        .bg-cloud-1::before { width: 60px; height: 60px; top: -30px; left: 20px; }
-        .bg-cloud-1::after { width: 70px; height: 50px; top: -25px; left: 55px; }
-        .bg-cloud-2 { width: 90px; height: 35px; top: 40%; left: -120px; animation: float-cloud 35s linear infinite; animation-delay: -15s; }
-        .bg-cloud-2::before { width: 45px; height: 45px; top: -22px; left: 12px; }
-        .bg-cloud-2::after { width: 55px; height: 38px; top: -18px; left: 40px; }
-        .bg-cloud-3 { width: 100px; height: 40px; top: 55%; left: -130px; animation: float-cloud 45s linear infinite; animation-delay: -25s; opacity: 0.5; }
-        .bg-cloud-3::before { width: 50px; height: 50px; top: -25px; left: 15px; }
-        .bg-cloud-3::after { width: 60px; height: 42px; top: -20px; left: 45px; }
-        @keyframes float-cloud { from { transform: translateX(0); } to { transform: translateX(calc(100vw + 200px)); } }
-        .flowers-container { position: fixed; bottom: 0; left: 0; right: 0; height: 60px; pointer-events: none; z-index: 2; display: flex; justify-content: space-around; align-items: flex-end; padding: 0 10px 8px; }
-        .flower { font-size: 20px; animation: sway 3s ease-in-out infinite; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); }
-        .flower:nth-child(odd) { animation-delay: 0s; }
-        .flower:nth-child(even) { animation-delay: 0.5s; }
-        @keyframes sway { 0%, 100% { transform: rotate(-8deg); } 50% { transform: rotate(8deg); } }
-        .container { padding: 16px; max-width: 600px; margin: 0 auto; position: relative; z-index: 1; }
-        .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 12px; background: rgba(255,255,255,0.9); border-radius: 20px; margin-bottom: 16px; margin-top: -20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); position: relative; z-index: 10; }
-        .stat-item { text-align: center; padding: 10px 4px; border-radius: 14px; transition: transform 0.2s; }
-        .stat-item:active { transform: scale(0.95); }
-        .stat-icon { font-size: 1.3rem; margin-bottom: 2px; }
-        .stat-number { font-size: 1.4rem; font-weight: 800; }
-        .stat-label { font-size: 11px; font-weight: 700; opacity: 0.9; }
-        .stat-item.flower { background: linear-gradient(135deg, #FFE4EC 0%, #FFB6C1 100%); color: #C71585; }
-        .stat-item.pikmin { background: linear-gradient(135deg, #E8F5E9 0%, #A5D6A7 100%); color: #2E7D32; }
-        .stat-item.mushroom { background: linear-gradient(135deg, #FFF3E0 0%, #FFCC80 100%); color: #E65100; }
-        .stat-item.postcard { background: linear-gradient(135deg, #E3F2FD 0%, #90CAF9 100%); color: #1565C0; }
-        .search-section { background: rgba(255,255,255,0.9); border-radius: 24px; padding: 16px; margin-bottom: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .search-input-wrapper { position: relative; margin-bottom: 12px; }
-        .search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-size: 18px; }
-        .search-input { width: 100%; padding: 14px 16px 14px 48px; border: 3px solid #E8F5E9; border-radius: 16px; font-size: 16px; font-family: inherit; font-weight: 600; background: #fff; color: #2D5016; transition: border-color 0.2s; }
-        .search-input:focus { outline: none; border-color: #81C784; }
-        .filter-group { margin-bottom: 12px; }
-        .filter-label { font-size: 12px; font-weight: 700; color: #666; margin-bottom: 8px; display: block; }
-        .filter-row { display: flex; gap: 10px; }
-        .filter-row .region-select-wrapper { flex: 1; }
-        .filter-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
-        .filter-tab { padding: 10px 14px; border: 3px solid transparent; border-radius: 16px; font-size: 13px; font-weight: 700; font-family: inherit; cursor: pointer; transition: all 0.2s; background: #f0f0f0; color: #666; }
-        .filter-tab.active { background: #fff; transform: scale(1.05); }
-        .filter-tab[data-type="all"].active { border-color: #81C784; color: #2D5016; }
-        .filter-tab[data-type="flower"].active { border-color: #FF6B9D; color: #C71585; background: #FFE4EC; }
-        .filter-tab[data-type="pikmin"].active { border-color: #66BB6A; color: #2E7D32; background: #E8F5E9; }
-        .filter-tab[data-type="mushroom"].active { border-color: #FF8A65; color: #E65100; background: #FFF3E0; }
-        .filter-tab[data-type="postcard"].active { border-color: #42A5F5; color: #1565C0; background: #E3F2FD; }
-        .region-select-wrapper { position: relative; }
-        .region-select { width: 100%; padding: 12px 16px; border: 3px solid #E8F5E9; border-radius: 16px; font-size: 14px; font-family: inherit; font-weight: 600; background: #fff; color: #2D5016; cursor: pointer; appearance: none; }
-        .region-select:focus { outline: none; border-color: #9575CD; }
-        .region-select-wrapper::after { content: '▼'; position: absolute; right: 16px; top: 50%; transform: translateY(-50%); font-size: 12px; color: #666; pointer-events: none; }
-        .filter-summary { background: linear-gradient(135deg, #EDE7F6 0%, #E8F5E9 100%); padding: 10px 14px; border-radius: 12px; font-size: 13px; font-weight: 600; color: #5E35B1; margin-top: 12px; display: none; }
-        .filter-summary.active { display: block; }
-        .import-section { background: rgba(255,255,255,0.9); border-radius: 20px; padding: 16px; margin-bottom: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .import-title { font-size: 14px; font-weight: 700; margin-bottom: 12px; color: #2D5016; }
-        .import-btns { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; } /* 改為三欄 */
-        .btn-import { padding: 10px 4px; background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%); border: 3px dashed #81C784; border-radius: 14px; color: #2E7D32; font-size: 12px; font-weight: 700; font-family: inherit; cursor: pointer; transition: all 0.2s; text-align: center; }
-        .btn-import:active { transform: scale(0.97); }
-        .spot-list { display: flex; flex-direction: column; gap: 12px; }
-        /* 其餘樣式省略... */
+
+        /* Background clouds */
+        .bg-cloud {
+            position: fixed;
+            background: #fff;
+            border-radius: 50%;
+            opacity: 0.6;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .bg-cloud::before,
+        .bg-cloud::after {
+            content: '';
+            position: absolute;
+            background: #fff;
+            border-radius: 50%;
+        }
+
+        .bg-cloud-1 {
+            width: 120px;
+            height: 45px;
+            top: 25%;
+            left: -150px;
+            animation: float-cloud 40s linear infinite;
+        }
+        .bg-cloud-1::before {
+            width: 60px;
+            height: 60px;
+            top: -30px;
+            left: 20px;
+        }
+        .bg-cloud-1::after {
+            width: 70px;
+            height: 50px;
+            top: -25px;
+            left: 55px;
+        }
+
+        .bg-cloud-2 {
+            width: 90px;
+            height: 35px;
+            top: 40%;
+            left: -120px;
+            animation: float-cloud 35s linear infinite;
+            animation-delay: -15s;
+        }
+        .bg-cloud-2::before {
+            width: 45px;
+            height: 45px;
+            top: -22px;
+            left: 12px;
+        }
+        .bg-cloud-2::after {
+            width: 55px;
+            height: 38px;
+            top: -18px;
+            left: 40px;
+        }
+
+        .bg-cloud-3 {
+            width: 110px;
+            height: 40px;
+            top: 60%;
+            left: -140px;
+            animation: float-cloud 45s linear infinite;
+            animation-delay: -30s;
+        }
+        .bg-cloud-3::before {
+            width: 55px;
+            height: 55px;
+            top: -28px;
+            left: 18px;
+        }
+        .bg-cloud-3::after {
+            width: 65px;
+            height: 45px;
+            top: -22px;
+            left: 50px;
+        }
+
+        @keyframes float-cloud {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(calc(100vw + 200px)); }
+        }
+
+        /* Container */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 16px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Stats */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 24px 0;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 16px;
+            padding: 16px 12px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+        }
+
+        .stat-card.flower-card { border-color: #FFB6C1; }
+        .stat-card.pikmin-card { border-color: #90EE90; }
+        .stat-card.mushroom-card { border-color: #DDA0DD; }
+        .stat-card.postcard-card { border-color: #87CEEB; }
+
+        .stat-icon {
+            font-size: 1.8rem;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: #666;
+            font-weight: 600;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #2D5016;
+            margin-top: 2px;
+        }
+
+        /* Search & Filters */
+        .controls {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .search-box {
+            position: relative;
+            margin-bottom: 12px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 16px 12px 40px;
+            border: 2px solid #E0E0E0;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #7BC97B;
+            box-shadow: 0 0 0 3px rgba(123,201,123,0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.1rem;
+        }
+
+        .filter-group {
+            margin-bottom: 12px;
+        }
+
+        .filter-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .filter-label {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #4A7C23;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 14px;
+            border: 2px solid #E0E0E0;
+            background: white;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+            flex: 1;
+            min-width: fit-content;
+        }
+
+        .filter-btn:hover {
+            background: #F5F5F5;
+        }
+
+        .filter-btn.active {
+            background: #7BC97B;
+            color: white;
+            border-color: #7BC97B;
+        }
+
+        .filter-btn.flower { border-color: #FFB6C1; }
+        .filter-btn.flower.active { background: #FFB6C1; border-color: #FFB6C1; }
+
+        .filter-btn.pikmin { border-color: #90EE90; }
+        .filter-btn.pikmin.active { background: #90EE90; border-color: #90EE90; }
+
+        .filter-btn.mushroom { border-color: #DDA0DD; }
+        .filter-btn.mushroom.active { background: #DDA0DD; border-color: #DDA0DD; }
+
+        .filter-btn.postcard { border-color: #87CEEB; }
+        .filter-btn.postcard.active { background: #87CEEB; border-color: #87CEEB; }
+
+        /* Spot List */
+        .spot-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .spot-card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            border-left: 4px solid #7BC97B;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .spot-card:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .spot-card.flower-card { border-left-color: #FFB6C1; }
+        .spot-card.pikmin-card { border-left-color: #90EE90; }
+        .spot-card.mushroom-card { border-left-color: #DDA0DD; }
+        .spot-card.postcard-card { border-left-color: #87CEEB; }
+
+        .spot-card.select-mode {
+            padding-left: 48px;
+        }
+
+        .spot-checkbox {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .spot-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+            gap: 8px;
+        }
+
+        .spot-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #2D5016;
+            flex: 1;
+        }
+
+        .spot-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .spot-region, .spot-city {
+            font-size: 0.75rem;
+            padding: 3px 8px;
+            background: #E8F5E9;
+            border-radius: 8px;
+            color: #2E7D32;
+            font-weight: 600;
+        }
+
+        .spot-city {
+            background: #E3F2FD;
+            color: #1565C0;
+        }
+
+        .spot-type {
+            font-size: 0.75rem;
+            padding: 3px 8px;
+            border-radius: 8px;
+            font-weight: 700;
+            background: #F5F5F5;
+            color: #666;
+        }
+
+        .spot-type.flower { background: #FFE4E9; color: #C2185B; }
+        .spot-type.pikmin { background: #E8F5E9; color: #2E7D32; }
+        .spot-type.mushroom { background: #F3E5F5; color: #7B1FA2; }
+        .spot-type.postcard { background: #E3F2FD; color: #1565C0; }
+
+        .spot-coords {
+            font-size: 0.8rem;
+            color: #666;
+            font-family: 'Courier New', monospace;
+            margin-bottom: 8px;
+        }
+
+        .spot-note {
+            font-size: 0.9rem;
+            color: #555;
+            margin-bottom: 12px;
+            padding: 8px;
+            background: #F9F9F9;
+            border-radius: 8px;
+        }
+
+        .spot-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 8px 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .btn-copy {
+            background: #E3F2FD;
+            color: #1565C0;
+            flex: 1;
+        }
+
+        .btn-copy:hover {
+            background: #BBDEFB;
+        }
+
+        .btn-edit {
+            background: #FFF3E0;
+            color: #E65100;
+        }
+
+        .btn-edit:hover {
+            background: #FFE0B2;
+        }
+
+        .btn-delete {
+            background: #FFEBEE;
+            color: #C62828;
+        }
+
+        .btn-delete:hover {
+            background: #FFCDD2;
+        }
+
+        /* FAB */
+        .fab {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #7BC97B 0%, #5FA85F 100%);
+            border-radius: 50%;
+            border: none;
+            font-size: 2rem;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(123,201,123,0.4);
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .fab:hover {
+            transform: scale(1.1) rotate(90deg);
+            box-shadow: 0 8px 25px rgba(123,201,123,0.5);
+        }
+
+        .fab:active {
+            transform: scale(0.95);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            padding: 16px;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 24px;
+            padding: 28px 24px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            transform: scale(0.9);
+            transition: all 0.3s;
+        }
+
+        .modal-overlay.active .modal {
+            transform: scale(1);
+        }
+
+        .modal h2 {
+            font-size: 1.5rem;
+            color: #2D5016;
+            margin-bottom: 20px;
+            font-weight: 800;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #4A7C23;
+            margin-bottom: 6px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #E0E0E0;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #7BC97B;
+            box-shadow: 0 0 0 3px rgba(123,201,123,0.1);
+        }
+
+        .type-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .type-option {
+            padding: 12px;
+            border: 2px solid #E0E0E0;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .type-option:hover {
+            background: #F5F5F5;
+        }
+
+        .type-option.selected {
+            background: #7BC97B;
+            color: white;
+            border-color: #7BC97B;
+        }
+
+        .type-option.flower.selected { background: #FFB6C1; border-color: #FFB6C1; }
+        .type-option.pikmin.selected { background: #90EE90; border-color: #90EE90; color: #2D5016; }
+        .type-option.mushroom.selected { background: #DDA0DD; border-color: #DDA0DD; }
+        .type-option.postcard.selected { background: #87CEEB; border-color: #87CEEB; }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 24px;
+        }
+
+        .btn-submit {
+            flex: 1;
+            padding: 14px;
+            background: linear-gradient(135deg, #7BC97B 0%, #5FA85F 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(123,201,123,0.3);
+        }
+
+        .btn-cancel {
+            flex: 1;
+            padding: 14px;
+            background: #F5F5F5;
+            color: #666;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-cancel:hover {
+            background: #E0E0E0;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: rgba(45,80,22,0.95);
+            color: white;
+            padding: 14px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+            z-index: 2000;
+            opacity: 0;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 16px;
+            opacity: 0.6;
+        }
+
+        .empty-state-text {
+            font-size: 1.1rem;
+            color: #666;
+            font-weight: 600;
+        }
+
+        /* Import/Export buttons */
+        .utility-buttons {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .btn-utility {
+            flex: 1;
+            padding: 10px;
+            background: white;
+            border: 2px solid #7BC97B;
+            color: #4A7C23;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-utility:hover {
+            background: #7BC97B;
+            color: white;
+        }
+
+        /* Select mode */
+        .select-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 16px;
+            box-shadow: 0 -4px 12px rgba(0,0,0,0.1);
+            transform: translateY(100%);
+            transition: transform 0.3s;
+            z-index: 99;
+        }
+
+        .select-bar.active {
+            transform: translateY(0);
+        }
+
+        .select-bar-content {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .select-count {
+            font-weight: 700;
+            color: #4A7C23;
+            flex: 1;
+        }
+
+        .btn-select-action {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-select-cancel {
+            background: #F5F5F5;
+            color: #666;
+        }
+
+        .btn-select-export {
+            background: #7BC97B;
+            color: white;
+        }
+
+        /* Login Modal */
+        .login-modal {
+            background: white;
+            border-radius: 24px;
+            padding: 32px 28px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .login-title {
+            font-size: 1.8rem;
+            color: #2D5016;
+            margin-bottom: 24px;
+            font-weight: 800;
+            text-align: center;
+        }
+
+        .login-subtitle {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #7BC97B 0%, #5FA85F 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 12px;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(123,201,123,0.3);
+        }
+
+        .login-divider {
+            text-align: center;
+            margin: 20px 0;
+            color: #999;
+            font-size: 0.85rem;
+        }
+
+        .btn-admin {
+            width: 100%;
+            padding: 14px;
+            background: #FFF3E0;
+            color: #E65100;
+            border: 2px solid #E65100;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-admin:hover {
+            background: #E65100;
+            color: white;
+        }
+
+        @media (max-width: 600px) {
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .type-options {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- Background Clouds -->
     <div class="bg-cloud bg-cloud-1"></div>
     <div class="bg-cloud bg-cloud-2"></div>
     <div class="bg-cloud bg-cloud-3"></div>
-    <div class="flowers-container">
-        <div class="flower">🌼</div><div class="flower">❀</div><div class="flower">🌼</div><div class="flower">❀</div><div class="flower">🌼</div>
-        <div class="flower">❀</div><div class="flower">🌼</div><div class="flower">❀</div><div class="flower">🌼</div><div class="flower">❀</div>
-    </div>
-    
+
+    <!-- Header -->
     <div class="header">
         <div class="header-cloud header-cloud-1"></div>
         <div class="header-cloud header-cloud-2"></div>
         <div class="header-cloud header-cloud-3"></div>
         <div class="header-content">
             <div class="seedling-icon">🌱</div>
-            <h1>純點管理器</h1>
-            <p>收藏你的皮克敏秘境</p>
-            <div class="sync-status synced" id="syncStatus">☁️ 已連線</div>
+            <h1>皮克敏純點管理器</h1>
+            <p>收藏你的純點足跡</p>
+            <div id="userInfo" class="user-info" style="display: none;">
+                <span id="userEmail"></span>
+                <span id="userRole" class="user-role"></span>
+                <button class="btn-logout" onclick="logout()">登出</button>
+            </div>
+            <div id="syncStatus" class="sync-status synced">✨ 已同步</div>
         </div>
     </div>
 
     <div class="container">
-        <div class="stats" id="stats">
-            <div class="stat-item flower"><div class="stat-icon">🌸</div><div class="stat-number" id="stat-flower">0</div><div class="stat-label">大花</div></div>
-            <div class="stat-item pikmin"><div class="stat-icon">🌱</div><div class="stat-number" id="stat-pikmin">0</div><div class="stat-label">皮克敏</div></div>
-            <div class="stat-item mushroom"><div class="stat-icon">🍄</div><div class="stat-number" id="stat-mushroom">0</div><div class="stat-label">蘑菇</div></div>
-            <div class="stat-item postcard"><div class="stat-icon">🏠</div><div class="stat-number" id="stat-postcard">0</div><div class="stat-label">明信片</div></div>
+        <!-- Stats -->
+        <div class="stats">
+            <div class="stat-card flower-card">
+                <div class="stat-icon">🌸</div>
+                <div class="stat-label">大花</div>
+                <div class="stat-number" id="stat-flower">0</div>
+            </div>
+            <div class="stat-card pikmin-card">
+                <div class="stat-icon">🌱</div>
+                <div class="stat-label">皮克敏</div>
+                <div class="stat-number" id="stat-pikmin">0</div>
+            </div>
+            <div class="stat-card mushroom-card">
+                <div class="stat-icon">🍄</div>
+                <div class="stat-label">蘑菇</div>
+                <div class="stat-number" id="stat-mushroom">0</div>
+            </div>
+            <div class="stat-card postcard-card">
+                <div class="stat-icon">🏠</div>
+                <div class="stat-label">明信片</div>
+                <div class="stat-number" id="stat-postcard">0</div>
+            </div>
         </div>
 
-        <div class="search-section">
-            <div class="search-input-wrapper">
+        <!-- Import/Export Buttons -->
+        <div class="utility-buttons">
+            <button class="btn-utility" onclick="importGpx()">📥 匯入 GPX</button>
+            <button class="btn-utility" onclick="exportAllGpx()">📤 匯出全部</button>
+            <button class="btn-utility" onclick="enterSelectMode()">✅ 選擇匯出</button>
+        </div>
+
+        <!-- Search & Filters -->
+        <div class="controls">
+            <div class="search-box">
                 <span class="search-icon">🔍</span>
-                <input type="text" class="search-input" id="searchInput" placeholder="搜尋純點...">
+                <input type="text" id="searchInput" placeholder="搜尋純點名稱、備註、地點...">
             </div>
+
             <div class="filter-group">
-                <label class="filter-label">🌍 地區篩選</label>
-                <div class="filter-row">
-                    <div class="region-select-wrapper"><select class="region-select" id="countryFilter"><option value="all">全部國家</option></select></div>
-                    <div class="region-select-wrapper"><select class="region-select" id="cityFilter"><option value="all">全部縣市</option></select></div>
+                <div class="filter-label">純點類型</div>
+                <div class="filter-buttons">
+                    <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">🌈 全部</button>
+                    <button class="filter-btn flower" data-filter="flower" onclick="setFilter('flower')">🌸 大花</button>
+                    <button class="filter-btn pikmin" data-filter="pikmin" onclick="setFilter('pikmin')">🌱 皮克敏</button>
+                    <button class="filter-btn mushroom" data-filter="mushroom" onclick="setFilter('mushroom')">🍄 蘑菇</button>
+                    <button class="filter-btn postcard" data-filter="postcard" onclick="setFilter('postcard')">🏠 明信片</button>
                 </div>
             </div>
+
             <div class="filter-group">
-                <label class="filter-label">🏷️ 類型篩選</label>
-                <div class="filter-tabs">
-                    <button class="filter-tab active" data-type="all">全部</button>
-                    <button class="filter-tab" data-type="flower">🌸 大花</button>
-                    <button class="filter-tab" data-type="pikmin">🌱 皮克敏</button>
-                    <button class="filter-tab" data-type="mushroom">🍄 蘑菇</button>
-                    <button class="filter-tab" data-type="postcard">🏠 明信片</button>
+                <div class="filter-label">國家</div>
+                <div class="filter-buttons" id="countryFilters">
+                    <button class="filter-btn active" data-country="all" onclick="setCountryFilter('all')">🌍 全部</button>
                 </div>
             </div>
-            <div class="filter-summary" id="filterSummary"></div>
+
+            <div class="filter-group">
+                <div class="filter-label">縣市</div>
+                <div class="filter-buttons" id="cityFilters">
+                    <button class="filter-btn active" data-city="all" onclick="setCityFilter('all')">🏙️ 全部</button>
+                </div>
+            </div>
         </div>
 
-        <div class="import-section">
-            <div class="import-title">📦 資料管理</div>
-            <div class="import-btns">
-                <button class="btn-import" id="btnExportJson">📤 匯出 JSON</button>
-                <button class="btn-import" id="btnExportGpx">📍 匯出 GPX</button>
-                <button class="btn-import" id="btnImportJson">📥 匯入 JSON</button> <input type="file" id="fileInput" accept=".json" style="display: none;"> </div>
-        </div>
-
+        <!-- Spot List -->
         <div class="spot-list" id="spotList"></div>
     </div>
 
-    <div class="fab-container">
-        <button class="fab fab-refresh" id="btnRefresh" title="重新載入">🔄</button>
-        <button class="fab fab-add" id="btnAdd" title="新增純點">+</button>
+    <!-- FAB -->
+    <button class="fab" onclick="openAddModal()">+</button>
+
+    <!-- Select Bar -->
+    <div class="select-bar" id="selectBar">
+        <div class="select-bar-content">
+            <div class="select-count">已選 <span id="selectedCount">0</span> 個</div>
+            <button class="btn-select-action btn-select-cancel" id="btnCancelSelect">取消</button>
+            <button class="btn-select-action btn-select-export" id="btnConfirmExport">📤 匯出</button>
+        </div>
     </div>
 
-    <script>
-        // Supabase 配置
-        const SUPABASE_URL = 'https://iojmxiijtvmjglodauai.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlvam14aWlqdHZtamdsb2RhdWFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyMzM5MDYsImV4cCI6MjA4NTgwOTkwNn0.4rnjTDXmCH77KwO-1GeZlTKn9xwBrhOJQkQ--FjxQk0';
+    <!-- Add/Edit Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <h2 id="modalTitle">新增純點</h2>
+            <form id="spotForm">
+                <div class="form-group">
+                    <label class="form-label">名稱</label>
+                    <input type="text" class="form-input" id="inputName" placeholder="純點名稱" required>
+                </div>
 
-        // (保留 supabaseRequest 和原有 State)
-        async function supabaseRequest(method, endpoint, body = null) {
-            const options = {
-                method,
-                headers: {
-                    'apikey': SUPABASE_KEY,
-                    'Authorization': `Bearer ${SUPABASE_KEY}`,
-                    'Content-Type': 'application/json',
-                    'Prefer': method === 'POST' ? 'return=representation' : undefined
+                <div class="form-group">
+                    <label class="form-label">國家</label>
+                    <input type="text" class="form-input" id="inputCountry" placeholder="例：台灣">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">縣市</label>
+                    <input type="text" class="form-input" id="inputCity" placeholder="例：台北市">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">緯度</label>
+                    <input type="number" step="any" class="form-input" id="inputLat" placeholder="例：25.0330" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">經度</label>
+                    <input type="number" step="any" class="form-input" id="inputLng" placeholder="例：121.5654" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">類型</label>
+                    <div class="type-options">
+                        <div class="type-option flower" data-type="flower" onclick="selectType('flower')">🌸 大花</div>
+                        <div class="type-option pikmin selected" data-type="pikmin" onclick="selectType('pikmin')">🌱 皮克敏</div>
+                        <div class="type-option mushroom" data-type="mushroom" onclick="selectType('mushroom')">🍄 蘑菇</div>
+                        <div class="type-option postcard" data-type="postcard" onclick="selectType('postcard')">🏠 明信片</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">備註（選填）</label>
+                    <input type="text" class="form-input" id="inputNote" placeholder="額外資訊">
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel" onclick="closeModal()">取消</button>
+                    <button type="submit" class="btn-submit" id="btnSubmit">✨ 新增純點</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div class="modal-overlay active" id="loginModal">
+        <div class="login-modal">
+            <div class="seedling-icon" style="font-size: 4rem; text-align: center;">🌱</div>
+            <h2 class="login-title">皮克敏純點管理器</h2>
+            <p class="login-subtitle">登入以同步你的純點資料</p>
+            <button class="btn-login" onclick="loginAsGuest()">🚀 訪客登入（可新增/編輯）</button>
+            <div class="login-divider">或</div>
+            <button class="btn-admin" onclick="loginAsAdmin()">🔑 管理員登入（完整權限）</button>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // ==================== Supabase 設定 ====================
+        const SUPABASE_URL = 'https://iojmxiijtvmjglodauai.supabase.co';  // 替換成你的 Project URL
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlvam14aWlqdHZtamdsb2RhdWFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyMzM5MDYsImV4cCI6MjA4NTgwOTkwNn0.4rnjTDXmCH77KwO-1GeZlTKn9xwBrhOJQkQ--FjxQk0';  // 替換成你的 anon key
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // ==================== 全域變數 ====================
+        let spots = [];
+        let currentFilter = 'all';
+        let currentCountry = 'all';
+        let currentCity = 'all';
+        let searchQuery = '';
+        let editingId = null;
+        let selectedType = 'pikmin';
+        let selectMode = false;
+        let selectedSpots = new Set();
+        let currentUser = null;
+        let isAdmin = false;
+
+        // ==================== DOM 元素 ====================
+        const modalOverlay = document.getElementById('modalOverlay');
+        const loginModal = document.getElementById('loginModal');
+        const spotList = document.getElementById('spotList');
+        const toast = document.getElementById('toast');
+        const syncStatus = document.getElementById('syncStatus');
+        const selectBar = document.getElementById('selectBar');
+
+        // ==================== 初始化 ====================
+        async function init() {
+            // 檢查是否已登入
+            const { data: { session } } = await supabase.auth.getSession();
+            
+            if (session) {
+                currentUser = session.user;
+                await checkAdminStatus();
+                loginModal.classList.remove('active');
+                updateUserInfo();
+                await loadSpots();
+            }
+
+            // 監聽驗證狀態變化
+            supabase.auth.onAuthStateChange(async (event, session) => {
+                if (event === 'SIGNED_IN') {
+                    currentUser = session.user;
+                    await checkAdminStatus();
+                    loginModal.classList.remove('active');
+                    updateUserInfo();
+                    await loadSpots();
+                } else if (event === 'SIGNED_OUT') {
+                    currentUser = null;
+                    isAdmin = false;
+                    loginModal.classList.add('active');
                 }
-            };
-            if (body) options.body = JSON.stringify(body);
-            const response = await fetch(`${SUPABASE_URL}/rest/v1/${endpoint}`, options);
-            if (!response.ok) throw new Error(`API Error: ${response.status}`);
-            const text = await response.text();
-            return text ? JSON.parse(text) : null;
+            });
         }
 
-        let spots = [];
-        // ... 其他變數與初始化代碼 ...
+        // ==================== 登入功能 ====================
+        async function loginAsGuest() {
+            try {
+                const { data, error } = await supabase.auth.signInAnonymously();
+                if (error) throw error;
+                showToast('✅ 訪客登入成功！');
+            } catch (error) {
+                console.error('Guest login error:', error);
+                showToast('❌ 登入失敗，請重試');
+            }
+        }
 
-        // (將以下功能邏輯加入到原本的 <script> 中)
+        async function loginAsAdmin() {
+            const password = prompt('請輸入管理員密碼：');
+            if (!password) return;
 
-        const btnImportJson = document.getElementById('btnImportJson');
-        const fileInput = document.getElementById('fileInput');
+            try {
+                // 使用固定的管理員信箱
+                const adminEmail = 'admin@pikminspots.app';
+                
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: adminEmail,
+                    password: password
+                });
 
-        // 點擊「匯入 JSON」按鈕觸發隱藏的 file input
-        btnImportJson.addEventListener('click', () => {
-            fileInput.click();
+                if (error) {
+                    // 如果帳號不存在，自動註冊
+                    if (error.message.includes('Invalid login credentials')) {
+                        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+                            email: adminEmail,
+                            password: password
+                        });
+                        
+                        if (signUpError) throw signUpError;
+                        showToast('✅ 管理員帳號已建立！');
+                    } else {
+                        throw error;
+                    }
+                } else {
+                    showToast('✅ 管理員登入成功！');
+                }
+            } catch (error) {
+                console.error('Admin login error:', error);
+                showToast('❌ 登入失敗，請檢查密碼');
+            }
+        }
+
+        async function logout() {
+            try {
+                await supabase.auth.signOut();
+                spots = [];
+                renderSpots();
+                updateStats();
+                showToast('👋 已登出');
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        }
+
+        async function checkAdminStatus() {
+            if (!currentUser) return;
+            
+            // 檢查是否為管理員 email
+            isAdmin = currentUser.email === 'admin@pikminspots.app';
+        }
+
+        function updateUserInfo() {
+            const userInfo = document.getElementById('userInfo');
+            const userEmail = document.getElementById('userEmail');
+            const userRole = document.getElementById('userRole');
+
+            if (currentUser) {
+                userInfo.style.display = 'inline-block';
+                
+                if (currentUser.is_anonymous) {
+                    userEmail.textContent = '訪客';
+                    userRole.textContent = '';
+                } else {
+                    userEmail.textContent = currentUser.email;
+                    userRole.textContent = isAdmin ? '[管理員]' : '';
+                }
+            } else {
+                userInfo.style.display = 'none';
+            }
+        }
+
+        // ==================== 資料載入 ====================
+        async function loadSpots() {
+            if (!currentUser) return;
+
+            try {
+                setSyncStatus('syncing');
+                
+                const { data, error } = await supabase
+                    .from('spots')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                spots = data || [];
+                updateCountryFilter();
+                updateCityFilter();
+                renderSpots();
+                updateStats();
+                setSyncStatus('synced');
+            } catch (error) {
+                console.error('Load error:', error);
+                setSyncStatus('error');
+                showToast('❌ 載入失敗');
+            }
+        }
+
+        function setSyncStatus(status) {
+            syncStatus.className = `sync-status ${status}`;
+            const statusText = {
+                syncing: '⏳ 同步中...',
+                synced: '✨ 已同步',
+                error: '❌ 同步失敗'
+            };
+            syncStatus.textContent = statusText[status] || '';
+        }
+
+        // ==================== 篩選器更新 ====================
+        function updateCountryFilter() {
+            const countries = ['all', ...new Set(spots.map(s => s.country).filter(Boolean))];
+            const countryFilters = document.getElementById('countryFilters');
+            
+            countryFilters.innerHTML = countries.map(country => `
+                <button class="filter-btn ${country === currentCountry ? 'active' : ''}" 
+                        data-country="${country}" 
+                        onclick="setCountryFilter('${country}')">
+                    ${country === 'all' ? '🌍 全部' : country}
+                </button>
+            `).join('');
+        }
+
+        function updateCityFilter() {
+            const filteredByCountry = currentCountry === 'all' 
+                ? spots 
+                : spots.filter(s => s.country === currentCountry);
+            
+            const cities = ['all', ...new Set(filteredByCountry.map(s => s.city).filter(Boolean))];
+            const cityFilters = document.getElementById('cityFilters');
+            
+            cityFilters.innerHTML = cities.map(city => `
+                <button class="filter-btn ${city === currentCity ? 'active' : ''}" 
+                        data-city="${city}" 
+                        onclick="setCityFilter('${city}')">
+                    ${city === 'all' ? '🏙️ 全部' : city}
+                </button>
+            `).join('');
+        }
+
+        // ==================== 篩選功能 ====================
+        function setFilter(type) {
+            currentFilter = type;
+            document.querySelectorAll('[data-filter]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.filter === type);
+            });
+            renderSpots();
+        }
+
+        function setCountryFilter(country) {
+            currentCountry = country;
+            currentCity = 'all'; // 重置縣市篩選
+            updateCountryFilter();
+            updateCityFilter();
+            renderSpots();
+        }
+
+        function setCityFilter(city) {
+            currentCity = city;
+            updateCityFilter();
+            renderSpots();
+        }
+
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            searchQuery = e.target.value.toLowerCase();
+            renderSpots();
         });
 
-        // 處理檔案讀取與匯入
-        fileInput.addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
+        // ==================== Modal 控制 ====================
+        function openAddModal() {
+            if (!currentUser) {
+                showToast('❌ 請先登入');
+                return;
+            }
 
-            const reader = new FileReader();
-            reader.onload = async (event) => {
+            editingId = null;
+            document.getElementById('modalTitle').textContent = '新增純點';
+            document.getElementById('btnSubmit').textContent = '✨ 新增純點';
+            document.getElementById('spotForm').reset();
+            selectType('pikmin');
+            modalOverlay.classList.add('active');
+        }
+
+        function closeModal() {
+            modalOverlay.classList.remove('active');
+        }
+
+        function selectType(type) {
+            selectedType = type;
+            document.querySelectorAll('.type-option').forEach(opt => {
+                opt.classList.toggle('selected', opt.dataset.type === type);
+            });
+        }
+
+        // ==================== 表單提交 ====================
+        document.getElementById('spotForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (!currentUser) {
+                showToast('❌ 請先登入');
+                return;
+            }
+
+            const spotData = {
+                name: document.getElementById('inputName').value,
+                country: document.getElementById('inputCountry').value || null,
+                city: document.getElementById('inputCity').value || null,
+                lat: parseFloat(document.getElementById('inputLat').value),
+                lng: parseFloat(document.getElementById('inputLng').value),
+                type: selectedType,
+                note: document.getElementById('inputNote').value || null
+            };
+
+            try {
+                setSyncStatus('syncing');
+
+                if (editingId) {
+                    // 更新
+                    const { error } = await supabase
+                        .from('spots')
+                        .update(spotData)
+                        .eq('id', editingId);
+
+                    if (error) throw error;
+                    showToast('✅ 純點已更新！');
+                } else {
+                    // 新增
+                    const { error } = await supabase
+                        .from('spots')
+                        .insert([spotData]);
+
+                    if (error) throw error;
+                    showToast('🎉 純點已新增！');
+                }
+
+                await loadSpots();
+                closeModal();
+            } catch (error) {
+                console.error('Save error:', error);
+                setSyncStatus('error');
+                showToast('❌ 儲存失敗，請重試');
+            }
+        });
+
+        // ==================== GPX 匯入/匯出 ====================
+        function importGpx() {
+            if (!currentUser) {
+                showToast('❌ 請先登入');
+                return;
+            }
+
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.gpx';
+            input.onchange = async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
                 try {
-                    const importedData = JSON.parse(event.target.result);
-                    
-                    if (!Array.isArray(importedData)) {
-                        throw new Error('JSON 格式錯誤：應為陣列');
+                    const text = await file.text();
+                    const parser = new DOMParser();
+                    const xml = parser.parseFromString(text, 'text/xml');
+                    const wpts = xml.getElementsByTagName('wpt');
+
+                    const newSpots = [];
+                    for (let wpt of wpts) {
+                        const name = wpt.getElementsByTagName('name')[0]?.textContent || '未命名';
+                        const lat = parseFloat(wpt.getAttribute('lat'));
+                        const lng = parseFloat(wpt.getAttribute('lon'));
+                        const desc = wpt.getElementsByTagName('desc')[0]?.textContent || '';
+                        const typeTag = wpt.getElementsByTagName('type')[0]?.textContent || 'pikmin';
+
+                        // 從描述中提取國家/縣市
+                        let country = null, city = null;
+                        const locationMatch = desc.match(/\[([^\]]+)\]/);
+                        if (locationMatch) {
+                            const parts = locationMatch[1].split('/');
+                            country = parts[0] || null;
+                            city = parts[1] || null;
+                        }
+
+                        newSpots.push({
+                            name,
+                            lat,
+                            lng,
+                            type: typeTag,
+                            note: desc.replace(/\[([^\]]+)\]/, '').trim() || null,
+                            country,
+                            city
+                        });
                     }
 
-                    if (!confirm(`確定要匯入 ${importedData.length} 個純點嗎？`)) return;
+                    if (newSpots.length > 0) {
+                        setSyncStatus('syncing');
+                        const { error } = await supabase
+                            .from('spots')
+                            .insert(newSpots);
 
-                    setSyncStatus('syncing', '⏳ 匯入中...');
+                        if (error) throw error;
 
-                    // 準備乾淨的資料（過濾掉舊 ID 和時間，讓 Supabase 重新生成）
-                    const cleanData = importedData.map(item => {
-                        const { id, created_at, ...rest } = item;
-                        return rest;
-                    });
-
-                    // 批次匯入到 Supabase
-                    await supabaseRequest('POST', 'spots', cleanData);
-
-                    showToast(`🎉 成功匯入 ${cleanData.length} 個純點！`);
-                    await loadSpots(); // 重新整理頁面資料
-
+                        await loadSpots();
+                        showToast(`🎉 已匯入 ${newSpots.length} 個純點！`);
+                    }
                 } catch (error) {
                     console.error('Import error:', error);
-                    showToast('❌ 匯入失敗：格式不正確');
-                    setSyncStatus('error', '❌ 匯入失敗');
-                } finally {
-                    fileInput.value = ''; // 清空選擇，避免重複選擇同一檔案不觸發
+                    showToast('❌ 匯入失敗');
                 }
             };
-            reader.readAsText(file);
+            input.click();
+        }
+
+        function exportAllGpx() {
+            if (spots.length === 0) {
+                showToast('😢 沒有純點可以匯出');
+                return;
+            }
+            exportGpx(spots);
+        }
+
+        function enterSelectMode() {
+            if (spots.length === 0) {
+                showToast('😢 沒有純點可以選擇');
+                return;
+            }
+            selectMode = true;
+            selectedSpots.clear();
+            selectBar.classList.add('active');
+            renderSpots();
+        }
+
+        document.getElementById('btnCancelSelect').addEventListener('click', () => {
+            selectMode = false;
+            selectedSpots.clear();
+            selectBar.classList.remove('active');
+            renderSpots();
         });
 
-        // (原本的其他函數如 loadSpots, renderSpots, showToast... 請保留)
-        // ... 
+        document.getElementById('btnConfirmExport').addEventListener('click', () => {
+            if (selectedSpots.size === 0) {
+                showToast('😢 請至少選一個純點');
+                return;
+            }
+
+            const selectedData = spots.filter(s => selectedSpots.has(s.id));
+            exportGpx(selectedData);
+
+            selectMode = false;
+            selectedSpots.clear();
+            selectBar.classList.remove('active');
+            renderSpots();
+        });
+
+        function exportGpx(spotsToExport) {
+            const gpxContent = `<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="PikminSpotManager">
+  <metadata>
+    <n>皮克敏純點</n>
+    <time>${new Date().toISOString()}</time>
+  </metadata>
+${spotsToExport.map(spot => `  <wpt lat="${spot.lat}" lon="${spot.lng}">
+    <n>${escapeXml(spot.name)}</n>
+    <desc>${escapeXml(spot.note || getTypeLabel(spot.type))}${spot.country ? ' [' + escapeXml(spot.country) + (spot.city ? '/' + escapeXml(spot.city) : '') + ']' : ''}</desc>
+    <type>${spot.type}</type>
+  </wpt>`).join('\n')}
+</gpx>`;
+
+            downloadFile(gpxContent, 'pikmin-spots.gpx', 'application/gpx+xml');
+            showToast(`🎉 已匯出 ${spotsToExport.length} 個純點！`);
+        }
+
+        function escapeXml(str) {
+            return str.replace(/&/g, '&amp;')
+                      .replace(/</g, '&lt;')
+                      .replace(/>/g, '&gt;')
+                      .replace(/"/g, '&quot;')
+                      .replace(/'/g, '&apos;');
+        }
+
+        function downloadFile(content, filename, mimeType) {
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // ==================== 篩選與渲染 ====================
+        function getFilteredSpots() {
+            return spots.filter(spot => {
+                const matchesType = currentFilter === 'all' || spot.type === currentFilter;
+                const matchesCountry = currentCountry === 'all' || spot.country === currentCountry;
+                const matchesCity = currentCity === 'all' || spot.city === currentCity;
+                const matchesSearch = spot.name.toLowerCase().includes(searchQuery) ||
+                                     (spot.note && spot.note.toLowerCase().includes(searchQuery)) ||
+                                     (spot.country && spot.country.toLowerCase().includes(searchQuery)) ||
+                                     (spot.city && spot.city.toLowerCase().includes(searchQuery));
+                return matchesType && matchesCountry && matchesCity && matchesSearch;
+            });
+        }
+
+        function renderSpots() {
+            const filteredSpots = getFilteredSpots();
+
+            if (filteredSpots.length === 0) {
+                spotList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🌱</div>
+                        <div class="empty-state-text">
+                            ${spots.length === 0 ? '還沒有純點呢！<br>點擊 + 開始收藏吧' : '找不到符合的純點 🔍'}
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            spotList.innerHTML = filteredSpots.map(spot => `
+                <div class="spot-card ${spot.type}-card ${selectMode ? 'select-mode' : ''}" data-id="${spot.id}">
+                    ${selectMode ? `<input type="checkbox" class="spot-checkbox" ${selectedSpots.has(spot.id) ? 'checked' : ''}>` : ''}
+                    <div class="spot-content">
+                        <div class="spot-header">
+                            <div class="spot-name">${escapeHtml(spot.name)}</div>
+                            <div class="spot-badges">
+                                ${spot.country ? `<span class="spot-region">🌍 ${escapeHtml(spot.country)}</span>` : ''}
+                                ${spot.city ? `<span class="spot-city">🏙️ ${escapeHtml(spot.city)}</span>` : ''}
+                                <span class="spot-type ${spot.type}">${getTypeLabel(spot.type)}</span>
+                            </div>
+                        </div>
+                        <div class="spot-coords">${spot.lat}, ${spot.lng}</div>
+                        ${spot.note ? `<div class="spot-note">${escapeHtml(spot.note)}</div>` : ''}
+                        ${!selectMode ? `
+                        <div class="spot-actions">
+                            <button class="btn btn-copy" onclick="copyCoords('${spot.lat}, ${spot.lng}')">📋 複製座標</button>
+                            <button class="btn btn-edit" onclick="editSpot('${spot.id}')">✏️</button>
+                            ${isAdmin ? `<button class="btn btn-delete" onclick="deleteSpot('${spot.id}')">🗑️</button>` : ''}
+                        </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('');
+
+            if (selectMode) {
+                document.querySelectorAll('.spot-checkbox').forEach(checkbox => {
+                    checkbox.addEventListener('change', (e) => {
+                        const spotId = e.target.closest('.spot-card').dataset.id;
+                        if (e.target.checked) {
+                            selectedSpots.add(spotId);
+                        } else {
+                            selectedSpots.delete(spotId);
+                        }
+                        updateSelectBar();
+                    });
+                });
+
+                document.querySelectorAll('.spot-card').forEach(card => {
+                    card.addEventListener('click', (e) => {
+                        if (e.target.classList.contains('spot-checkbox')) return;
+                        const checkbox = card.querySelector('.spot-checkbox');
+                        checkbox.checked = !checkbox.checked;
+                        checkbox.dispatchEvent(new Event('change'));
+                    });
+                });
+            }
+        }
+
+        function updateSelectBar() {
+            document.getElementById('selectedCount').textContent = selectedSpots.size;
+        }
+
+        function getTypeLabel(type) {
+            const labels = {
+                flower: '🌸 大花',
+                pikmin: '🌱 皮克敏',
+                mushroom: '🍄 蘑菇',
+                postcard: '🏠 明信片'
+            };
+            return labels[type] || type;
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        function updateStats() {
+            document.getElementById('stat-flower').textContent = spots.filter(s => s.type === 'flower').length;
+            document.getElementById('stat-pikmin').textContent = spots.filter(s => s.type === 'pikmin').length;
+            document.getElementById('stat-mushroom').textContent = spots.filter(s => s.type === 'mushroom').length;
+            document.getElementById('stat-postcard').textContent = spots.filter(s => s.type === 'postcard').length;
+        }
+
+        // ==================== 操作功能 ====================
+        window.copyCoords = function(coords) {
+            navigator.clipboard.writeText(coords).then(() => {
+                showToast('📋 座標已複製！');
+            }).catch(() => {
+                const textarea = document.createElement('textarea');
+                textarea.value = coords;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                showToast('📋 座標已複製！');
+            });
+        };
+
+        window.editSpot = function(id) {
+            if (!currentUser) {
+                showToast('❌ 請先登入');
+                return;
+            }
+
+            const spot = spots.find(s => s.id === id);
+            if (!spot) return;
+
+            editingId = id;
+            document.getElementById('modalTitle').textContent = '編輯純點';
+            document.getElementById('btnSubmit').textContent = '✨ 更新純點';
+            document.getElementById('inputName').value = spot.name;
+            document.getElementById('inputCountry').value = spot.country || '';
+            document.getElementById('inputCity').value = spot.city || '';
+            document.getElementById('inputLat').value = spot.lat;
+            document.getElementById('inputLng').value = spot.lng;
+            document.getElementById('inputNote').value = spot.note || '';
+
+            document.querySelectorAll('.type-option').forEach(opt => {
+                opt.classList.toggle('selected', opt.dataset.type === spot.type);
+            });
+
+            modalOverlay.classList.add('active');
+        };
+
+        window.deleteSpot = async function(id) {
+            if (!isAdmin) {
+                showToast('❌ 只有管理員能刪除');
+                return;
+            }
+
+            if (confirm('確定要刪除這個純點嗎？')) {
+                try {
+                    setSyncStatus('syncing');
+                    const { error } = await supabase
+                        .from('spots')
+                        .delete()
+                        .eq('id', id);
+
+                    if (error) throw error;
+
+                    await loadSpots();
+                    showToast('🗑️ 純點已刪除');
+                } catch (error) {
+                    console.error('Delete error:', error);
+                    setSyncStatus('error');
+                    showToast('❌ 刪除失敗，請重試');
+                }
+            }
+        };
+
+        function showToast(message) {
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        // ==================== 啟動應用 ====================
+        init();
     </script>
 </body>
 </html>
