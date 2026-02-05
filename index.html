@@ -1129,9 +1129,10 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         // ==================== Supabase 設定 ====================
-        const SUPABASE_URL = 'https://iojmxiijtvmjglodauai.supabaseClient.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlvam14aWlqdHZtamdsb2RhdWFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyMzM5MDYsImV4cCI6MjA4NTgwOTkwNn0.4rnjTDXmCH77KwO-1GeZlTKn9xwBrhOJQkQ--FjxQk0';
-        const supabase = supabaseClient.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+        const { createClient } = supabase;
+        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // ==================== 全域變數 ====================
         let spots = [];
