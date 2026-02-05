@@ -942,6 +942,44 @@
             color: white;
         }
 
+        /* 右上角登入區域 */
+        .header-login-area {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 20;
+        }
+
+        .user-info-compact,
+        .guest-info-compact {
+            display: inline-block;
+        }
+
+        .btn-admin-header {
+            background: transparent;
+            color: #E65100;
+            border: 2px solid #E65100;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(230, 81, 0, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-admin-header:hover {
+            background: #E65100;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(230, 81, 0, 0.4);
+        }
+
+        .btn-admin-header:active {
+            transform: translateY(0);
+        }
+
         @media (max-width: 600px) {
             .stats {
                 grid-template-columns: repeat(2, 1fr);
@@ -964,15 +1002,24 @@
         <div class="header-cloud header-cloud-1"></div>
         <div class="header-cloud header-cloud-2"></div>
         <div class="header-cloud header-cloud-3"></div>
-        <div class="header-content">
-            <div class="seedling-icon">🌱</div>
-            <h1>皮克敏純點管理器</h1>
-            <p>收藏你的純點足跡</p>
-            <div id="userInfo" class="user-info" style="display: none;">
+        
+        <!-- 右上角登入區域 -->
+        <div class="header-login-area">
+            <div id="userInfo" class="user-info-compact" style="display: none;">
                 <span id="userEmail"></span>
                 <span id="userRole" class="user-role"></span>
                 <button class="btn-logout" onclick="logout()">登出</button>
             </div>
+            <div id="guestInfo" class="guest-info-compact" style="display: inline-block;">
+                <button class="btn-admin-header" onclick="showLoginModal()">🔑 管理員登入</button>
+            </div>
+        </div>
+        
+        <!-- 中間主要內容 -->
+        <div class="header-content">
+            <div class="seedling-icon">🌱</div>
+            <h1>皮克敏純點管理器</h1>
+            <p>收藏你的純點足跡</p>
             <div id="syncStatus" class="sync-status synced">✨ 已同步</div>
         </div>
     </div>
@@ -1005,8 +1052,12 @@
         <!-- Import/Export Buttons -->
         <div class="utility-buttons">
             <button class="btn-utility" onclick="importGpx()">📥 匯入 GPX</button>
-            <button class="btn-utility" onclick="exportAllGpx()">📤 匯出全部</button>
+            <button class="btn-utility" onclick="exportAllGpx()">📤 匯出 GPX</button>
             <button class="btn-utility" onclick="enterSelectMode()">✅ 選擇匯出</button>
+        </div>
+        <div class="utility-buttons" style="margin-top: 8px;">
+            <button class="btn-utility" onclick="exportJson()" style="background: #E3F2FD; border-color: #2196F3; color: #1565C0;">💾 備份 JSON</button>
+            <button class="btn-utility" onclick="importJson()" style="background: #FFF3E0; border-color: #FF9800; color: #E65100;">📂 匯入 JSON</button>
         </div>
 
         <!-- Search & Filters -->
@@ -1064,13 +1115,13 @@
             <h2 id="modalTitle">新增純點</h2>
             <form id="spotForm">
                 <div class="form-group">
-                    <label class="form-label">名稱</label>
+                    <label class="form-label">名稱 <span style="color: #E65100;">*</span></label>
                     <input type="text" class="form-input" id="inputName" placeholder="純點名稱" required>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">國家</label>
-                    <input type="text" class="form-input" id="inputCountry" placeholder="例：台灣">
+                    <label class="form-label">國家 <span style="color: #E65100;">*</span></label>
+                    <input type="text" class="form-input" id="inputCountry" placeholder="例：台灣" required>
                 </div>
 
                 <div class="form-group">
@@ -1079,17 +1130,17 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">緯度</label>
+                    <label class="form-label">緯度 <span style="color: #E65100;">*</span></label>
                     <input type="number" step="any" class="form-input" id="inputLat" placeholder="例：25.0330" required>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">經度</label>
+                    <label class="form-label">經度 <span style="color: #E65100;">*</span></label>
                     <input type="number" step="any" class="form-input" id="inputLng" placeholder="例：121.5654" required>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">類型</label>
+                    <label class="form-label">類型 <span style="color: #E65100;">*</span></label>
                     <div class="type-options">
                         <div class="type-option flower" data-type="flower" onclick="selectType('flower')">🌸 大花</div>
                         <div class="type-option pikmin selected" data-type="pikmin" onclick="selectType('pikmin')">🌱 皮克敏</div>
@@ -1128,8 +1179,9 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         // ==================== Supabase 設定 ====================
-        const SUPABASE_URL = 'https://iojmxiijtvmjglodauai.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlvam14aWlqdHZtamdsb2RhdWFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyMzM5MDYsImV4cCI6MjA4NTgwOTkwNn0.4rnjTDXmCH77KwO-1GeZlTKn9xwBrhOJQkQ--FjxQk0';
+        // 👇 請在這裡填入你的新 Supabase 專案資訊
+        const SUPABASE_URL = 'https://byeyuxfhmackhmngksij.supabase.co';  // 例如：'https://xxxxx.supabase.co'
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ5ZXl1eGZobWFja2htbmdrc2lqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyNTcyMDgsImV4cCI6MjA4NTgzMzIwOH0.ckXTWnDCksvDJMdd8MR9iykh6iu1IBtKi4zuLF4W87I';  // 例如：'eyJhbGciOiJIUzI...'
         const { createClient } = supabase;
         const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -1204,7 +1256,7 @@
 
             try {
                 // 使用固定的管理員信箱
-                const adminEmail = 'admin@pikminspots.app';
+                const adminEmail = 'hangonroku@gmail.com';
                 
                 const { data, error } = await supabaseClient.auth.signInWithPassword({
                     email: adminEmail,
@@ -1254,11 +1306,13 @@
 
         function updateUserInfo() {
             const userInfo = document.getElementById('userInfo');
+            const guestInfo = document.getElementById('guestInfo');
             const userEmail = document.getElementById('userEmail');
             const userRole = document.getElementById('userRole');
 
             if (currentUser) {
                 userInfo.style.display = 'inline-block';
+                guestInfo.style.display = 'none';
                 
                 if (currentUser.is_anonymous) {
                     userEmail.textContent = '訪客';
@@ -1269,22 +1323,34 @@
                 }
             } else {
                 userInfo.style.display = 'none';
+                guestInfo.style.display = 'inline-block';
             }
+        }
+
+        function showLoginModal() {
+            loginModal.classList.add('active');
         }
 
         // ==================== 資料載入 ====================
         async function loadSpots() {
-            if (!currentUser) return;
-
+            // 訪客也可以載入資料，不需要登入檢查
+            console.log('🔄 開始載入資料...');
+            
             try {
                 setSyncStatus('syncing');
                 
-                const { data, error } = await supabase
+                const { data, error } = await supabaseClient
                     .from('spots')
                     .select('*')
                     .order('created_at', { ascending: false });
 
-                if (error) throw error;
+                if (error) {
+                    console.error('❌ 載入錯誤:', error);
+                    throw error;
+                }
+
+                console.log('✅ 載入成功，共', data?.length || 0, '筆資料');
+                console.log('📊 資料內容:', data);
 
                 spots = data || [];
                 updateCountryFilter();
@@ -1293,7 +1359,9 @@
                 updateStats();
                 setSyncStatus('synced');
             } catch (error) {
-                console.error('Load error:', error);
+                console.error('❌ Load error:', error);
+                console.error('錯誤訊息:', error.message);
+                console.error('錯誤詳情:', error.details);
                 setSyncStatus('error');
                 showToast('❌ 載入失敗');
             }
@@ -1410,32 +1478,51 @@
                 note: document.getElementById('inputNote').value || null
             };
 
+            console.log('🔍 準備儲存資料:', spotData);
+            console.log('🔍 編輯模式:', editingId ? `編輯 ID: ${editingId}` : '新增');
+
             try {
                 setSyncStatus('syncing');
 
                 if (editingId) {
                     // 更新
-                    const { error } = await supabaseClient
+                    console.log('📝 執行更新操作...');
+                    const { data, error } = await supabaseClient
                         .from('spots')
                         .update(spotData)
-                        .eq('id', editingId);
+                        .eq('id', editingId)
+                        .select();
 
-                    if (error) throw error;
+                    if (error) {
+                        console.error('❌ 更新錯誤:', error);
+                        throw error;
+                    }
+                    console.log('✅ 更新成功:', data);
                     showToast('✅ 純點已更新！');
                 } else {
                     // 新增
-                    const { error } = await supabaseClient
+                    console.log('➕ 執行新增操作...');
+                    const { data, error } = await supabaseClient
                         .from('spots')
-                        .insert([spotData]);
+                        .insert([spotData])
+                        .select();
 
-                    if (error) throw error;
+                    if (error) {
+                        console.error('❌ 新增錯誤:', error);
+                        throw error;
+                    }
+                    console.log('✅ 新增成功:', data);
                     showToast('🎉 純點已新增！');
                 }
 
+                console.log('🔄 重新載入資料...');
                 await loadSpots();
                 closeModal();
             } catch (error) {
-                console.error('Save error:', error);
+                console.error('❌ 儲存錯誤 (完整資訊):', error);
+                console.error('錯誤訊息:', error.message);
+                console.error('錯誤詳情:', error.details);
+                console.error('錯誤提示:', error.hint);
                 setSyncStatus('error');
                 showToast('❌ 儲存失敗，請重試');
             }
@@ -1585,6 +1672,103 @@ ${spotsToExport.map(spot => `  <wpt lat="${spot.lat}" lon="${spot.lng}">
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
+        }
+
+        // ==================== JSON 匯入/匯出 ====================
+        function exportJson() {
+            if (spots.length === 0) {
+                showToast('😢 沒有資料可以備份');
+                return;
+            }
+
+            const exportData = {
+                version: '1.0',
+                exportDate: new Date().toISOString(),
+                totalSpots: spots.length,
+                spots: spots
+            };
+
+            const jsonContent = JSON.stringify(exportData, null, 2);
+            const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+            downloadFile(jsonContent, `pikmin-spots-backup-${timestamp}.json`, 'application/json');
+            showToast(`💾 已備份 ${spots.length} 筆資料！`);
+        }
+
+        function importJson() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                try {
+                    const text = await file.text();
+                    const importData = JSON.parse(text);
+
+                    // 驗證資料格式
+                    if (!importData.spots || !Array.isArray(importData.spots)) {
+                        throw new Error('無效的 JSON 格式');
+                    }
+
+                    // 確認匯入
+                    const confirmMsg = `即將匯入 ${importData.spots.length} 筆資料\n\n` +
+                        `備份日期: ${importData.exportDate ? new Date(importData.exportDate).toLocaleString('zh-TW') : '未知'}\n` +
+                        `版本: ${importData.version || '未知'}\n\n` +
+                        `確定要匯入嗎？這將會覆蓋目前資料庫中的所有資料！`;
+
+                    if (!confirm(confirmMsg)) return;
+
+                    setSyncStatus('syncing');
+                    showToast('⏳ 匯入中，請稍候...');
+
+                    // 批次插入資料到 Supabase
+                    let successCount = 0;
+                    let errorCount = 0;
+
+                    for (const spot of importData.spots) {
+                        try {
+                            const spotData = {
+                                name: spot.name,
+                                country: spot.country || null,
+                                city: spot.city || null,
+                                lat: parseFloat(spot.lat),
+                                lng: parseFloat(spot.lng),
+                                type: spot.type,
+                                note: spot.note || null
+                            };
+
+                            const { error } = await supabaseClient
+                                .from('spots')
+                                .insert([spotData]);
+
+                            if (error) {
+                                console.error('匯入錯誤:', error);
+                                errorCount++;
+                            } else {
+                                successCount++;
+                            }
+                        } catch (err) {
+                            console.error('處理資料錯誤:', err);
+                            errorCount++;
+                        }
+                    }
+
+                    await loadSpots();
+                    setSyncStatus('synced');
+
+                    if (errorCount === 0) {
+                        showToast(`🎉 成功匯入 ${successCount} 筆資料！`);
+                    } else {
+                        showToast(`⚠️ 匯入完成：成功 ${successCount} 筆，失敗 ${errorCount} 筆`);
+                    }
+                } catch (error) {
+                    console.error('JSON 匯入錯誤:', error);
+                    setSyncStatus('error');
+                    showToast('❌ 匯入失敗，請檢查檔案格式');
+                }
+            };
+            input.click();
         }
 
         // ==================== 篩選與渲染 ====================
