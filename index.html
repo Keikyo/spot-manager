@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>皮克敏純點管理器</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+            padding-bottom: 80px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px 16px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .header h1 {
+            font-size: 1.4rem;
+            margin-bottom: 4px;
+        }
+
+        .header p {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        .container {
+            padding: 16px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Search and Filter Section */
+        .search-section {
+            background: rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            background: rgba(255,255,255,0.15);
+            color: #fff;
+            margin-bottom: 12px;
+        }
+
+        .search-input::placeholder {
+            color: rgba(255,255,255,0.5);
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .filter-tab {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+
+        .filter-tab.active {
+            background: #667eea;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .filter-tab[data-type="flower"].active { background: #f093fb; }
+        .filter-tab[data-type="pikmin"].active { background: #4facfe; }
+        .filter-tab[data-type="mushroom"].active { background: #fa709a; }
+
+        /* Spot List */
+        .spot-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .spot-card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 16px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: transform 0.2s;
+        }
+
+        .spot-card:active {
+            transform: scale(0.98);
+        }
+
+        .spot-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .spot-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            flex: 1;
+            margin-right: 10px;
+        }
+
+        .spot-type {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .spot-type.flower { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .spot-type.pikmin { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .spot-type.mushroom { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+
+        .spot-coords {
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 12px;
+            word-break: break-all;
+        }
+
+        .spot-note {
+            font-size: 13px;
+            color: rgba(255,255,255,0.6);
+            margin-bottom: 12px;
+            font-style: italic;
+        }
+
+        .spot-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-copy {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            flex: 1;
+        }
+
+        .btn-edit {
+            background: rgba(255,255,255,0.15);
+            color: #fff;
+        }
+
+        .btn-delete {
+            background: rgba(255,82,82,0.2);
+            color: #ff5252;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Floating Action Button */
+        .fab-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 100;
+        }
+
+        .fab {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            transition: transform 0.2s;
+        }
+
+        .fab:active {
+            transform: scale(0.9);
+        }
+
+        .fab-add {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+        }
+
+        .fab-export {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: #fff;
+            font-size: 18px;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 200;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: #1a1a2e;
+            border-radius: 24px 24px 0 0;
+            padding: 24px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+            }
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 28px;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: rgba(255,255,255,0.8);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            font-size: 16px;
+            background: rgba(255,255,255,0.05);
+            color: #fff;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .type-selector {
+            display: flex;
+            gap: 10px;
+        }
+
+        .type-option {
+            flex: 1;
+            padding: 14px;
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.05);
+            color: #fff;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .type-option.selected {
+            border-color: transparent;
+        }
+
+        .type-option[data-type="flower"].selected {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .type-option[data-type="pikmin"].selected {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .type-option[data-type="mushroom"].selected {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+
+        .type-icon {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+
+        .type-label {
+            font-size: 13px;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #333;
+            color: #fff;
+            padding: 14px 24px;
+            border-radius: 12px;
+            font-size: 14px;
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 300;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: rgba(255,255,255,0.5);
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        .empty-state-text {
+            font-size: 16px;
+        }
+
+        /* Stats */
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            padding: 12px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: rgba(255,255,255,0.6);
+            text-transform: uppercase;
+        }
+
+        .stat-item.flower .stat-number { color: #f093fb; }
+        .stat-item.pikmin .stat-number { color: #4facfe; }
+        .stat-item.mushroom .stat-number { color: #fa709a; }
+
+        /* Import Section */
+        .import-section {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .import-title {
+            font-size: 14px;
+            margin-bottom: 12px;
+            color: rgba(255,255,255,0.8);
+        }
+
+        .import-btns {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-import {
+            flex: 1;
+            padding: 12px;
+            background: rgba(255,255,255,0.1);
+            border: 2px dashed rgba(255,255,255,0.2);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .coord-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .coord-row .form-group {
+            flex: 1;
+        }
+
+        /* Checkbox for GPX export */
+        .spot-checkbox {
+            width: 24px;
+            height: 24px;
+            margin-right: 12px;
+            accent-color: #667eea;
+        }
+
+        .select-mode .spot-card {
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .spot-content {
+            flex: 1;
+        }
+
+        .select-bar {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            padding: 16px;
+            z-index: 150;
+        }
+
+        .select-bar.active {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .select-bar-text {
+            font-weight: 600;
+        }
+
+        .select-bar-btns {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-select-action {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            background: rgba(255,255,255,0.2);
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🌸 皮克敏純點管理器</h1>
+        <p>儲存、搜尋、匯出你的純點</p>
+    </div>
+
+    <div class="container">
+        <div class="stats" id="stats">
+            <div class="stat-item flower">
+                <div class="stat-number" id="stat-flower">0</div>
+                <div class="stat-label">大花</div>
+            </div>
+            <div class="stat-item pikmin">
+                <div class="stat-number" id="stat-pikmin">0</div>
+                <div class="stat-label">皮克敏</div>
+            </div>
+            <div class="stat-item mushroom">
+                <div class="stat-number" id="stat-mushroom">0</div>
+                <div class="stat-label">蘑菇</div>
+            </div>
+        </div>
+
+        <div class="search-section">
+            <input type="text" class="search-input" id="searchInput" placeholder="🔍 搜尋純點名稱...">
+            <div class="filter-tabs">
+                <button class="filter-tab active" data-type="all">全部</button>
+                <button class="filter-tab" data-type="flower">🌸 大花</button>
+                <button class="filter-tab" data-type="pikmin">🌱 皮克敏</button>
+                <button class="filter-tab" data-type="mushroom">🍄 蘑菇</button>
+            </div>
+        </div>
+
+        <div class="import-section">
+            <div class="import-title">📥 快速匯入</div>
+            <div class="import-btns">
+                <button class="btn-import" id="btnImportJson">匯入 JSON 備份</button>
+                <button class="btn-import" id="btnExportJson">匯出 JSON 備份</button>
+            </div>
+            <input type="file" id="fileImport" accept=".json" style="display:none">
+        </div>
+
+        <div class="spot-list" id="spotList"></div>
+    </div>
+
+    <div class="fab-container">
+        <button class="fab fab-export" id="btnExportGpx" title="匯出 GPX">📍</button>
+        <button class="fab fab-add" id="btnAdd" title="新增純點">+</button>
+    </div>
+
+    <div class="select-bar" id="selectBar">
+        <span class="select-bar-text"><span id="selectedCount">0</span> 個已選</span>
+        <div class="select-bar-btns">
+            <button class="btn-select-action" id="btnCancelSelect">取消</button>
+            <button class="btn-select-action" id="btnConfirmExport">匯出 GPX</button>
+        </div>
+    </div>
+
+    <!-- Add/Edit Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">新增純點</h2>
+                <button class="modal-close" id="modalClose">&times;</button>
+            </div>
+            <form id="spotForm">
+                <div class="form-group">
+                    <label class="form-label">純點名稱 *</label>
+                    <input type="text" class="form-input" id="inputName" placeholder="例：東京鐵塔大花" required>
+                </div>
+                <div class="coord-row">
+                    <div class="form-group">
+                        <label class="form-label">緯度 (Latitude) *</label>
+                        <input type="text" class="form-input" id="inputLat" placeholder="35.6586" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">經度 (Longitude) *</label>
+                        <input type="text" class="form-input" id="inputLng" placeholder="139.7454" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">或貼上 Google Maps 連結</label>
+                    <input type="text" class="form-input" id="inputGmapUrl" placeholder="https://maps.google.com/...">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">類型 *</label>
+                    <div class="type-selector">
+                        <div class="type-option" data-type="flower">
+                            <div class="type-icon">🌸</div>
+                            <div class="type-label">大花</div>
+                        </div>
+                        <div class="type-option" data-type="pikmin">
+                            <div class="type-icon">🌱</div>
+                            <div class="type-label">皮克敏</div>
+                        </div>
+                        <div class="type-option selected" data-type="mushroom">
+                            <div class="type-icon">🍄</div>
+                            <div class="type-label">蘑菇</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">備註</label>
+                    <textarea class="form-input form-textarea" id="inputNote" placeholder="例：每天 12:00 刷新"></textarea>
+                </div>
+                <input type="hidden" id="editId">
+                <button type="submit" class="btn-submit" id="btnSubmit">儲存純點</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // Data
+        let spots = JSON.parse(localStorage.getItem('pikminSpots')) || [];
+        let currentFilter = 'all';
+        let searchQuery = '';
+        let editingId = null;
+        let selectMode = false;
+        let selectedSpots = new Set();
+
+        // Elements
+        const spotList = document.getElementById('spotList');
+        const searchInput = document.getElementById('searchInput');
+        const filterTabs = document.querySelectorAll('.filter-tab');
+        const modalOverlay = document.getElementById('modalOverlay');
+        const spotForm = document.getElementById('spotForm');
+        const btnAdd = document.getElementById('btnAdd');
+        const btnExportGpx = document.getElementById('btnExportGpx');
+        const modalClose = document.getElementById('modalClose');
+        const toast = document.getElementById('toast');
+        const selectBar = document.getElementById('selectBar');
+        const inputGmapUrl = document.getElementById('inputGmapUrl');
+
+        // Initialize
+        renderSpots();
+        updateStats();
+
+        // Event Listeners
+        searchInput.addEventListener('input', (e) => {
+            searchQuery = e.target.value.toLowerCase();
+            renderSpots();
+        });
+
+        filterTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                filterTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                currentFilter = tab.dataset.type;
+                renderSpots();
+            });
+        });
+
+        btnAdd.addEventListener('click', () => {
+            editingId = null;
+            document.getElementById('modalTitle').textContent = '新增純點';
+            document.getElementById('btnSubmit').textContent = '儲存純點';
+            spotForm.reset();
+            document.querySelectorAll('.type-option').forEach(opt => opt.classList.remove('selected'));
+            document.querySelector('.type-option[data-type="mushroom"]').classList.add('selected');
+            modalOverlay.classList.add('active');
+        });
+
+        modalClose.addEventListener('click', () => {
+            modalOverlay.classList.remove('active');
+        });
+
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                modalOverlay.classList.remove('active');
+            }
+        });
+
+        document.querySelectorAll('.type-option').forEach(opt => {
+            opt.addEventListener('click', () => {
+                document.querySelectorAll('.type-option').forEach(o => o.classList.remove('selected'));
+                opt.classList.add('selected');
+            });
+        });
+
+        // Parse Google Maps URL
+        inputGmapUrl.addEventListener('paste', (e) => {
+            setTimeout(() => {
+                const url = inputGmapUrl.value;
+                const coords = parseGoogleMapsUrl(url);
+                if (coords) {
+                    document.getElementById('inputLat').value = coords.lat;
+                    document.getElementById('inputLng').value = coords.lng;
+                    showToast('✅ 已從連結擷取座標');
+                }
+            }, 100);
+        });
+
+        function parseGoogleMapsUrl(url) {
+            // Try various Google Maps URL formats
+            const patterns = [
+                /@(-?\d+\.\d+),(-?\d+\.\d+)/,  // @lat,lng
+                /!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/, // !3dlat!4dlng
+                /q=(-?\d+\.\d+),(-?\d+\.\d+)/, // q=lat,lng
+                /place\/[^\/]+\/@(-?\d+\.\d+),(-?\d+\.\d+)/, // place/@lat,lng
+            ];
+
+            for (const pattern of patterns) {
+                const match = url.match(pattern);
+                if (match) {
+                    return { lat: match[1], lng: match[2] };
+                }
+            }
+            return null;
+        }
+
+        spotForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const name = document.getElementById('inputName').value.trim();
+            const lat = document.getElementById('inputLat').value.trim();
+            const lng = document.getElementById('inputLng').value.trim();
+            const note = document.getElementById('inputNote').value.trim();
+            const type = document.querySelector('.type-option.selected').dataset.type;
+
+            // Validate coordinates
+            const latNum = parseFloat(lat);
+            const lngNum = parseFloat(lng);
+
+            if (isNaN(latNum) || latNum < -90 || latNum > 90) {
+                showToast('❌ 緯度必須在 -90 到 90 之間');
+                return;
+            }
+
+            if (isNaN(lngNum) || lngNum < -180 || lngNum > 180) {
+                showToast('❌ 經度必須在 -180 到 180 之間');
+                return;
+            }
+
+            const spot = {
+                id: editingId || Date.now().toString(),
+                name,
+                lat: latNum,
+                lng: lngNum,
+                type,
+                note,
+                createdAt: editingId ? spots.find(s => s.id === editingId)?.createdAt : new Date().toISOString()
+            };
+
+            if (editingId) {
+                const index = spots.findIndex(s => s.id === editingId);
+                spots[index] = spot;
+                showToast('✅ 純點已更新');
+            } else {
+                spots.unshift(spot);
+                showToast('✅ 純點已儲存');
+            }
+
+            saveSpots();
+            renderSpots();
+            updateStats();
+            modalOverlay.classList.remove('active');
+            spotForm.reset();
+        });
+
+        // GPX Export
+        btnExportGpx.addEventListener('click', () => {
+            if (spots.length === 0) {
+                showToast('❌ 沒有純點可匯出');
+                return;
+            }
+
+            selectMode = true;
+            selectedSpots.clear();
+            
+            // Select all visible spots by default
+            const filteredSpots = getFilteredSpots();
+            filteredSpots.forEach(spot => selectedSpots.add(spot.id));
+            
+            renderSpots();
+            updateSelectBar();
+            selectBar.classList.add('active');
+        });
+
+        document.getElementById('btnCancelSelect').addEventListener('click', () => {
+            selectMode = false;
+            selectedSpots.clear();
+            selectBar.classList.remove('active');
+            renderSpots();
+        });
+
+        document.getElementById('btnConfirmExport').addEventListener('click', () => {
+            if (selectedSpots.size === 0) {
+                showToast('❌ 請至少選擇一個純點');
+                return;
+            }
+
+            const selectedData = spots.filter(s => selectedSpots.has(s.id));
+            exportGpx(selectedData);
+
+            selectMode = false;
+            selectedSpots.clear();
+            selectBar.classList.remove('active');
+            renderSpots();
+        });
+
+        function exportGpx(spotsToExport) {
+            const gpxContent = `<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="PikminSpotManager">
+  <metadata>
+    <name>皮克敏純點</name>
+    <time>${new Date().toISOString()}</time>
+  </metadata>
+${spotsToExport.map(spot => `  <wpt lat="${spot.lat}" lon="${spot.lng}">
+    <name>${escapeXml(spot.name)}</name>
+    <desc>${escapeXml(spot.note || getTypeLabel(spot.type))}</desc>
+    <type>${spot.type}</type>
+  </wpt>`).join('\n')}
+</gpx>`;
+
+            downloadFile(gpxContent, 'pikmin-spots.gpx', 'application/gpx+xml');
+            showToast(`✅ 已匯出 ${spotsToExport.length} 個純點`);
+        }
+
+        function escapeXml(str) {
+            return str.replace(/&/g, '&amp;')
+                      .replace(/</g, '&lt;')
+                      .replace(/>/g, '&gt;')
+                      .replace(/"/g, '&quot;')
+                      .replace(/'/g, '&apos;');
+        }
+
+        // JSON Import/Export
+        document.getElementById('btnImportJson').addEventListener('click', () => {
+            document.getElementById('fileImport').click();
+        });
+
+        document.getElementById('fileImport').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    const importedSpots = JSON.parse(event.target.result);
+                    if (Array.isArray(importedSpots)) {
+                        // Merge without duplicates (by coordinates)
+                        let newCount = 0;
+                        importedSpots.forEach(imported => {
+                            const exists = spots.some(s => 
+                                Math.abs(s.lat - imported.lat) < 0.0001 && 
+                                Math.abs(s.lng - imported.lng) < 0.0001
+                            );
+                            if (!exists) {
+                                spots.push({
+                                    ...imported,
+                                    id: Date.now().toString() + Math.random().toString(36).substr(2, 9)
+                                });
+                                newCount++;
+                            }
+                        });
+                        saveSpots();
+                        renderSpots();
+                        updateStats();
+                        showToast(`✅ 匯入 ${newCount} 個新純點`);
+                    }
+                } catch (err) {
+                    showToast('❌ JSON 格式錯誤');
+                }
+            };
+            reader.readAsText(file);
+            e.target.value = '';
+        });
+
+        document.getElementById('btnExportJson').addEventListener('click', () => {
+            if (spots.length === 0) {
+                showToast('❌ 沒有純點可匯出');
+                return;
+            }
+            const json = JSON.stringify(spots, null, 2);
+            downloadFile(json, 'pikmin-spots.json', 'application/json');
+            showToast(`✅ 已匯出 ${spots.length} 個純點`);
+        });
+
+        function downloadFile(content, filename, mimeType) {
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Render Functions
+        function getFilteredSpots() {
+            return spots.filter(spot => {
+                const matchesFilter = currentFilter === 'all' || spot.type === currentFilter;
+                const matchesSearch = spot.name.toLowerCase().includes(searchQuery) ||
+                                     (spot.note && spot.note.toLowerCase().includes(searchQuery));
+                return matchesFilter && matchesSearch;
+            });
+        }
+
+        function renderSpots() {
+            const filteredSpots = getFilteredSpots();
+
+            if (filteredSpots.length === 0) {
+                spotList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🗺️</div>
+                        <div class="empty-state-text">
+                            ${spots.length === 0 ? '還沒有純點<br>點擊 + 開始新增！' : '找不到符合的純點'}
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            spotList.innerHTML = filteredSpots.map(spot => `
+                <div class="spot-card ${selectMode ? 'select-mode' : ''}" data-id="${spot.id}">
+                    ${selectMode ? `<input type="checkbox" class="spot-checkbox" ${selectedSpots.has(spot.id) ? 'checked' : ''}>` : ''}
+                    <div class="spot-content">
+                        <div class="spot-header">
+                            <div class="spot-name">${escapeHtml(spot.name)}</div>
+                            <span class="spot-type ${spot.type}">${getTypeLabel(spot.type)}</span>
+                        </div>
+                        <div class="spot-coords">${spot.lat}, ${spot.lng}</div>
+                        ${spot.note ? `<div class="spot-note">${escapeHtml(spot.note)}</div>` : ''}
+                        ${!selectMode ? `
+                        <div class="spot-actions">
+                            <button class="btn btn-copy" onclick="copyCoords('${spot.lat}, ${spot.lng}')">📋 複製座標</button>
+                            <button class="btn btn-edit" onclick="editSpot('${spot.id}')">✏️</button>
+                            <button class="btn btn-delete" onclick="deleteSpot('${spot.id}')">🗑️</button>
+                        </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('');
+
+            // Add checkbox listeners in select mode
+            if (selectMode) {
+                document.querySelectorAll('.spot-checkbox').forEach(checkbox => {
+                    checkbox.addEventListener('change', (e) => {
+                        const spotId = e.target.closest('.spot-card').dataset.id;
+                        if (e.target.checked) {
+                            selectedSpots.add(spotId);
+                        } else {
+                            selectedSpots.delete(spotId);
+                        }
+                        updateSelectBar();
+                    });
+                });
+
+                // Also allow clicking the card to toggle
+                document.querySelectorAll('.spot-card').forEach(card => {
+                    card.addEventListener('click', (e) => {
+                        if (e.target.classList.contains('spot-checkbox')) return;
+                        const checkbox = card.querySelector('.spot-checkbox');
+                        checkbox.checked = !checkbox.checked;
+                        checkbox.dispatchEvent(new Event('change'));
+                    });
+                });
+            }
+        }
+
+        function updateSelectBar() {
+            document.getElementById('selectedCount').textContent = selectedSpots.size;
+        }
+
+        function getTypeLabel(type) {
+            const labels = {
+                flower: '🌸 大花',
+                pikmin: '🌱 皮克敏',
+                mushroom: '🍄 蘑菇'
+            };
+            return labels[type] || type;
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        function updateStats() {
+            document.getElementById('stat-flower').textContent = spots.filter(s => s.type === 'flower').length;
+            document.getElementById('stat-pikmin').textContent = spots.filter(s => s.type === 'pikmin').length;
+            document.getElementById('stat-mushroom').textContent = spots.filter(s => s.type === 'mushroom').length;
+        }
+
+        // Actions
+        window.copyCoords = function(coords) {
+            navigator.clipboard.writeText(coords).then(() => {
+                showToast('📋 座標已複製');
+            }).catch(() => {
+                // Fallback for older browsers
+                const textarea = document.createElement('textarea');
+                textarea.value = coords;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                showToast('📋 座標已複製');
+            });
+        };
+
+        window.editSpot = function(id) {
+            const spot = spots.find(s => s.id === id);
+            if (!spot) return;
+
+            editingId = id;
+            document.getElementById('modalTitle').textContent = '編輯純點';
+            document.getElementById('btnSubmit').textContent = '更新純點';
+            document.getElementById('inputName').value = spot.name;
+            document.getElementById('inputLat').value = spot.lat;
+            document.getElementById('inputLng').value = spot.lng;
+            document.getElementById('inputNote').value = spot.note || '';
+
+            document.querySelectorAll('.type-option').forEach(opt => {
+                opt.classList.toggle('selected', opt.dataset.type === spot.type);
+            });
+
+            modalOverlay.classList.add('active');
+        };
+
+        window.deleteSpot = function(id) {
+            if (confirm('確定要刪除這個純點嗎？')) {
+                spots = spots.filter(s => s.id !== id);
+                saveSpots();
+                renderSpots();
+                updateStats();
+                showToast('🗑️ 純點已刪除');
+            }
+        };
+
+        function saveSpots() {
+            localStorage.setItem('pikminSpots', JSON.stringify(spots));
+        }
+
+        function showToast(message) {
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
