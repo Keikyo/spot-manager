@@ -1374,16 +1374,7 @@
         const ADMIN_EMAIL = 'hangonroku@gmail.com';
         
         const { createClient } = supabase;
-        // 加入 auth 配置項
-        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-            auth: {
-                persistSession: true,
-                autoRefreshToken: true,
-                detectSessionInUrl: true,
-                storageKey: 'pikmin-manager-auth',
-                storage: window.localStorage // 明確指定儲存方式
-            }
-        });
+        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // ==================== 全域變數 ====================
         let spots = [];
@@ -1397,56 +1388,6 @@
         let selectedSpots = new Set();
         let currentUser = null;
         let isAdmin = false;
-        // --- 核心工具：強制超時中斷，防止行動裝置喚醒時死鎖 ---
-        async function apiCallWithTimeout(promise, ms = 15000) {
-            let timeoutId;
-            const timeoutPromise = new Promise((_, reject) => {
-                timeoutId = setTimeout(() => {
-                    reject(new Error('網路反應太慢（逾時 ' + (ms/1000) + ' 秒），請直接再按一次儲存'));
-                }, ms);
-            });
-            // 使用 Promise.race 確保誰快誰贏
-            return Promise.race([promise, timeoutPromise]).finally(() => {
-                clearTimeout(timeoutId);
-            });
-        }
-
-        // --- 改善版連線預熱：主要目的是喚醒網路，不讓 Lock 阻塞後續操作 ---
-        async function warmupConnection() {
-            console.log('📡 正在嘗試預熱網路連線...');
-            try {
-                // 使用 getUser() 通常比 getSession() 更能繞過一些 session 鎖定問題
-                const { data, error } = await apiCallWithTimeout(supabaseClient.auth.getUser(), 3000);
-                if (error) throw error;
-                console.log('✅ 連線預熱成功');
-            } catch (e) {
-                console.warn('⚠️ 預熱連線失敗或超時（LockManager 可能卡住），將嘗試強制執行操作');
-            }
-        }
-        // --- 草稿功能設定 ---
-        const DRAFT_KEY = 'pikmin_spot_draft';
-        
-
-        // 儲存草稿到手機
-        function saveFormDraft() {
-            const draft = {
-                name: document.getElementById('inputName').value,
-                country: document.getElementById('inputCountry').value,
-                city: document.getElementById('inputCity').value,
-                lat: document.getElementById('inputLat').value,
-                lng: document.getElementById('inputLng').value,
-                note: document.getElementById('inputNote').value,
-                type: selectedType,
-                editingId: editingId
-            };
-            localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
-        }
-
-        // 清除草稿
-        function clearDraft() {
-            localStorage.removeItem(DRAFT_KEY);
-        }
-        // ------------------
 
         // ==================== DOM 元素 ====================
         const modalOverlay = document.getElementById('modalOverlay');
@@ -1455,14 +1396,7 @@
         const toast = document.getElementById('toast');
         const syncStatus = document.getElementById('syncStatus');
         const selectBar = document.getElementById('selectBar');
-        // 設定輸入時自動存草稿
-        document.querySelectorAll('#spotForm input').forEach(input => {
-            input.addEventListener('input', saveFormDraft);
-        });
-        // 點擊類型按鈕也要存草稿
-        document.querySelectorAll('.type-option').forEach(opt => {
-            opt.addEventListener('click', saveFormDraft);
-        });
+
         // ==================== 初始化 ====================
         async function init() {
             // 先載入所有公開資料（訪客也能看）
@@ -1497,14 +1431,6 @@
 
             // 初始化下拉選單
             initSearchableSelects();
-            // 📱 手機切換回來時，簡化連線喚醒
-            document.addEventListener('visibilitychange', () => {
-                if (document.visibilityState === 'visible') {
-                    console.log('🔄 頁面恢復活動，連線修復中...');
-                    // 只做靜默刷新，不阻塞任何 UI
-                    supabaseClient.auth.getSession().catch(() => {});
-                }
-            });
         }
 
         // ==================== 可搜尋下拉選單 ====================
@@ -1943,7 +1869,6 @@
 
         function closeModal() {
             modalOverlay.classList.remove('active');
-            clearDraft(); // 關閉視窗即視為放棄編輯
         }
 
         function selectType(type) {
@@ -1953,73 +1878,46 @@
             });
         }
 
-        // ==================== 表單提交 (行動裝置終極修復版) ====================
+        // ==================== 表單提交 ====================
         document.getElementById('spotForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const submitBtn = document.getElementById('btnSubmit');
-            if (submitBtn.disabled) return; 
-
-            submitBtn.disabled = true;
-            const originalText = editingId ? '✨ 更新純點' : '✨ 新增純點';
-            submitBtn.textContent = '🚀 儲存中...';
+            const spotData = {
+                name: document.getElementById('inputName').value.trim(),
+                country: document.getElementById('inputCountry').value.trim(),
+                city: document.getElementById('inputCity').value.trim() || null,
+                lat: parseFloat(document.getElementById('inputLat').value),
+                lng: parseFloat(document.getElementById('inputLng').value),
+                type: selectedType,
+                note: document.getElementById('inputNote').value.trim() || null
+            };
 
             try {
                 setSyncStatus('syncing');
 
-                // 1. 預熱連線 (受 3 秒限制)
-                await warmupConnection();
-
-                const spotData = {
-                    name: document.getElementById('inputName').value.trim(),
-                    country: document.getElementById('inputCountry').value.trim(),
-                    city: document.getElementById('inputCity').value.trim() || null,
-                    lat: parseFloat(document.getElementById('inputLat').value),
-                    lng: parseFloat(document.getElementById('inputLng').value),
-                    type: selectedType,
-                    note: document.getElementById('inputNote').value.trim() || null
-                };
-
-                // 2. 執行儲存操作
-                const dbOperation = editingId 
-                    ? supabaseClient.from('spots').update(spotData).eq('id', editingId)
-                    : supabaseClient.from('spots').insert([spotData]);
-
-                // 3. 設定 15 秒強制超時保護
-                const response = await apiCallWithTimeout(dbOperation, 15000);
-
-                if (response.error) {
-                    // 處理 LockManager 超時
-                    if (response.error.message && response.error.message.includes('lock')) {
-                        throw new Error('瀏覽器連線鎖定超時，請點擊「取消」並重新整理頁面');
-                    }
-                    // 處理身分過期
-                    if (response.error.status === 401) {
-                        await supabaseClient.auth.refreshSession();
-                        throw new Error('管理員身分已重啟，請再按一次儲存');
-                    }
-                    throw response.error;
+                if (editingId) {
+                    const { error } = await supabaseClient
+                        .from('spots')
+                        .update(spotData)
+                        .eq('id', editingId);
+                    
+                    if (error) throw error;
+                    showToast('✏️ 純點已更新！');
+                } else {
+                    const { error } = await supabaseClient
+                        .from('spots')
+                        .insert([spotData]);
+                    
+                    if (error) throw error;
+                    showToast('🌱 新純點已加入！');
                 }
 
-                showToast(editingId ? '✏️ 純點已更新！' : '🌱 新純點已加入！');
-                clearDraft();
                 closeModal();
                 await loadSpots();
-
             } catch (error) {
-                console.error('儲存錯誤細節:', error);
+                console.error('Save error:', error);
                 setSyncStatus('error');
-                
-                // 解決你看到的 [Object] 顯示問題，將錯誤內容轉為文字
-                let errorMsg = '儲存失敗';
-                if (typeof error === 'string') errorMsg = error;
-                else if (error.message) errorMsg = error.message;
-                else errorMsg = JSON.stringify(error);
-
-                showToast('❌ ' + errorMsg);
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.textContent = originalText;
+                showToast('❌ 儲存失敗：' + error.message);
             }
         });
 
