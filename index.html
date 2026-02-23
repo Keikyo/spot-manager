@@ -1388,6 +1388,29 @@
         let selectedSpots = new Set();
         let currentUser = null;
         let isAdmin = false;
+        // --- 草稿功能設定 ---
+        const DRAFT_KEY = 'pikmin_spot_draft';
+
+        // 儲存草稿到手機
+        function saveFormDraft() {
+            const draft = {
+                name: document.getElementById('inputName').value,
+                country: document.getElementById('inputCountry').value,
+                city: document.getElementById('inputCity').value,
+                lat: document.getElementById('inputLat').value,
+                lng: document.getElementById('inputLng').value,
+                note: document.getElementById('inputNote').value,
+                type: selectedType,
+                editingId: editingId
+            };
+            localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+        }
+
+        // 清除草稿
+        function clearDraft() {
+            localStorage.removeItem(DRAFT_KEY);
+        }
+        // ------------------
 
         // ==================== DOM 元素 ====================
         const modalOverlay = document.getElementById('modalOverlay');
@@ -1396,7 +1419,14 @@
         const toast = document.getElementById('toast');
         const syncStatus = document.getElementById('syncStatus');
         const selectBar = document.getElementById('selectBar');
-
+        // 設定輸入時自動存草稿
+        document.querySelectorAll('#spotForm input').forEach(input => {
+            input.addEventListener('input', saveFormDraft);
+        });
+        // 點擊類型按鈕也要存草稿
+        document.querySelectorAll('.type-option').forEach(opt => {
+            opt.addEventListener('click', saveFormDraft);
+        });
         // ==================== 初始化 ====================
         async function init() {
             // 先載入所有公開資料（訪客也能看）
@@ -1431,6 +1461,16 @@
 
             // 初始化下拉選單
             initSearchableSelects();
+            // 📱 監聽手機切換回來的動作
+            document.addEventListener('visibilitychange', async () => {
+                if (document.visibilityState === 'visible') {
+                    setSyncStatus('syncing');
+                    // 重新檢查 Session，這能喚醒與 Supabase 的連線
+                    await supabaseClient.auth.getSession();
+                    setSyncStatus('synced');
+                    console.log('🔄 頁連線已自動恢復');
+                }
+            });
         }
 
         // ==================== 可搜尋下拉選單 ====================
@@ -1869,6 +1909,7 @@
 
         function closeModal() {
             modalOverlay.classList.remove('active');
+            clearDraft(); // 關閉視窗即視為放棄編輯
         }
 
         function selectType(type) {
@@ -1882,6 +1923,10 @@
         document.getElementById('spotForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
+            const submitBtn = document.getElementById('btnSubmit');
+            submitBtn.disabled = true; // 停用按鈕防止重複點擊
+            submitBtn.textContent = '🚀 儲存中...';
+
             const spotData = {
                 name: document.getElementById('inputName').value.trim(),
                 country: document.getElementById('inputCountry').value.trim(),
@@ -1894,6 +1939,8 @@
 
             try {
                 setSyncStatus('syncing');
+                // 儲存前確保連線還活著
+                await supabaseClient.auth.getSession();
 
                 if (editingId) {
                     const { error } = await supabaseClient
@@ -1912,12 +1959,16 @@
                     showToast('🌱 新純點已加入！');
                 }
 
+                clearDraft(); // 儲存成功，清除草稿
                 closeModal();
                 await loadSpots();
             } catch (error) {
                 console.error('Save error:', error);
                 setSyncStatus('error');
-                showToast('❌ 儲存失敗：' + error.message);
+                showToast('❌ 儲存失敗：' + (error.message || '連線逾時，請再試一次'));
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = editingId ? '✨ 更新純點' : '✨ 新增純點';
             }
         });
 
