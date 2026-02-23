@@ -1388,36 +1388,29 @@
         let selectedSpots = new Set();
         let currentUser = null;
         let isAdmin = false;
-        // --- 強制中斷工具：確保任何請求都不會卡死瀏覽器 ---
+        // --- 核心工具：強制超時中斷，防止行動裝置喚醒時死鎖 ---
         async function apiCallWithTimeout(promise, ms = 15000) {
             let timeoutId;
             const timeoutPromise = new Promise((_, reject) => {
                 timeoutId = setTimeout(() => {
-                    reject(new Error('網路連線逾時（' + (ms/1000) + '秒），請檢查網路或再按一次'));
+                    reject(new Error('網路反應太慢（逾時 ' + (ms/1000) + ' 秒），請直接再按一次儲存'));
                 }, ms);
             });
-            return Promise.race([promise, timeoutPromise]).finally(() => clearTimeout(timeoutId));
+            // 使用 Promise.race 確保誰快誰贏
+            return Promise.race([promise, timeoutPromise]).finally(() => {
+                clearTimeout(timeoutId);
+            });
         }
 
-        // --- 優化版預熱工具：設定極短的 3 秒限制，不讓它卡住主流程 ---
+        // --- 改善版連線預熱：限制 2 秒，超時就放棄預熱直接衝儲存流程 ---
         async function warmupConnection() {
-            console.log('📡 正在預熱網路連線...');
+            console.log('📡 正在嘗試預熱網路連線...');
             try {
-                // 給 getSession 3 秒時間，如果不回傳就放棄預熱，直接進入儲存流程
-                await apiCallWithTimeout(supabaseClient.auth.getSession(), 3000);
-                console.log('✅ 連線預熱完成');
+                // 給 getSession 最多 2 秒，不讓它拖累儲存按鈕
+                await apiCallWithTimeout(supabaseClient.auth.getSession(), 2000);
+                console.log('✅ 連線預熱成功');
             } catch (e) {
-                console.warn('⚠️ 預熱連線逾時或失敗，將直接嘗試儲存動作');
-            }
-        }
-
-        // --- 連線預熱工具：強迫瀏覽器喚醒網路 ---
-        async function warmupConnection() {
-            try {
-                await supabaseClient.auth.getSession();
-                console.log('📡 網路通道已預熱');
-            } catch (e) {
-                console.warn('預熱連線失敗，稍後可能仍會超時');
+                console.warn('⚠️ 預熱連線超時，將直接進入儲存流程');
             }
         }
         // --- 草稿功能設定 ---
@@ -1950,7 +1943,7 @@
             });
         }
 
-        // ==================== 表單提交 (防死鎖強化版) ====================
+        // ==================== 表單提交 (行動裝置終極修復版) ====================
         document.getElementById('spotForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -1958,37 +1951,39 @@
             if (submitBtn.disabled) return; 
 
             submitBtn.disabled = true;
+            const originalText = editingId ? '✨ 更新純點' : '✨ 新增純點';
             submitBtn.textContent = '🚀 儲存中...';
-
-            // 1. 執行預熱 (現在受 3 秒限制，不會無限期卡死)
-            await warmupConnection();
-
-            const spotData = {
-                name: document.getElementById('inputName').value.trim(),
-                country: document.getElementById('inputCountry').value.trim(),
-                city: document.getElementById('inputCity').value.trim() || null,
-                lat: parseFloat(document.getElementById('inputLat').value),
-                lng: parseFloat(document.getElementById('inputLng').value),
-                type: selectedType,
-                note: document.getElementById('inputNote').value.trim() || null
-            };
 
             try {
                 setSyncStatus('syncing');
 
-                // 2. 執行資料庫操作 (受 15 秒限制)
+                // 1. 預熱 (受 2 秒限制)
+                await warmupConnection();
+
+                const spotData = {
+                    name: document.getElementById('inputName').value.trim(),
+                    country: document.getElementById('inputCountry').value.trim(),
+                    city: document.getElementById('inputCity').value.trim() || null,
+                    lat: parseFloat(document.getElementById('inputLat').value),
+                    lng: parseFloat(document.getElementById('inputLng').value),
+                    type: selectedType,
+                    note: document.getElementById('inputNote').value.trim() || null
+                };
+
+                // 2. 直接執行儲存操作，不再等待多餘檢查
                 let result;
                 const dbOperation = editingId 
                     ? supabaseClient.from('spots').update(spotData).eq('id', editingId)
                     : supabaseClient.from('spots').insert([spotData]);
 
+                // 3. 設定 15 秒強制超時保護
                 const response = await apiCallWithTimeout(dbOperation, 15000);
 
                 if (response.error) {
-                    // 如果是管理員 Session 失效 (401)，強制刷新一次並報錯
+                    // 處理身分過期
                     if (response.error.status === 401) {
                         await supabaseClient.auth.refreshSession();
-                        throw new Error('登入已過期，連線已自動修復，請再點一次儲存');
+                        throw new Error('管理員身分已重啟，請再按一次儲存');
                     }
                     throw response.error;
                 }
@@ -1999,20 +1994,18 @@
                 await loadSpots();
 
             } catch (error) {
-                console.error('儲存詳細錯誤:', error);
+                console.error('儲存錯誤細節:', error);
                 setSyncStatus('error');
                 
-                // 3. 針對逾時提供更友善的提示
-                if (error.message.includes('連線逾時')) {
-                    showToast('⚠️ 網路尚未喚醒，請直接再點一次儲存');
-                    // 偷偷在背景再刷一次 session，幫下一次點擊開路
-                    supabaseClient.auth.getSession();
+                // 如果是我們預設的超時錯誤，顯示黃色警告
+                if (error.message.includes('逾時')) {
+                    showToast('⚠️ 網路喚醒中，請再點一次按鈕即可儲存');
                 } else {
                     showToast('❌ ' + error.message);
                 }
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.textContent = editingId ? '✨ 更新純點' : '✨ 新增純點';
+                submitBtn.textContent = originalText;
             }
         });
 
