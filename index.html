@@ -1388,12 +1388,23 @@
         let selectedSpots = new Set();
         let currentUser = null;
         let isAdmin = false;
-        // --- 強制中斷工具：防止手機喚醒時連線卡死 ---
-        async function apiCallWithTimeout(promise, ms = 8000) {
+        // --- 強制中斷工具：針對行動裝置優化至 15 秒 ---
+        async function apiCallWithTimeout(promise, ms = 15000) {
+            const timeoutId = setTimeout(() => {}, ms); // 僅佔位
             const timeout = new Promise((_, reject) =>
-                setTimeout(() => reject(new Error('網路反應太慢，請再按一次儲存')), ms)
+                setTimeout(() => reject(new Error('網路反應太慢（15秒未回應），請再試一次')), ms)
             );
             return Promise.race([promise, timeout]);
+        }
+
+        // --- 連線預熱工具：強迫瀏覽器喚醒網路 ---
+        async function warmupConnection() {
+            try {
+                await supabaseClient.auth.getSession();
+                console.log('📡 網路通道已預熱');
+            } catch (e) {
+                console.warn('預熱連線失敗，稍後可能仍會超時');
+            }
         }
         // --- 草稿功能設定 ---
         const DRAFT_KEY = 'pikmin_spot_draft';
@@ -1469,14 +1480,15 @@
 
             // 初始化下拉選單
             initSearchableSelects();
-            // 📱 手機切換回來時，主動檢查一次身分
+            // 📱 手機切換回來時，簡化連線喚醒
             document.addEventListener('visibilitychange', () => {
                 if (document.visibilityState === 'visible') {
-                    console.log('🔄 頁面恢復活動，檢查連線...');
-                    supabaseClient.auth.getSession().then(({ data, error }) => {
+                    console.log('🔄 頁面恢復活動，喚醒 Session...');
+                    supabaseClient.auth.getSession().then(({ data }) => {
                         if (data && data.session) {
                             currentUser = data.session.user;
-                            checkAdminStatus().then(updateUserInfo);
+                            // 這裡不主動 checkAdminStatus 以免塞車
+                            updateUserInfo(); 
                         }
                     });
                 }
@@ -1929,7 +1941,7 @@
             });
         }
 
-        // ==================== 表單提交 (防卡死終極版) ====================
+        // ==================== 表單提交 (行動裝置增強版) ====================
         document.getElementById('spotForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -1938,6 +1950,9 @@
 
             submitBtn.disabled = true;
             submitBtn.textContent = '🚀 處理中...';
+
+            // 1. 立即預熱連線 (對於管理員特別重要)
+            await warmupConnection();
 
             const spotData = {
                 name: document.getElementById('inputName').value.trim(),
@@ -1952,7 +1967,7 @@
             try {
                 setSyncStatus('syncing');
 
-                // 使用 apiCallWithTimeout 包裹資料庫操作，超過 8 秒就強行斷開
+                // 2. 執行儲存操作 (增加超時容忍度)
                 let result;
                 if (editingId) {
                     result = await apiCallWithTimeout(
@@ -1965,10 +1980,9 @@
                 }
 
                 if (result.error) {
-                    // 如果是 401 錯誤，通常是管理員身分過期，嘗試喚醒 session
                     if (result.error.status === 401) {
                         await supabaseClient.auth.getSession();
-                        throw new Error('登入資訊已過期，請再按一次儲存');
+                        throw new Error('登入資訊失效，請再按一次儲存');
                     }
                     throw result.error;
                 }
@@ -1981,8 +1995,13 @@
             } catch (error) {
                 console.error('儲存錯誤:', error);
                 setSyncStatus('error');
-                // 顯示錯誤訊息，並讓按鈕恢復可點擊狀態
-                showToast('❌ ' + (error.message || '儲存失敗，請重試'));
+                
+                // 3. 自動處理：如果是因為網路慢，給予明確提示
+                if (error.message.includes('網路反應太慢')) {
+                    showToast('⚠️ 網路喚醒較慢，請直接再點一次儲存');
+                } else {
+                    showToast('❌ ' + (error.message || '儲存失敗，請重試'));
+                }
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.textContent = editingId ? '✨ 更新純點' : '✨ 新增純點';
