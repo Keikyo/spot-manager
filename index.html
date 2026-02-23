@@ -1374,7 +1374,16 @@
         const ADMIN_EMAIL = 'hangonroku@gmail.com';
         
         const { createClient } = supabase;
-        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // 加入 auth 配置項
+        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+            auth: {
+                persistSession: true,
+                autoRefreshToken: true,
+                detectSessionInUrl: true,
+                storageKey: 'pikmin-manager-auth',
+                storage: window.localStorage // 明確指定儲存方式
+            }
+        });
 
         // ==================== 全域變數 ====================
         let spots = [];
@@ -1402,15 +1411,16 @@
             });
         }
 
-        // --- 改善版連線預熱：限制 2 秒，超時就放棄預熱直接衝儲存流程 ---
+        // --- 改善版連線預熱：主要目的是喚醒網路，不讓 Lock 阻塞後續操作 ---
         async function warmupConnection() {
             console.log('📡 正在嘗試預熱網路連線...');
             try {
-                // 給 getSession 最多 2 秒，不讓它拖累儲存按鈕
-                await apiCallWithTimeout(supabaseClient.auth.getSession(), 2000);
+                // 使用 getUser() 通常比 getSession() 更能繞過一些 session 鎖定問題
+                const { data, error } = await apiCallWithTimeout(supabaseClient.auth.getUser(), 3000);
+                if (error) throw error;
                 console.log('✅ 連線預熱成功');
             } catch (e) {
-                console.warn('⚠️ 預熱連線超時，將直接進入儲存流程');
+                console.warn('⚠️ 預熱連線失敗或超時（LockManager 可能卡住），將嘗試強制執行操作');
             }
         }
         // --- 草稿功能設定 ---
@@ -1957,7 +1967,7 @@
             try {
                 setSyncStatus('syncing');
 
-                // 1. 預熱 (受 2 秒限制)
+                // 1. 預熱連線 (受 3 秒限制)
                 await warmupConnection();
 
                 const spotData = {
@@ -1970,8 +1980,7 @@
                     note: document.getElementById('inputNote').value.trim() || null
                 };
 
-                // 2. 直接執行儲存操作，不再等待多餘檢查
-                let result;
+                // 2. 執行儲存操作
                 const dbOperation = editingId 
                     ? supabaseClient.from('spots').update(spotData).eq('id', editingId)
                     : supabaseClient.from('spots').insert([spotData]);
@@ -1980,6 +1989,10 @@
                 const response = await apiCallWithTimeout(dbOperation, 15000);
 
                 if (response.error) {
+                    // 處理 LockManager 超時
+                    if (response.error.message && response.error.message.includes('lock')) {
+                        throw new Error('瀏覽器連線鎖定超時，請點擊「取消」並重新整理頁面');
+                    }
                     // 處理身分過期
                     if (response.error.status === 401) {
                         await supabaseClient.auth.refreshSession();
@@ -1997,12 +2010,13 @@
                 console.error('儲存錯誤細節:', error);
                 setSyncStatus('error');
                 
-                // 如果是我們預設的超時錯誤，顯示黃色警告
-                if (error.message.includes('逾時')) {
-                    showToast('⚠️ 網路喚醒中，請再點一次按鈕即可儲存');
-                } else {
-                    showToast('❌ ' + error.message);
-                }
+                // 解決你看到的 [Object] 顯示問題，將錯誤內容轉為文字
+                let errorMsg = '儲存失敗';
+                if (typeof error === 'string') errorMsg = error;
+                else if (error.message) errorMsg = error.message;
+                else errorMsg = JSON.stringify(error);
+
+                showToast('❌ ' + errorMsg);
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.textContent = originalText;
