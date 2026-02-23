@@ -1461,14 +1461,17 @@
 
             // 初始化下拉選單
             initSearchableSelects();
-            // 📱 監聽手機切換回來的動作
-            document.addEventListener('visibilitychange', async () => {
+            // 📱 靜默修復手機切換後的連線
+            document.addEventListener('visibilitychange', () => {
                 if (document.visibilityState === 'visible') {
-                    setSyncStatus('syncing');
-                    // 重新檢查 Session，這能喚醒與 Supabase 的連線
-                    await supabaseClient.auth.getSession();
-                    setSyncStatus('synced');
-                    console.log('🔄 頁連線已自動恢復');
+                    console.log('🔄 頁面恢復活動，後台更新連線狀態');
+                    // 這裡不使用 await，讓它在背景慢慢跑，不卡住使用者主流程
+                    supabaseClient.auth.getSession().then(({ data }) => {
+                        if (data && data.session) {
+                            currentUser = data.session.user;
+                            checkAdminStatus().then(updateUserInfo);
+                        }
+                    }).catch(console.error);
                 }
             });
         }
@@ -1919,13 +1922,24 @@
             });
         }
 
-        // ==================== 表單提交 ====================
+        // ==================== 表單提交 (改善管理員連線) ====================
         document.getElementById('spotForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
             const submitBtn = document.getElementById('btnSubmit');
-            submitBtn.disabled = true; // 停用按鈕防止重複點擊
+            if (submitBtn.disabled) return; // 防止重複點擊
+
+            submitBtn.disabled = true;
             submitBtn.textContent = '🚀 儲存中...';
+
+            // 設定一個 10 秒強制保險，萬一網路卡死就重置按鈕
+            const timeoutId = setTimeout(() => {
+                if (submitBtn.disabled) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = editingId ? '✨ 更新純點' : '✨ 新增純點';
+                    showToast('⚠️ 儲存超時，請檢查網路後再試一次');
+                }
+            }, 10000);
 
             const spotData = {
                 name: document.getElementById('inputName').value.trim(),
@@ -1939,34 +1953,41 @@
 
             try {
                 setSyncStatus('syncing');
-                // 儲存前確保連線還活著
-                await supabaseClient.auth.getSession();
 
+                // 直接嘗試執行資料庫操作，不再這裡等待 getSession
+                let result;
                 if (editingId) {
-                    const { error } = await supabaseClient
+                    result = await supabaseClient
                         .from('spots')
                         .update(spotData)
                         .eq('id', editingId);
-                    
-                    if (error) throw error;
-                    showToast('✏️ 純點已更新！');
                 } else {
-                    const { error } = await supabaseClient
+                    result = await supabaseClient
                         .from('spots')
                         .insert([spotData]);
-                    
-                    if (error) throw error;
-                    showToast('🌱 新純點已加入！');
                 }
 
-                clearDraft(); // 儲存成功，清除草稿
+                if (result.error) {
+                    // 如果是因為管理員 Session 過期導致錯誤 (401)，嘗試靜默重新整理
+                    if (result.error.code === '401' || result.error.status === 401) {
+                        await supabaseClient.auth.getSession();
+                        throw new Error('登入逾時，請再按一次儲存');
+                    }
+                    throw result.error;
+                }
+
+                clearTimeout(timeoutId); // 成功了，取消保險
+                showToast(editingId ? '✏️ 純點已更新！' : '🌱 新純點已加入！');
+                clearDraft();
                 closeModal();
                 await loadSpots();
+
             } catch (error) {
                 console.error('Save error:', error);
                 setSyncStatus('error');
-                showToast('❌ 儲存失敗：' + (error.message || '連線逾時，請再試一次'));
+                showToast('❌ 儲存失敗：' + (error.message || '請重新整理頁面'));
             } finally {
+                clearTimeout(timeoutId);
                 submitBtn.disabled = false;
                 submitBtn.textContent = editingId ? '✨ 更新純點' : '✨ 新增純點';
             }
