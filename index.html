@@ -1388,13 +1388,27 @@
         let selectedSpots = new Set();
         let currentUser = null;
         let isAdmin = false;
-        // --- 強制中斷工具：針對行動裝置優化至 15 秒 ---
+        // --- 強制中斷工具：確保任何請求都不會卡死瀏覽器 ---
         async function apiCallWithTimeout(promise, ms = 15000) {
-            const timeoutId = setTimeout(() => {}, ms); // 僅佔位
-            const timeout = new Promise((_, reject) =>
-                setTimeout(() => reject(new Error('網路反應太慢（15秒未回應），請再試一次')), ms)
-            );
-            return Promise.race([promise, timeout]);
+            let timeoutId;
+            const timeoutPromise = new Promise((_, reject) => {
+                timeoutId = setTimeout(() => {
+                    reject(new Error('網路連線逾時（' + (ms/1000) + '秒），請檢查網路或再按一次'));
+                }, ms);
+            });
+            return Promise.race([promise, timeoutPromise]).finally(() => clearTimeout(timeoutId));
+        }
+
+        // --- 優化版預熱工具：設定極短的 3 秒限制，不讓它卡住主流程 ---
+        async function warmupConnection() {
+            console.log('📡 正在預熱網路連線...');
+            try {
+                // 給 getSession 3 秒時間，如果不回傳就放棄預熱，直接進入儲存流程
+                await apiCallWithTimeout(supabaseClient.auth.getSession(), 3000);
+                console.log('✅ 連線預熱完成');
+            } catch (e) {
+                console.warn('⚠️ 預熱連線逾時或失敗，將直接嘗試儲存動作');
+            }
         }
 
         // --- 連線預熱工具：強迫瀏覽器喚醒網路 ---
@@ -1483,14 +1497,9 @@
             // 📱 手機切換回來時，簡化連線喚醒
             document.addEventListener('visibilitychange', () => {
                 if (document.visibilityState === 'visible') {
-                    console.log('🔄 頁面恢復活動，喚醒 Session...');
-                    supabaseClient.auth.getSession().then(({ data }) => {
-                        if (data && data.session) {
-                            currentUser = data.session.user;
-                            // 這裡不主動 checkAdminStatus 以免塞車
-                            updateUserInfo(); 
-                        }
-                    });
+                    console.log('🔄 頁面恢復活動，連線修復中...');
+                    // 只做靜默刷新，不阻塞任何 UI
+                    supabaseClient.auth.getSession().catch(() => {});
                 }
             });
         }
@@ -1941,7 +1950,7 @@
             });
         }
 
-        // ==================== 表單提交 (行動裝置增強版) ====================
+        // ==================== 表單提交 (防死鎖強化版) ====================
         document.getElementById('spotForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -1949,9 +1958,9 @@
             if (submitBtn.disabled) return; 
 
             submitBtn.disabled = true;
-            submitBtn.textContent = '🚀 處理中...';
+            submitBtn.textContent = '🚀 儲存中...';
 
-            // 1. 立即預熱連線 (對於管理員特別重要)
+            // 1. 執行預熱 (現在受 3 秒限制，不會無限期卡死)
             await warmupConnection();
 
             const spotData = {
@@ -1967,24 +1976,21 @@
             try {
                 setSyncStatus('syncing');
 
-                // 2. 執行儲存操作 (增加超時容忍度)
+                // 2. 執行資料庫操作 (受 15 秒限制)
                 let result;
-                if (editingId) {
-                    result = await apiCallWithTimeout(
-                        supabaseClient.from('spots').update(spotData).eq('id', editingId)
-                    );
-                } else {
-                    result = await apiCallWithTimeout(
-                        supabaseClient.from('spots').insert([spotData])
-                    );
-                }
+                const dbOperation = editingId 
+                    ? supabaseClient.from('spots').update(spotData).eq('id', editingId)
+                    : supabaseClient.from('spots').insert([spotData]);
 
-                if (result.error) {
-                    if (result.error.status === 401) {
-                        await supabaseClient.auth.getSession();
-                        throw new Error('登入資訊失效，請再按一次儲存');
+                const response = await apiCallWithTimeout(dbOperation, 15000);
+
+                if (response.error) {
+                    // 如果是管理員 Session 失效 (401)，強制刷新一次並報錯
+                    if (response.error.status === 401) {
+                        await supabaseClient.auth.refreshSession();
+                        throw new Error('登入已過期，連線已自動修復，請再點一次儲存');
                     }
-                    throw result.error;
+                    throw response.error;
                 }
 
                 showToast(editingId ? '✏️ 純點已更新！' : '🌱 新純點已加入！');
@@ -1993,14 +1999,16 @@
                 await loadSpots();
 
             } catch (error) {
-                console.error('儲存錯誤:', error);
+                console.error('儲存詳細錯誤:', error);
                 setSyncStatus('error');
                 
-                // 3. 自動處理：如果是因為網路慢，給予明確提示
-                if (error.message.includes('網路反應太慢')) {
-                    showToast('⚠️ 網路喚醒較慢，請直接再點一次儲存');
+                // 3. 針對逾時提供更友善的提示
+                if (error.message.includes('連線逾時')) {
+                    showToast('⚠️ 網路尚未喚醒，請直接再點一次儲存');
+                    // 偷偷在背景再刷一次 session，幫下一次點擊開路
+                    supabaseClient.auth.getSession();
                 } else {
-                    showToast('❌ ' + (error.message || '儲存失敗，請重試'));
+                    showToast('❌ ' + error.message);
                 }
             } finally {
                 submitBtn.disabled = false;
