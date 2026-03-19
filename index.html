@@ -339,12 +339,13 @@
         <div class="header-cloud header-cloud-3"></div>
         <div class="header-login-area">
             <div id="userInfo" class="user-info-compact" style="display: none;">
-                <span id="userEmail" class="user-email"></span>
+                <img id="userAvatar" src="" style="width:24px;height:24px;border-radius:50%;display:none;">
+                <span id="userDisplayName" class="user-email"></span>
                 <span id="userRole" class="user-role"></span>
                 <button class="btn-logout" onclick="logout()">登出</button>
             </div>
             <div id="guestInfo" style="display: inline-block;">
-                <button class="btn-admin-header" onclick="showLoginModal()">🔑 管理員登入</button>
+                <button class="btn-admin-header" onclick="showLoginModal()">👤 登入</button>
             </div>
         </div>
         <div class="header-content">
@@ -530,10 +531,17 @@
     <div class="modal-overlay" id="loginModal">
         <div class="login-modal">
             <div class="seedling-icon" style="font-size: 4rem;">🌱</div>
-            <h2 class="login-title">皮克敏純點管理器</h2>
-            <p class="login-subtitle">你已經可以查看、新增和編輯所有資料！<br>只有管理員需要登入以使用刪除功能。</p>
-            <button class="btn-admin" onclick="loginAsAdmin()">🔑 管理員登入</button>
-            <button class="btn-cancel" onclick="closeLoginModal()" style="margin-top: 12px; width: 100%;">關閉</button>
+            <h2 class="login-title">登入皮克敏純點管理器</h2>
+            <p class="login-subtitle">登入後可以新增純點、管理自己的資料。<br>訪客也可以瀏覽和新增，但無法刪除。</p>
+            <button onclick="loginWithGoogle()" style="width:100%;padding:14px;background:white;border:2px solid #E0E0E0;border-radius:14px;font-size:0.95rem;font-weight:700;cursor:pointer;color:#333;transition:all 0.2s;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px;">
+                <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+                使用 Google 帳號登入
+            </button>
+            <div style="display:flex;align-items:center;gap:12px;margin:16px 0;color:#CCC;font-size:0.8rem;">
+                <div style="flex:1;height:1px;background:#E0E0E0;"></div>或<div style="flex:1;height:1px;background:#E0E0E0;"></div>
+            </div>
+            <button class="btn-admin" onclick="loginAsAdmin()" style="font-size:0.88rem;padding:12px;">🔑 管理員密碼登入</button>
+            <button class="btn-cancel" onclick="closeLoginModal()" style="margin-top: 12px; width: 100%;">以訪客身分繼續</button>
         </div>
     </div>
     <!-- Batch Upload Modal -->
@@ -1029,6 +1037,18 @@
         function setTagFilter(t) { currentTag = t; renderTagFilters(); renderSpots(); }
 
         // ==================== 登入 ====================
+        const SITE_URL = 'https://keikyo.github.io/spot-manager';
+
+        async function loginWithGoogle() {
+            try {
+                const { error } = await supabaseClient.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: { redirectTo: SITE_URL }
+                });
+                if (error) throw error;
+            } catch (e) { console.error(e); showToast('❌ Google 登入失敗：' + e.message); }
+        }
+
         async function loginAsAdmin() {
             const pw = prompt('請輸入管理員密碼：'); if (!pw) return;
             try {
@@ -1046,9 +1066,11 @@
                 setSyncStatus('synced');
             } catch (e) { console.error(e); setSyncStatus('error'); showToast('❌ 登入失敗：' + e.message); }
         }
+
         async function logout() {
             try { await supabaseClient.auth.signOut(); currentUser = null; isAdmin = false; updateUserInfo(); renderSpots(); showToast('👋 已登出'); } catch (e) { console.error(e); }
         }
+
         async function checkAdminStatus() {
             if (!currentUser) { isAdmin = false; return; }
             if (currentUser.email === ADMIN_EMAIL) {
@@ -1059,16 +1081,52 @@
                 } catch { isAdmin = true; }
             } else { isAdmin = false; }
         }
+
+        // Get display name from user metadata (Google provides full_name, name, etc.)
+        function getUserDisplayName(user) {
+            if (!user) return '訪客';
+            const meta = user.user_metadata || {};
+            return meta.full_name || meta.name || meta.preferred_username || user.email?.split('@')[0] || '使用者';
+        }
+
+        function getUserAvatar(user) {
+            if (!user) return null;
+            const meta = user.user_metadata || {};
+            return meta.avatar_url || meta.picture || null;
+        }
+
         function updateUserInfo() {
             const ui = document.getElementById('userInfo'), gi = document.getElementById('guestInfo');
             if (currentUser && !currentUser.is_anonymous) {
                 ui.style.display = 'flex'; gi.style.display = 'none';
-                document.getElementById('userEmail').textContent = currentUser.email;
-                const r = document.getElementById('userRole'); r.textContent = isAdmin ? '管理員' : ''; r.style.display = isAdmin ? 'inline-block' : 'none';
+                document.getElementById('userDisplayName').textContent = getUserDisplayName(currentUser);
+                const avatar = getUserAvatar(currentUser);
+                const avatarEl = document.getElementById('userAvatar');
+                if (avatar) { avatarEl.src = avatar; avatarEl.style.display = 'block'; }
+                else { avatarEl.style.display = 'none'; }
+                const r = document.getElementById('userRole');
+                r.textContent = isAdmin ? '管理員' : '';
+                r.style.display = isAdmin ? 'inline-block' : 'none';
             } else { ui.style.display = 'none'; gi.style.display = 'inline-block'; }
         }
+
         function showLoginModal() { loginModal.classList.add('active'); }
         function closeLoginModal() { loginModal.classList.remove('active'); }
+
+        // ==================== 權限判斷 ====================
+        function canEditSpot(spot) {
+            if (isAdmin) return true;
+            if (!spot.created_by) return true; // Legacy data without created_by - anyone can edit
+            if (currentUser && spot.created_by === currentUser.id) return true;
+            // Anonymous created spots: allow edit by same session (best effort)
+            if (spot.created_by === 'anonymous') return true;
+            return false;
+        }
+        function canDeleteSpot(spot) {
+            if (isAdmin) return true;
+            if (currentUser && spot.created_by && spot.created_by === currentUser.id) return true;
+            return false;
+        }
 
         // ==================== 資料載入 (分頁) ====================
         async function loadSpots(reset = true) {
@@ -1083,7 +1141,7 @@
                 const from = currentPage * PAGE_SIZE;
                 const to = from + PAGE_SIZE - 1;
                 const { data, error } = await supabaseClient.from('spots')
-                    .select('id,name,lat,lng,type,country,city,note,tags,image_url,created_at')
+                    .select('id,name,lat,lng,type,country,city,note,tags,image_url,created_at,created_by,created_by_name')
                     .order('created_at', { ascending: false })
                     .range(from, to);
                 if (error) throw error;
@@ -1160,18 +1218,21 @@
             const isList = currentViewMode === 'list';
             const short = isGrid || isList;
             const tagsHtml = s.tags && s.tags.length ? `<div class="spot-tags">${s.tags.map(t => `<span class="spot-tag">#${escapeHtml(t)}</span>`).join('')}</div>` : '';
+            const byLine = s.created_by_name ? `<span style="font-size:0.7rem;color:#999;font-weight:600;">By ${escapeHtml(s.created_by_name)}</span>` : '';
             const badgesHtml = `<div class="spot-badges">
                 ${s.country ? `<span class="spot-region">🌍 ${escapeHtml(s.country)}</span>` : ''}
                 ${s.city ? `<span class="spot-city">🏙️ ${escapeHtml(s.city)}</span>` : ''}
                 <span class="spot-type-badge ${s.type}">${getTypeLabel(s.type)}</span>
             </div>`;
             const imgHtml = s.image_url ? `<div class="spot-image-container"><img src="${escapeHtml(s.image_url)}" alt="${escapeHtml(s.name)}" onclick="openLightbox(this.src)" loading="lazy"></div>` : '';
-            const quickUploadHtml = !s.image_url && !selectMode ? `<button class="btn btn-quick-upload" onclick="quickUpload('${s.id}')">📷${short ? '' : ' 上傳圖片'}</button>` : '';
+            const showEdit = canEditSpot(s);
+            const showDelete = canDeleteSpot(s);
+            const quickUploadHtml = !s.image_url && !selectMode && showEdit ? `<button class="btn btn-quick-upload" onclick="quickUpload('${s.id}')">📷${short ? '' : ' 上傳圖片'}</button>` : '';
             const actionsHtml = !selectMode ? `<div class="spot-actions">
                 <button class="btn btn-copy" onclick="copyCoords('${s.lat}, ${s.lng}')">📋${short ? '' : ' 複製座標'}</button>
                 ${quickUploadHtml}
-                <button class="btn btn-edit" onclick="editSpot('${s.id}')">✏️${short ? '' : ' 編輯'}</button>
-                ${isAdmin ? `<button class="btn btn-delete" onclick="deleteSpot('${s.id}')">🗑️${short ? '' : ' 刪除'}</button>` : ''}
+                ${showEdit ? `<button class="btn btn-edit" onclick="editSpot('${s.id}')">✏️${short ? '' : ' 編輯'}</button>` : ''}
+                ${showDelete ? `<button class="btn btn-delete" onclick="deleteSpot('${s.id}')">🗑️${short ? '' : ' 刪除'}</button>` : ''}
             </div>` : '';
 
             return `<div class="spot-card ${s.type}-card ${selectMode ? 'select-mode' : ''}" data-id="${s.id}">
@@ -1179,7 +1240,7 @@
                 <div class="spot-content">
                     ${imgHtml}
                     <div class="spot-header">
-                        <div class="spot-name">${escapeHtml(s.name)}</div>
+                        <div class="spot-name">${escapeHtml(s.name)} ${byLine}</div>
                         ${badgesHtml}
                     </div>
                     <div class="spot-coords-row">
@@ -1485,10 +1546,14 @@
                 };
 
                 if (editingId) {
+                    // Don't overwrite created_by on edit
                     const { error } = await supabaseClient.from('spots').update(spotData).eq('id', editingId);
                     if (error) throw error;
                     showToast('✏️ 純點已更新！');
                 } else {
+                    // Add creator info on new spots
+                    spotData.created_by = currentUser ? currentUser.id : 'anonymous';
+                    spotData.created_by_name = currentUser ? getUserDisplayName(currentUser) : '訪客';
                     const { error } = await supabaseClient.from('spots').insert([spotData]);
                     if (error) throw error;
                     showToast('🌱 新純點已加入！');
@@ -1525,7 +1590,8 @@
             selectType(s.type); modalOverlay.classList.add('active');
         };
         window.deleteSpot = async function(id) {
-            if (!isAdmin) { showToast('❌ 只有管理員能刪除'); return; }
+            const spot = spots.find(s => s.id === id);
+            if (!spot || !canDeleteSpot(spot)) { showToast('❌ 你沒有權限刪除此純點'); return; }
             if (!confirm('確定要刪除這個純點嗎？')) return;
             try {
                 setSyncStatus('syncing'); await supabaseClient.auth.getSession();
