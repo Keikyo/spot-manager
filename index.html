@@ -158,7 +158,6 @@
         .spot-list.grid-view .spot-tags { display: none; }
         .spot-list.grid-view .spot-actions { gap: 4px; }
         .spot-list.grid-view .spot-actions .btn { font-size: 0.72rem; padding: 6px 8px; flex: 1; text-align: center; }
-        .spot-list.grid-view .spot-actions .btn-copy { display: none; }
 
         /* ===== LIST (清單) ===== */
         .spot-list.list-view .spot-card { padding: 10px 14px; border-left-width: 3px; }
@@ -446,6 +445,7 @@
             <div style="font-size:0.78rem;color:#888;font-weight:700;">🔧 管理</div>
             <button class="btn-utility" onclick="openBatchUpload();closeToolPanel();" style="background:#F3E5F5;border-color:#CE93D8;color:#7B1FA2;">📷 批次上傳圖片</button>
             <button class="btn-utility" id="btnMigrate" onclick="migrateBase64ToStorage()" style="display:none;background:#FFF3E0;border-color:#FF9800;color:#E65100;">🔄 遷移舊圖片到 Storage</button>
+            <button class="btn-utility" id="btnClaimData" onclick="claimLegacyData()" style="display:none;background:#E8F5E9;border-color:#66BB6A;color:#2E7D32;">👤 認領舊資料為我的</button>
         </div>
     </div>
     <div class="select-bar" id="selectBar">
@@ -532,7 +532,7 @@
         <div class="login-modal">
             <div class="seedling-icon" style="font-size: 4rem;">🌱</div>
             <h2 class="login-title">登入皮克敏純點管理器</h2>
-            <p class="login-subtitle">登入後可以新增純點、管理自己的資料。<br>訪客也可以瀏覽和新增，但無法刪除。</p>
+            <p class="login-subtitle">登入後可以新增純點、管理自己的資料。<br>你也可以先填寫資料，發布時再登入。</p>
             <button onclick="loginWithGoogle()" style="width:100%;padding:14px;background:white;border:2px solid #E0E0E0;border-radius:14px;font-size:0.95rem;font-weight:700;cursor:pointer;color:#333;transition:all 0.2s;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px;">
                 <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
                 使用 Google 帳號登入
@@ -633,7 +633,21 @@
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (session) { currentUser = session.user; await checkAdminStatus(); updateUserInfo(); renderSpots(); }
             supabaseClient.auth.onAuthStateChange(async (event, session) => {
-                if (event === 'SIGNED_IN') { currentUser = session.user; await checkAdminStatus(); loginModal.classList.remove('active'); updateUserInfo(); renderSpots(); showToast('✅ 登入成功！'); }
+                if (event === 'SIGNED_IN') {
+                    currentUser = session.user;
+                    await checkAdminStatus();
+                    loginModal.classList.remove('active');
+                    updateUserInfo();
+                    renderSpots();
+                    showToast('✅ 登入成功！');
+                    // Auto-submit pending spot if guest had filled form before login
+                    if (pendingSpotSubmit) {
+                        const saved = pendingSpotSubmit;
+                        pendingSpotSubmit = null;
+                        showToast('⏳ 正在發布你的純點...');
+                        await doSubmitSpot(saved);
+                    }
+                }
                 else if (event === 'SIGNED_OUT') { currentUser = null; isAdmin = false; updateUserInfo(); renderSpots(); }
                 else if (event === 'TOKEN_REFRESHED' && session) { currentUser = session.user; }
             });
@@ -1116,15 +1130,15 @@
         // ==================== 權限判斷 ====================
         function canEditSpot(spot) {
             if (isAdmin) return true;
-            if (!spot.created_by) return true; // Legacy data without created_by - anyone can edit
+            if (!currentUser) return false; // Guests cannot edit
             if (currentUser && spot.created_by === currentUser.id) return true;
-            // Anonymous created spots: allow edit by same session (best effort)
-            if (spot.created_by === 'anonymous') return true;
+            if (!spot.created_by) return false; // Legacy data - only admin can edit
             return false;
         }
         function canDeleteSpot(spot) {
             if (isAdmin) return true;
-            if (currentUser && spot.created_by && spot.created_by === currentUser.id) return true;
+            if (!currentUser) return false; // Guests cannot delete
+            if (currentUser && spot.created_by === currentUser.id) return true;
             return false;
         }
 
@@ -1513,47 +1527,82 @@
         function selectType(t) { selectedType = t; document.querySelectorAll('.type-option').forEach(o => o.classList.toggle('selected', o.dataset.type === t)); }
 
         // ==================== 表單提交 ====================
+        // Pending form data saved when guest tries to submit
+        let pendingSpotSubmit = null;
+
         document.getElementById('spotForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const lat = document.getElementById('inputLat').value, lng = document.getElementById('inputLng').value;
             if (!lat || !lng) { showToast('⚠️ 請輸入座標'); return; }
-            const btn = document.getElementById('btnSubmit'); btn.disabled = true;
 
-            try {
-                setSyncStatus('syncing');
-                await supabaseClient.auth.getSession();
-
-                // Upload image to Storage if new file selected
-                let imageUrl = null;
-                if (currentImageFile) {
-                    btn.textContent = '⏳ 上傳圖片中...';
-                    imageUrl = await uploadImageToStorage(currentImageFile);
-                } else if (editingId) {
-                    // Keep existing image URL if editing and no new file
-                    const existing = spots.find(s => s.id === editingId);
-                    imageUrl = existing?.image_url || null;
-                }
-
-                const spotData = {
+            // If not logged in, save form data and prompt login
+            if (!currentUser) {
+                pendingSpotSubmit = {
                     name: document.getElementById('inputName').value.trim(),
                     country: document.getElementById('inputCountry').value.trim(),
                     city: document.getElementById('inputCity').value.trim() || null,
                     lat: parseFloat(lat), lng: parseFloat(lng),
                     type: selectedType,
                     note: document.getElementById('inputNote').value.trim() || null,
-                    tags: currentTags.length > 0 ? currentTags : null,
-                    image_url: imageUrl
+                    tags: currentTags.length > 0 ? [...currentTags] : null,
+                    imageFile: currentImageFile || null,
+                    editingId: editingId
                 };
+                closeModal();
+                showToast('👤 登入 Google 後將自動發布你的純點');
+                setTimeout(() => showLoginModal(), 500);
+                return;
+            }
 
-                if (editingId) {
-                    // Don't overwrite created_by on edit
-                    const { error } = await supabaseClient.from('spots').update(spotData).eq('id', editingId);
+            await doSubmitSpot();
+        });
+
+        async function doSubmitSpot(savedData) {
+            const btn = document.getElementById('btnSubmit'); 
+            if (btn) btn.disabled = true;
+
+            try {
+                setSyncStatus('syncing');
+                await supabaseClient.auth.getSession();
+
+                let name, country, city, lat, lng, type, note, tags, imgFile, eid;
+
+                if (savedData) {
+                    // Submitting from pending data after login
+                    ({ name, country, city, lat, lng, type, note, tags, imageFile: imgFile, editingId: eid } = savedData);
+                } else {
+                    // Normal submit from form
+                    name = document.getElementById('inputName').value.trim();
+                    country = document.getElementById('inputCountry').value.trim();
+                    city = document.getElementById('inputCity').value.trim() || null;
+                    lat = parseFloat(document.getElementById('inputLat').value);
+                    lng = parseFloat(document.getElementById('inputLng').value);
+                    type = selectedType;
+                    note = document.getElementById('inputNote').value.trim() || null;
+                    tags = currentTags.length > 0 ? currentTags : null;
+                    imgFile = currentImageFile;
+                    eid = editingId;
+                }
+
+                // Upload image to Storage if file exists
+                let imageUrl = null;
+                if (imgFile) {
+                    showToast('⏳ 上傳圖片中...');
+                    imageUrl = await uploadImageToStorage(imgFile);
+                } else if (eid) {
+                    const existing = spots.find(s => s.id === eid);
+                    imageUrl = existing?.image_url || null;
+                }
+
+                const spotData = { name, country, city, lat, lng, type, note, tags, image_url: imageUrl };
+
+                if (eid) {
+                    const { error } = await supabaseClient.from('spots').update(spotData).eq('id', eid);
                     if (error) throw error;
                     showToast('✏️ 純點已更新！');
                 } else {
-                    // Add creator info on new spots
-                    spotData.created_by = currentUser ? currentUser.id : 'anonymous';
-                    spotData.created_by_name = currentUser ? getUserDisplayName(currentUser) : '訪客';
+                    spotData.created_by = currentUser.id;
+                    spotData.created_by_name = getUserDisplayName(currentUser);
                     const { error } = await supabaseClient.from('spots').insert([spotData]);
                     if (error) throw error;
                     showToast('🌱 新純點已加入！');
@@ -1562,8 +1611,8 @@
             } catch (error) {
                 console.error('Save error:', error);
                 setSyncStatus('error'); showToast('❌ 儲存失敗：' + error.message);
-            } finally { btn.disabled = false; btn.textContent = editingId ? '✨ 更新純點' : '✨ 新增純點'; }
-        });
+            } finally { if (btn) { btn.disabled = false; btn.textContent = editingId ? '✨ 更新純點' : '✨ 新增純點'; } }
+        }
 
         // ==================== 操作 ====================
         window.copyCoords = function(coords) {
@@ -1656,15 +1705,32 @@
         function toggleToolPanel() {
             document.getElementById('toolPanel').classList.toggle('active');
             document.getElementById('toolPanelOverlay').classList.toggle('active');
-            // Show migrate button if admin and there are base64 images
             if (isAdmin) {
-                const hasBase64 = allSpotsMeta.length > 0 || spots.some(s => s.image_url && s.image_url.startsWith('data:'));
-                document.getElementById('btnMigrate').style.display = hasBase64 ? 'block' : 'block'; // Always show for admin
+                document.getElementById('btnMigrate').style.display = 'block';
+                document.getElementById('btnClaimData').style.display = 'block';
             }
         }
         function closeToolPanel() {
             document.getElementById('toolPanel').classList.remove('active');
             document.getElementById('toolPanelOverlay').classList.remove('active');
+        }
+
+        // ==================== 認領舊資料 ====================
+        async function claimLegacyData() {
+            if (!isAdmin || !currentUser) { showToast('❌ 需要管理員登入'); return; }
+            const { count } = await supabaseClient.from('spots').select('*', { count: 'exact', head: true }).is('created_by', null);
+            if (!count) { showToast('✅ 沒有需要認領的舊資料'); closeToolPanel(); return; }
+            if (!confirm(`將 ${count} 筆沒有建立者的舊資料認領為你的？`)) return;
+            closeToolPanel();
+            showToast('🔄 認領中...');
+            try {
+                const { error } = await supabaseClient.from('spots')
+                    .update({ created_by: currentUser.id, created_by_name: getUserDisplayName(currentUser) })
+                    .is('created_by', null);
+                if (error) throw error;
+                showToast(`🎉 已認領 ${count} 筆資料！`);
+                await loadFilterMetadata(); await loadSpots();
+            } catch (e) { console.error(e); showToast('❌ 認領失敗：' + e.message); }
         }
 
         // ==================== 一鍵遷移 base64 → Storage ====================
