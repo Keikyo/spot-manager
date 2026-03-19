@@ -139,6 +139,54 @@
         .select-option.no-results { color: #999; font-style: italic; cursor: default; }
         .select-option.no-results:hover { background: transparent; }
         .spot-list { display: flex; flex-direction: column; gap: 12px; }
+        /* View Mode Switcher */
+        .view-mode-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; background: var(--card-bg); border-radius: 14px; padding: 10px 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .view-mode-btns { display: flex; gap: 4px; }
+        .view-mode-btn { padding: 6px 14px; border: 2px solid #E0E0E0; border-radius: 10px; font-size: 0.78rem; font-weight: 600; cursor: pointer; background: white; color: #666; transition: all 0.2s; font-family: inherit; }
+        .view-mode-btn.active { background: var(--light-green); color: white; border-color: var(--light-green); }
+        .view-mode-info { font-size: 0.75rem; color: #888; font-weight: 600; }
+        /* Grid mode for small thumbnails */
+        .spot-list.grid-view { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .spot-list.grid-view .spot-card { padding: 10px; border-left-width: 3px; }
+        .spot-list.grid-view .spot-image-container img { max-height: 100px; }
+        .spot-list.grid-view .spot-header { flex-direction: column; gap: 4px; }
+        .spot-list.grid-view .spot-name { font-size: 0.85rem; }
+        .spot-list.grid-view .spot-badges { display: none; }
+        .spot-list.grid-view .spot-coords { font-size: 0.68rem; }
+        .spot-list.grid-view .spot-note { display: none; }
+        .spot-list.grid-view .spot-tags { display: none; }
+        .spot-list.grid-view .spot-actions { flex-direction: column; gap: 4px; }
+        .spot-list.grid-view .spot-actions .btn { font-size: 0.72rem; padding: 6px 8px; }
+        .spot-list.grid-view .spot-actions .btn-copy { display: none; }
+        .spot-list.grid-view .btn-quick-upload { font-size: 0.72rem; padding: 6px 8px; }
+        /* List mode (no images) */
+        .spot-list.list-view .spot-image-container { display: none; }
+        .spot-list.list-view .spot-card { padding: 12px 14px; }
+        .spot-list.list-view .spot-note { display: none; }
+        /* Quick upload button */
+        .btn-quick-upload { background: linear-gradient(135deg, #F3E5F5, #E1BEE7); color: #7B1FA2; padding: 9px 14px; border: none; border-radius: 10px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+        .btn-quick-upload:hover { background: linear-gradient(135deg, #E1BEE7, #CE93D8); transform: translateY(-2px); }
+        .btn-quick-upload.uploading { opacity: 0.6; pointer-events: none; }
+        /* Pagination loader */
+        .pagination-loader { text-align: center; padding: 20px; }
+        .pagination-loader .loader-spinner { display: inline-block; width: 28px; height: 28px; border: 3px solid #E0E0E0; border-top-color: var(--light-green); border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .pagination-end { text-align: center; padding: 16px; font-size: 0.82rem; color: #AAA; font-weight: 600; }
+        /* Batch upload modal */
+        .batch-modal { background: white; border-radius: 24px; padding: 24px 20px; max-width: 520px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.25); transform: scale(0.92) translateY(20px); transition: all 0.3s; }
+        .modal-overlay.active .batch-modal { transform: scale(1) translateY(0); }
+        .batch-title { font-size: 1.2rem; font-weight: 800; color: var(--dark-green); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+        .batch-select-area { border: 2px dashed #D0D0D0; border-radius: 14px; padding: 24px; text-align: center; cursor: pointer; transition: all 0.2s; background: #FAFAFA; margin-bottom: 16px; }
+        .batch-select-area:hover { border-color: var(--light-green); background: #F0F9F0; }
+        .batch-list { display: flex; flex-direction: column; gap: 10px; max-height: 50vh; overflow-y: auto; margin-bottom: 16px; }
+        .batch-item { display: flex; gap: 10px; align-items: center; background: #F9F9F9; border-radius: 12px; padding: 10px; border: 1px solid #E8E8E8; }
+        .batch-item img { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; flex-shrink: 0; }
+        .batch-item-info { flex: 1; min-width: 0; }
+        .batch-item select { width: 100%; padding: 8px 10px; border: 2px solid #E8E8E8; border-radius: 10px; font-size: 0.82rem; font-family: inherit; background: white; }
+        .batch-item select:focus { outline: none; border-color: var(--light-green); }
+        .batch-item-remove { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #C62828; padding: 4px; opacity: 0.6; }
+        .batch-item-remove:hover { opacity: 1; }
+        .batch-progress { font-size: 0.82rem; color: #666; text-align: center; padding: 10px; font-weight: 600; }
         .spot-card { background: var(--card-bg); border-radius: 16px; padding: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-left: 5px solid var(--light-green); transition: all 0.25s; position: relative; }
         .spot-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.1); transform: translateY(-3px); }
         .spot-card.flower-card { border-left-color: var(--flower-color); }
@@ -345,7 +393,23 @@
                 </div>
             </div>
         </div>
+        <!-- View Mode Bar -->
+        <div class="view-mode-bar">
+            <div class="view-mode-btns">
+                <button class="view-mode-btn active" data-mode="large" onclick="setViewMode('large')">🖼️ 大圖</button>
+                <button class="view-mode-btn" data-mode="grid" onclick="setViewMode('grid')">🔲 縮圖</button>
+                <button class="view-mode-btn" data-mode="list" onclick="setViewMode('list')">📋 清單</button>
+            </div>
+            <div class="view-mode-info" id="viewModeInfo"></div>
+        </div>
+        <!-- Batch Upload Button -->
+        <div style="margin-bottom:12px;text-align:right;">
+            <button class="btn-utility" onclick="openBatchUpload()" style="display:inline-flex;align-items:center;gap:6px;background:#F3E5F5;border-color:#CE93D8;color:#7B1FA2;">📷 批次上傳圖片</button>
+        </div>
         <div class="spot-list" id="spotList"></div>
+        <!-- Pagination sentinel -->
+        <div id="paginationLoader" class="pagination-loader" style="display:none;"><div class="loader-spinner"></div></div>
+        <div id="paginationEnd" class="pagination-end" style="display:none;">🌱 已顯示全部</div>
     </div>
     <button class="fab" onclick="openAddModal()">+</button>
     <div class="select-bar" id="selectBar">
@@ -437,6 +501,24 @@
             <button class="btn-cancel" onclick="closeLoginModal()" style="margin-top: 12px; width: 100%;">關閉</button>
         </div>
     </div>
+    <!-- Batch Upload Modal -->
+    <div class="modal-overlay" id="batchModal">
+        <div class="batch-modal">
+            <div class="batch-title">📷 批次上傳圖片</div>
+            <div class="batch-select-area" id="batchSelectArea" onclick="document.getElementById('batchFileInput').click()">
+                <div style="font-size:2.5rem;margin-bottom:8px;">📁</div>
+                <div style="font-size:0.88rem;color:#666;font-weight:600;">點擊選擇多張圖片</div>
+                <div style="font-size:0.75rem;color:#AAA;margin-top:4px;">可一次選取多張照片</div>
+            </div>
+            <input type="file" id="batchFileInput" accept="image/*" multiple style="display:none;">
+            <div class="batch-list" id="batchList"></div>
+            <div class="batch-progress" id="batchProgress" style="display:none;"></div>
+            <div style="display:flex;gap:12px;">
+                <button class="btn-cancel" onclick="closeBatchUpload()" style="flex:1;">取消</button>
+                <button class="btn-submit" id="btnBatchSubmit" onclick="submitBatchUpload()" style="flex:2;display:none;">📤 全部上傳</button>
+            </div>
+        </div>
+    </div>
     <div class="lightbox-overlay" id="lightboxOverlay" onclick="closeLightbox()">
         <img id="lightboxImage" src="">
     </div>
@@ -454,6 +536,15 @@
         let searchQuery = '', editingId = null, selectedType = 'pikmin';
         let selectMode = false, selectedSpots = new Set(), currentUser = null, isAdmin = false;
         let currentTags = [], currentImageBase64 = null;
+        // Pagination
+        const PAGE_SIZE = 20;
+        let currentPage = 0;
+        let isLoadingMore = false;
+        let hasMoreData = true;
+        // View mode
+        let currentViewMode = 'large'; // 'large' | 'grid' | 'list'
+        // Batch upload
+        let batchItems = []; // { file, base64, spotId }
 
         const modalOverlay = document.getElementById('modalOverlay');
         const loginModal = document.getElementById('loginModal');
@@ -482,7 +573,19 @@
         });
 
         // ==================== 初始化 ====================
+        let allSpotsMeta = []; // lightweight metadata for filters (no image_url)
+
+        async function loadFilterMetadata() {
+            try {
+                const { data, error } = await supabaseClient.from('spots')
+                    .select('id,name,type,country,city,tags,image_url')
+                    .order('created_at', { ascending: false });
+                if (!error) allSpotsMeta = data || [];
+            } catch (e) { console.error('Metadata load error:', e); }
+        }
+
         async function init() {
+            await loadFilterMetadata(); // Load lightweight metadata for filters
             await loadSpots();
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (session) { currentUser = session.user; await checkAdminStatus(); updateUserInfo(); renderSpots(); }
@@ -491,7 +594,7 @@
                 else if (event === 'SIGNED_OUT') { currentUser = null; isAdmin = false; updateUserInfo(); renderSpots(); }
                 else if (event === 'TOKEN_REFRESHED' && session) { currentUser = session.user; }
             });
-            initSearchableSelects(); initImageUpload(); initTagsInput(); initCoordsInput();
+            initSearchableSelects(); initImageUpload(); initTagsInput(); initCoordsInput(); initPagination();
         }
 
         // ==================== 圖片上傳 ====================
@@ -814,14 +917,16 @@
         }
         function closeAllDropdowns() { document.querySelectorAll('.searchable-select').forEach(el => el.classList.remove('open')); }
         function renderCountryOptions(search = '') {
-            const countries = ['all', ...new Set(spots.map(s => s.country).filter(Boolean))];
+            const src = allSpotsMeta.length ? allSpotsMeta : spots;
+            const countries = ['all', ...new Set(src.map(s => s.country).filter(Boolean))];
             const filtered = countries.filter(c => c === 'all' || c.toLowerCase().includes(search.toLowerCase()));
             const container = document.getElementById('countryOptions');
             if (!filtered.length) { container.innerHTML = '<div class="select-option no-results">找不到結果</div>'; return; }
             container.innerHTML = filtered.map(c => `<div class="select-option ${c === currentCountry ? 'active' : ''}" onclick="selectCountry('${c}')">${c === 'all' ? '🌍 全部國家' : c}</div>`).join('');
         }
         function renderCityOptions(search = '') {
-            const base = currentCountry === 'all' ? spots : spots.filter(s => s.country === currentCountry);
+            const src = allSpotsMeta.length ? allSpotsMeta : spots;
+            const base = currentCountry === 'all' ? src : src.filter(s => s.country === currentCountry);
             const cities = ['all', ...new Set(base.map(s => s.city).filter(Boolean))];
             const filtered = cities.filter(c => c === 'all' || c.toLowerCase().includes(search.toLowerCase()));
             const container = document.getElementById('cityOptions');
@@ -833,8 +938,9 @@
 
         // ==================== 標籤篩選 ====================
         function getAllTags() {
+            const src = allSpotsMeta.length ? allSpotsMeta : spots;
             const m = {};
-            spots.forEach(s => { if (s.tags && Array.isArray(s.tags)) s.tags.forEach(t => m[t] = (m[t]||0)+1); });
+            src.forEach(s => { if (s.tags && Array.isArray(s.tags)) s.tags.forEach(t => m[t] = (m[t]||0)+1); });
             return Object.entries(m).sort((a,b) => b[1]-a[1]);
         }
         function renderTagFilters() {
@@ -888,23 +994,78 @@
         function showLoginModal() { loginModal.classList.add('active'); }
         function closeLoginModal() { loginModal.classList.remove('active'); }
 
-        // ==================== 資料載入 ====================
-        async function loadSpots() {
+        // ==================== 資料載入 (分頁) ====================
+        async function loadSpots(reset = true) {
             try {
                 setSyncStatus('syncing');
-                const { data, error } = await supabaseClient.from('spots').select('*').order('created_at', { ascending: false });
+                if (reset) {
+                    currentPage = 0;
+                    hasMoreData = true;
+                    spots = [];
+                    spotList.innerHTML = '';
+                }
+                const from = currentPage * PAGE_SIZE;
+                const to = from + PAGE_SIZE - 1;
+                const { data, error } = await supabaseClient.from('spots')
+                    .select('id,name,lat,lng,type,country,city,note,tags,image_url,created_at')
+                    .order('created_at', { ascending: false })
+                    .range(from, to);
                 if (error) throw error;
-                spots = data || [];
+                const newData = data || [];
+                if (newData.length < PAGE_SIZE) hasMoreData = false;
+                spots = reset ? newData : [...spots, ...newData];
+                currentPage++;
                 document.getElementById('countryInput').value = currentCountry === 'all' ? '🌍 全部國家' : currentCountry;
                 document.getElementById('cityInput').value = currentCity === 'all' ? '🏙️ 全部縣市' : currentCity;
-                renderSpots(); updateStats(); renderTagFilters(); setSyncStatus('synced');
+                renderSpots(reset);
+                updateStats(); renderTagFilters(); setSyncStatus('synced');
+                updatePaginationUI();
             } catch (e) { console.error(e); setSyncStatus('error'); showToast('❌ 載入失敗'); }
         }
+
+        async function loadMoreSpots() {
+            if (isLoadingMore || !hasMoreData) return;
+            isLoadingMore = true;
+            document.getElementById('paginationLoader').style.display = 'block';
+            await loadSpots(false);
+            isLoadingMore = false;
+            document.getElementById('paginationLoader').style.display = 'none';
+        }
+
+        function updatePaginationUI() {
+            document.getElementById('paginationLoader').style.display = 'none';
+            document.getElementById('paginationEnd').style.display = hasMoreData ? 'none' : 'block';
+        }
+
+        // Infinite scroll with IntersectionObserver
+        const paginationObserver = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting && hasMoreData && !isLoadingMore) {
+                loadMoreSpots();
+            }
+        }, { rootMargin: '200px' });
+
+        // Will observe after init
+        function initPagination() {
+            const sentinel = document.getElementById('paginationLoader');
+            if (sentinel) paginationObserver.observe(sentinel);
+        }
+
         function setSyncStatus(s) { syncStatus.className = `sync-status ${s}`; syncStatus.textContent = { syncing: '⏳ 同步中...', synced: '✨ 已同步', error: '❌ 同步失敗' }[s] || ''; }
 
+        // ==================== 檢視模式 ====================
+        function setViewMode(mode) {
+            currentViewMode = mode;
+            document.querySelectorAll('.view-mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+            spotList.classList.remove('grid-view', 'list-view');
+            if (mode === 'grid') spotList.classList.add('grid-view');
+            else if (mode === 'list') spotList.classList.add('list-view');
+            // Re-render to update card content
+            renderSpots(true);
+        }
+
         // ==================== 篩選 & 渲染 ====================
-        function setFilter(type) { currentFilter = type; document.querySelectorAll('.type-pill').forEach(p => p.classList.toggle('active', p.dataset.filter === type)); renderSpots(); }
-        document.getElementById('searchInput').addEventListener('input', (e) => { searchQuery = e.target.value.toLowerCase(); renderSpots(); });
+        function setFilter(type) { currentFilter = type; document.querySelectorAll('.type-pill').forEach(p => p.classList.toggle('active', p.dataset.filter === type)); renderSpots(true); }
+        document.getElementById('searchInput').addEventListener('input', (e) => { searchQuery = e.target.value.toLowerCase(); renderSpots(true); });
 
         function getFilteredSpots() {
             return spots.filter(s => {
@@ -918,13 +1079,9 @@
             });
         }
 
-        function renderSpots() {
-            const fs = getFilteredSpots();
-            if (!fs.length) {
-                spotList.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🌱</div><div class="empty-state-text">${spots.length === 0 ? '還沒有純點呢！<br>點擊 + 開始收藏吧' : '找不到符合的純點 🔍'}</div></div>`;
-                return;
-            }
-            spotList.innerHTML = fs.map(s => `
+        function renderSpotCard(s) {
+            const isGrid = currentViewMode === 'grid';
+            return `
                 <div class="spot-card ${s.type}-card ${selectMode ? 'select-mode' : ''}" data-id="${s.id}">
                     ${selectMode ? `<input type="checkbox" class="spot-checkbox" ${selectedSpots.has(s.id) ? 'checked' : ''}>` : ''}
                     <div class="spot-content">
@@ -942,11 +1099,40 @@
                         ${s.note ? `<div class="spot-note">${escapeHtml(s.note)}</div>` : ''}
                         ${!selectMode ? `<div class="spot-actions">
                             <button class="btn btn-copy" onclick="copyCoords('${s.lat}, ${s.lng}')">📋 複製座標</button>
-                            <button class="btn btn-edit" onclick="editSpot('${s.id}')">✏️ 編輯</button>
-                            ${isAdmin ? `<button class="btn btn-delete" onclick="deleteSpot('${s.id}')">🗑️ 刪除</button>` : ''}
+                            ${!s.image_url ? `<button class="btn btn-quick-upload" onclick="quickUpload('${s.id}')">📷${isGrid ? '' : ' 上傳圖片'}</button>` : ''}
+                            <button class="btn btn-edit" onclick="editSpot('${s.id}')">✏️${isGrid ? '' : ' 編輯'}</button>
+                            ${isAdmin ? `<button class="btn btn-delete" onclick="deleteSpot('${s.id}')">🗑️${isGrid ? '' : ' 刪除'}</button>` : ''}
                         </div>` : ''}
                     </div>
-                </div>`).join('');
+                </div>`;
+        }
+
+        function renderSpots(reset = true) {
+            const fs = getFilteredSpots();
+
+            // Update view mode info
+            const totalCount = fs.length;
+            const noImageCount = fs.filter(s => !s.image_url).length;
+            document.getElementById('viewModeInfo').textContent = `${totalCount} 筆${noImageCount > 0 ? ` (${noImageCount} 無圖)` : ''}`;
+
+            if (!fs.length) {
+                spotList.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🌱</div><div class="empty-state-text">${spots.length === 0 ? '還沒有純點呢！<br>點擊 + 開始收藏吧' : '找不到符合的純點 🔍'}</div></div>`;
+                return;
+            }
+
+            // Apply view mode class
+            spotList.classList.remove('grid-view', 'list-view');
+            if (currentViewMode === 'grid') spotList.classList.add('grid-view');
+            else if (currentViewMode === 'list') spotList.classList.add('list-view');
+
+            if (reset) {
+                spotList.innerHTML = fs.map(s => renderSpotCard(s)).join('');
+            } else {
+                // Append new items only (for pagination)
+                const existingIds = new Set([...spotList.querySelectorAll('.spot-card')].map(el => el.dataset.id));
+                const newHtml = fs.filter(s => !existingIds.has(s.id)).map(s => renderSpotCard(s)).join('');
+                spotList.insertAdjacentHTML('beforeend', newHtml);
+            }
 
             if (selectMode) {
                 document.querySelectorAll('.spot-checkbox').forEach(cb => {
@@ -958,15 +1144,162 @@
             }
         }
 
+        // ==================== 快速上傳圖片 ====================
+        window.quickUpload = function(spotId) {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                if (file.size > 2 * 1024 * 1024) { showToast('⚠️ 圖片不能超過 2MB'); return; }
+
+                // Find and disable the button
+                const card = document.querySelector(`.spot-card[data-id="${spotId}"]`);
+                const btn = card?.querySelector('.btn-quick-upload');
+                if (btn) { btn.classList.add('uploading'); btn.textContent = '⏳ 上傳中...'; }
+
+                const reader = new FileReader();
+                reader.onload = async (ev) => {
+                    try {
+                        await supabaseClient.auth.getSession();
+                        const { error } = await supabaseClient.from('spots')
+                            .update({ image_url: ev.target.result })
+                            .eq('id', spotId);
+                        if (error) throw error;
+
+                        // Update local data
+                        const spot = spots.find(s => s.id === spotId);
+                        if (spot) spot.image_url = ev.target.result;
+
+                        // Re-render just this card
+                        if (card) {
+                            card.outerHTML = renderSpotCard(spot);
+                        }
+                        showToast('📷 圖片已上傳！');
+                    } catch (err) {
+                        console.error('Quick upload error:', err);
+                        if (btn) { btn.classList.remove('uploading'); btn.textContent = '📷 上傳圖片'; }
+                        showToast('❌ 上傳失敗：' + err.message);
+                    }
+                };
+                reader.readAsDataURL(file);
+            };
+            input.click();
+        };
+
+        // ==================== 批次上傳圖片 ====================
+        function openBatchUpload() {
+            batchItems = [];
+            document.getElementById('batchList').innerHTML = '';
+            document.getElementById('batchFileInput').value = '';
+            document.getElementById('btnBatchSubmit').style.display = 'none';
+            document.getElementById('batchProgress').style.display = 'none';
+            document.getElementById('batchSelectArea').style.display = 'block';
+            document.getElementById('batchModal').classList.add('active');
+
+            // Init file input listener
+            document.getElementById('batchFileInput').onchange = (e) => {
+                const files = Array.from(e.target.files);
+                if (!files.length) return;
+                files.forEach(file => {
+                    if (file.size > 2 * 1024 * 1024) { showToast(`⚠️ ${file.name} 超過 2MB，已跳過`); return; }
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        batchItems.push({ file, base64: ev.target.result, spotId: '' });
+                        renderBatchList();
+                    };
+                    reader.readAsDataURL(file);
+                });
+            };
+        }
+
+        function closeBatchUpload() {
+            document.getElementById('batchModal').classList.remove('active');
+            batchItems = [];
+        }
+
+        function renderBatchList() {
+            const spotsWithoutImage = (allSpotsMeta.length ? allSpotsMeta : spots).filter(s => !s.image_url);
+            const list = document.getElementById('batchList');
+            list.innerHTML = batchItems.map((item, i) => `
+                <div class="batch-item">
+                    <img src="${item.base64}">
+                    <div class="batch-item-info">
+                        <div style="font-size:0.75rem;color:#888;margin-bottom:4px;">${escapeHtml(item.file.name)}</div>
+                        <select onchange="batchItems[${i}].spotId=this.value">
+                            <option value="">-- 選擇要配對的純點 --</option>
+                            ${spotsWithoutImage.map(s => `<option value="${s.id}" ${item.spotId === s.id ? 'selected' : ''}>${escapeHtml(s.name)} (${s.country || ''}${s.city ? ' ' + s.city : ''})</option>`).join('')}
+                        </select>
+                    </div>
+                    <button class="batch-item-remove" onclick="batchItems.splice(${i},1);renderBatchList();">✕</button>
+                </div>
+            `).join('');
+
+            document.getElementById('btnBatchSubmit').style.display = batchItems.length > 0 ? 'block' : 'none';
+            document.getElementById('batchSelectArea').style.display = 'block'; // Always allow adding more
+        }
+
+        async function submitBatchUpload() {
+            const validItems = batchItems.filter(item => item.spotId);
+            if (!validItems.length) { showToast('⚠️ 請為至少一張圖片選擇純點'); return; }
+
+            const btn = document.getElementById('btnBatchSubmit');
+            btn.disabled = true;
+            btn.textContent = '⏳ 上傳中...';
+            const progress = document.getElementById('batchProgress');
+            progress.style.display = 'block';
+
+            await supabaseClient.auth.getSession();
+            let ok = 0, fail = 0;
+            for (let i = 0; i < validItems.length; i++) {
+                const item = validItems[i];
+                progress.textContent = `上傳中 ${i + 1} / ${validItems.length}...`;
+                try {
+                    const { error } = await supabaseClient.from('spots')
+                        .update({ image_url: item.base64 })
+                        .eq('id', item.spotId);
+                    if (error) throw error;
+                    ok++;
+                } catch { fail++; }
+            }
+
+            btn.disabled = false;
+            btn.textContent = '📤 全部上傳';
+            progress.style.display = 'none';
+
+            if (fail === 0) {
+                showToast(`🎉 成功上傳 ${ok} 張圖片！`);
+            } else {
+                showToast(`⚠️ 成功 ${ok} 張，失敗 ${fail} 張`);
+            }
+            closeBatchUpload();
+            await loadFilterMetadata();
+            await loadSpots();
+        }
+
         function openLightbox(src) { document.getElementById('lightboxImage').src = src; document.getElementById('lightboxOverlay').classList.add('active'); }
         function closeLightbox() { document.getElementById('lightboxOverlay').classList.remove('active'); }
         function getTypeLabel(t) { return { flower: '🌸 大花', pikmin: '🌱 皮克敏', mushroom: '🍄 蘑菇', postcard: '🏠 明信片' }[t] || t; }
         function escapeHtml(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
-        function updateStats() {
-            document.getElementById('stat-flower').textContent = spots.filter(s => s.type === 'flower').length;
-            document.getElementById('stat-pikmin').textContent = spots.filter(s => s.type === 'pikmin').length;
-            document.getElementById('stat-mushroom').textContent = spots.filter(s => s.type === 'mushroom').length;
-            document.getElementById('stat-postcard').textContent = spots.filter(s => s.type === 'postcard').length;
+        async function updateStats() {
+            try {
+                // Query counts directly from DB for accuracy regardless of pagination
+                const types = ['flower', 'pikmin', 'mushroom', 'postcard'];
+                for (const type of types) {
+                    const { count, error } = await supabaseClient
+                        .from('spots')
+                        .select('*', { count: 'exact', head: true })
+                        .eq('type', type);
+                    if (!error) document.getElementById(`stat-${type}`).textContent = count || 0;
+                }
+            } catch (e) {
+                // Fallback to local data
+                document.getElementById('stat-flower').textContent = spots.filter(s => s.type === 'flower').length;
+                document.getElementById('stat-pikmin').textContent = spots.filter(s => s.type === 'pikmin').length;
+                document.getElementById('stat-mushroom').textContent = spots.filter(s => s.type === 'mushroom').length;
+                document.getElementById('stat-postcard').textContent = spots.filter(s => s.type === 'postcard').length;
+            }
         }
 
         // ==================== Modal ====================
