@@ -412,9 +412,10 @@
                 <div class="form-group">
                     <label class="form-label">標籤 (最多3個)</label>
                     <div class="tags-input-container" id="tagsInputContainer" onclick="document.getElementById('tagsTextInput').focus()">
-                        <input type="text" class="tags-text-input" id="tagsTextInput" placeholder="輸入標籤後按 Enter">
+                        <input type="text" class="tags-text-input" id="tagsTextInput" placeholder="輸入標籤...">
+                        <button type="button" id="btnAddTag" style="padding:4px 12px;background:var(--light-green);color:white;border:none;border-radius:10px;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0;">+ 新增</button>
                     </div>
-                    <div class="tags-hint">輸入後按 Enter 新增，可加 # 前綴（會自動補上）</div>
+                    <div class="tags-hint">輸入標籤後按「+ 新增」按鈕，支援逗號或空格分隔多個標籤</div>
                 </div>
                 <div class="form-group">
                     <label class="form-label">備註（選填）</label>
@@ -521,16 +522,51 @@
         // ==================== 標籤 ====================
         function initTagsInput() {
             const input = document.getElementById('tagsTextInput');
-            input.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') { e.preventDefault(); addTag(input.value); input.value = ''; }
+            const btn = document.getElementById('btnAddTag');
+
+            // 點擊「+ 新增」按鈕
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                commitTagInput(input);
+                input.focus();
             });
+
+            // Enter 鍵（桌機）或手機鍵盤的「前往/完成/搜尋」
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.keyCode === 13) {
+                    e.preventDefault();
+                    commitTagInput(input);
+                }
+            });
+
+            // 逗號、頓號、空格自動分隔（即時觸發）
             input.addEventListener('input', (e) => {
                 const val = e.target.value;
-                if (val.includes(',') || val.includes('，')) {
-                    val.split(/[,，]/).forEach(p => { if (p.trim()) addTag(p.trim()); });
+                if (val.includes(',') || val.includes('，') || val.includes('、')) {
+                    val.split(/[,，、]/).forEach(p => { if (p.trim()) addTag(p.trim()); });
+                    input.value = '';
+                } else if (val.includes(' ') && val.trim().includes(' ')) {
+                    // 空格分隔：只在有完整詞時觸發（避免打字中誤觸）
+                    val.split(/\s+/).forEach(p => { if (p.trim()) addTag(p.trim()); });
                     input.value = '';
                 }
             });
+
+            // 離開輸入框時自動提交（手機切換欄位時）
+            input.addEventListener('blur', () => {
+                if (input.value.trim()) {
+                    setTimeout(() => commitTagInput(input), 150);
+                }
+            });
+        }
+
+        // 提交輸入框中的所有標籤
+        function commitTagInput(input) {
+            const val = input.value.trim();
+            if (!val) return;
+            // 支援多種分隔符一次輸入多個
+            val.split(/[,，、\s]+/).forEach(p => { if (p.trim()) addTag(p.trim()); });
+            input.value = '';
         }
         function addTag(text) {
             text = text.trim().replace(/^#/, '');
@@ -550,7 +586,7 @@
                 badge.innerHTML = `#${escapeHtml(tag)} <span class="tag-remove" onclick="removeTag(${i})">✕</span>`;
                 container.insertBefore(badge, input);
             });
-            input.placeholder = currentTags.length >= 3 ? '已達上限' : '輸入標籤後按 Enter';
+            input.placeholder = currentTags.length >= 3 ? '已達上限' : '輸入標籤...';
             input.disabled = currentTags.length >= 3;
         }
 
