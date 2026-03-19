@@ -164,14 +164,11 @@
         .spot-list.list-view .spot-card { padding: 10px 14px; border-left-width: 3px; }
         .spot-list.list-view .spot-image-container { display: none; }
         .spot-list.list-view .spot-note { display: none; }
-        .spot-list.list-view .spot-content { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
-        .spot-list.list-view .spot-header { flex: 1; min-width: 0; margin-bottom: 0; }
-        .spot-list.list-view .spot-name { font-size: 0.92rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .spot-list.list-view .spot-badges { flex-shrink: 0; }
-        .spot-list.list-view .spot-coords { font-size: 0.72rem; margin-bottom: 0; }
-        .spot-list.list-view .spot-tags { margin: 0; }
+        .spot-list.list-view .spot-header { margin-bottom: 4px; }
+        .spot-list.list-view .spot-name { font-size: 0.92rem; }
+        .spot-list.list-view .spot-coords { font-size: 0.72rem; }
         .spot-list.list-view .spot-tags .spot-tag { font-size: 0.68rem; padding: 2px 8px; }
-        .spot-list.list-view .spot-actions { width: 100%; margin-top: 6px; }
+        .spot-list.list-view .spot-actions { margin-top: 6px; }
         .spot-list.list-view .spot-actions .btn { padding: 6px 12px; font-size: 0.78rem; }
 
         /* ===== LARGE (大圖) ===== */
@@ -249,6 +246,14 @@
         .fab { position: fixed; bottom: 28px; right: 24px; width: 62px; height: 62px; background: linear-gradient(135deg, var(--light-green), var(--primary-green)); border-radius: 50%; border: none; font-size: 2rem; color: white; cursor: pointer; box-shadow: 0 6px 24px rgba(123,201,123,0.45); transition: all 0.3s ease; z-index: 100; }
         .fab:hover { transform: scale(1.1) rotate(90deg); box-shadow: 0 8px 28px rgba(123,201,123,0.55); }
         .fab:active { transform: scale(0.95); }
+        .fab-gear { font-size: 1.4rem; width: 50px; height: 50px; background: linear-gradient(135deg, #FFE0B2, #FFB74D); box-shadow: 0 4px 16px rgba(255,183,77,0.4); }
+        .fab-gear:hover { transform: scale(1.1); box-shadow: 0 6px 20px rgba(255,183,77,0.5); }
+        /* Tool Side Panel */
+        .tool-panel-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.3); z-index: 300; opacity: 0; visibility: hidden; transition: all 0.3s; }
+        .tool-panel-overlay.active { opacity: 1; visibility: visible; }
+        .tool-panel { position: fixed; top: 0; right: -300px; width: 280px; height: 100%; background: white; z-index: 301; padding: 20px; overflow-y: auto; box-shadow: -4px 0 20px rgba(0,0,0,0.15); transition: right 0.3s ease; }
+        .tool-panel.active { right: 0; }
+        .tool-panel .btn-utility { width: 100%; text-align: left; padding: 12px 14px; }
         .select-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 14px 20px; box-shadow: 0 -4px 20px rgba(0,0,0,0.12); z-index: 200; display: none; }
         .select-bar.active { display: block; animation: slide-up 0.3s ease-out; }
         @keyframes slide-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
@@ -356,18 +361,6 @@
             <div class="stat-card mushroom-card"><div class="stat-icon">🍄</div><div class="stat-label">蘑菇</div><div class="stat-number" id="stat-mushroom">0</div></div>
             <div class="stat-card postcard-card"><div class="stat-icon">🏠</div><div class="stat-label">明信片</div><div class="stat-number" id="stat-postcard">0</div></div>
         </div>
-        <div class="utility-section">
-            <div class="utility-title">📦 匯入 / 匯出</div>
-            <div class="utility-buttons">
-                <button class="btn-utility" onclick="importGpx()">📥 匯入 GPX</button>
-                <button class="btn-utility" onclick="exportAllGpx()">📤 匯出 GPX</button>
-                <button class="btn-utility" onclick="enterSelectMode()">✅ 選擇匯出</button>
-            </div>
-            <div class="utility-buttons two-col">
-                <button class="btn-utility json-backup" onclick="exportJson()">💾 備份 JSON</button>
-                <button class="btn-utility json-import" onclick="importJson()">📂 匯入 JSON</button>
-            </div>
-        </div>
         <div class="filters-section">
             <div class="search-box">
                 <span class="search-icon">🔍</span>
@@ -424,17 +417,36 @@
             </div>
             <div class="view-mode-info" id="viewModeInfo"></div>
         </div>
-        <!-- Batch Upload Button -->
-        <div style="margin-bottom:12px;text-align:right;">
-            <button class="btn-utility" onclick="openBatchUpload()" style="display:inline-flex;align-items:center;gap:6px;background:#F3E5F5;border-color:#CE93D8;color:#7B1FA2;">📷 批次上傳圖片</button>
-        </div>
         <div class="spot-list" id="spotList"></div>
         <!-- Pagination -->
         <div id="paginationSentinel" style="height:1px;"></div>
         <div id="paginationLoader" class="pagination-loader" style="display:none;"><div class="loader-spinner"></div></div>
         <div id="paginationEnd" class="pagination-end" style="display:none;">🌱 已顯示全部</div>
     </div>
+    <!-- FAB buttons -->
+    <button class="fab fab-gear" onclick="toggleToolPanel()" style="bottom:100px;">⚙️</button>
     <button class="fab" onclick="openAddModal()">+</button>
+
+    <!-- Tools Side Panel -->
+    <div class="tool-panel-overlay" id="toolPanelOverlay" onclick="closeToolPanel()"></div>
+    <div class="tool-panel" id="toolPanel">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <div style="font-size:1.1rem;font-weight:800;color:var(--dark-green);">⚙️ 工具</div>
+            <button onclick="closeToolPanel()" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:#888;">✕</button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+            <div style="font-size:0.78rem;color:#888;font-weight:700;">📦 匯入 / 匯出</div>
+            <button class="btn-utility" onclick="importGpx();closeToolPanel();">📥 匯入 GPX</button>
+            <button class="btn-utility" onclick="exportAllGpx();closeToolPanel();">📤 匯出全部 GPX</button>
+            <button class="btn-utility" onclick="enterSelectMode();closeToolPanel();">✅ 選擇匯出</button>
+            <button class="btn-utility json-backup" onclick="exportJson();closeToolPanel();">💾 備份 JSON</button>
+            <button class="btn-utility json-import" onclick="importJson();closeToolPanel();">📂 匯入 JSON</button>
+            <div style="border-top:1px solid #E8E8E8;margin:8px 0;"></div>
+            <div style="font-size:0.78rem;color:#888;font-weight:700;">🔧 管理</div>
+            <button class="btn-utility" onclick="openBatchUpload();closeToolPanel();" style="background:#F3E5F5;border-color:#CE93D8;color:#7B1FA2;">📷 批次上傳圖片</button>
+            <button class="btn-utility" id="btnMigrate" onclick="migrateBase64ToStorage()" style="display:none;background:#FFF3E0;border-color:#FF9800;color:#E65100;">🔄 遷移舊圖片到 Storage</button>
+        </div>
+    </div>
     <div class="select-bar" id="selectBar">
         <div class="select-bar-content">
             <div class="select-count">已選 <span id="selectedCount">0</span> 個</div>
@@ -558,7 +570,7 @@
         let spots = [], currentFilter = 'all', currentCountry = 'all', currentCity = 'all', currentTag = 'all';
         let searchQuery = '', editingId = null, selectedType = 'pikmin';
         let selectMode = false, selectedSpots = new Set(), currentUser = null, isAdmin = false;
-        let currentTags = [], currentImageBase64 = null;
+        let currentTags = [];
         // Pagination
         const PAGE_SIZE = 20;
         let currentPage = 0;
@@ -601,7 +613,7 @@
         async function loadFilterMetadata() {
             try {
                 const { data, error } = await supabaseClient.from('spots')
-                    .select('id,name,type,country,city,tags,image_url')
+                    .select('id,name,type,country,city,tags')
                     .order('created_at', { ascending: false });
                 if (!error) allSpotsMeta = data || [];
             } catch (e) { console.error('Metadata load error:', e); }
@@ -620,14 +632,42 @@
             initSearchableSelects(); initImageUpload(); initTagsInput(); initCoordsInput(); initPagination();
         }
 
-        // ==================== 圖片上傳 ====================
+        // ==================== 圖片上傳 (Supabase Storage) ====================
+        const STORAGE_BUCKET = 'spot-images';
+
+        async function uploadImageToStorage(file) {
+            const ext = file.name.split('.').pop() || 'jpg';
+            const fileName = `${Date.now()}_${Math.random().toString(36).slice(2,8)}.${ext}`;
+            const { data, error } = await supabaseClient.storage
+                .from(STORAGE_BUCKET)
+                .upload(fileName, file, { cacheControl: '3600', upsert: false });
+            if (error) throw error;
+            const { data: urlData } = supabaseClient.storage.from(STORAGE_BUCKET).getPublicUrl(fileName);
+            return urlData.publicUrl;
+        }
+
+        // Convert base64 to File for uploading existing base64 data to Storage
+        function base64ToFile(base64, filename) {
+            const arr = base64.split(',');
+            const mime = arr[0].match(/:(.*?);/)[1];
+            const bstr = atob(arr[1]);
+            let n = bstr.length;
+            const u8arr = new Uint8Array(n);
+            while (n--) u8arr[n] = bstr.charCodeAt(n);
+            return new File([u8arr], filename, { type: mime });
+        }
+
+        let currentImageFile = null; // Store actual File object for Storage upload
+
         function initImageUpload() {
             document.getElementById('imageFileInput').addEventListener('change', (e) => {
                 const file = e.target.files[0];
                 if (!file) return;
-                if (file.size > 2 * 1024 * 1024) { showToast('⚠️ 圖片大小不能超過 2MB'); e.target.value = ''; return; }
+                if (file.size > 5 * 1024 * 1024) { showToast('⚠️ 圖片大小不能超過 5MB'); e.target.value = ''; return; }
+                currentImageFile = file;
+                // Preview only
                 const reader = new FileReader();
-                reader.onload = (ev) => { currentImageBase64 = ev.target.result; showImagePreview(currentImageBase64); };
+                reader.onload = (ev) => { showImagePreview(ev.target.result); };
                 reader.readAsDataURL(file);
             });
         }
@@ -638,7 +678,7 @@
             document.getElementById('imageUploadArea').classList.add('has-image');
         }
         function removeImage(e) {
-            e.stopPropagation(); currentImageBase64 = null;
+            e.stopPropagation(); currentImageFile = null;
             document.getElementById('imageFileInput').value = '';
             document.getElementById('imageUploadPlaceholder').style.display = 'block';
             document.getElementById('imagePreviewContainer').style.display = 'none';
@@ -966,13 +1006,26 @@
             src.forEach(s => { if (s.tags && Array.isArray(s.tags)) s.tags.forEach(t => m[t] = (m[t]||0)+1); });
             return Object.entries(m).sort((a,b) => b[1]-a[1]);
         }
+        let tagExpanded = false;
         function renderTagFilters() {
             const tags = getAllTags(), g = document.getElementById('tagFilterGroup'), c = document.getElementById('tagFilterPills');
             if (!tags.length) { g.style.display = 'none'; return; }
             g.style.display = 'block';
-            c.innerHTML = `<div class="tag-pill ${currentTag==='all'?'active':''}" onclick="setTagFilter('all')">全部</div>` +
-                tags.slice(0,10).map(([t,n]) => `<div class="tag-pill ${currentTag===t?'active':''}" onclick="setTagFilter('${escapeHtml(t)}')">#${escapeHtml(t)} (${n})</div>`).join('');
+            const top3 = tags.slice(0, 3);
+            const rest = tags.slice(3);
+            let html = `<div class="tag-pill ${currentTag==='all'?'active':''}" onclick="setTagFilter('all')">全部</div>`;
+            html += top3.map(([t,n]) => `<div class="tag-pill ${currentTag===t?'active':''}" onclick="setTagFilter('${escapeHtml(t)}')">#${escapeHtml(t)} (${n})</div>`).join('');
+            if (rest.length > 0) {
+                if (tagExpanded) {
+                    html += rest.map(([t,n]) => `<div class="tag-pill ${currentTag===t?'active':''}" onclick="setTagFilter('${escapeHtml(t)}')">#${escapeHtml(t)} (${n})</div>`).join('');
+                    html += `<div class="tag-pill" onclick="toggleTagExpand()" style="background:#F5F5F5;border-color:#CCC;color:#888;">▲ 收合</div>`;
+                } else {
+                    html += `<div class="tag-pill" onclick="toggleTagExpand()" style="background:#F5F5F5;border-color:#CCC;color:#888;">▼ 更多 (${rest.length})</div>`;
+                }
+            }
+            c.innerHTML = html;
         }
+        function toggleTagExpand() { tagExpanded = !tagExpanded; renderTagFilters(); }
         function setTagFilter(t) { currentTag = t; renderTagFilters(); renderSpots(); }
 
         // ==================== 登入 ====================
@@ -1185,38 +1238,29 @@
             input.onchange = async (e) => {
                 const file = e.target.files[0];
                 if (!file) return;
-                if (file.size > 2 * 1024 * 1024) { showToast('⚠️ 圖片不能超過 2MB'); return; }
+                if (file.size > 5 * 1024 * 1024) { showToast('⚠️ 圖片不能超過 5MB'); return; }
 
-                // Find and disable the button
                 const card = document.querySelector(`.spot-card[data-id="${spotId}"]`);
                 const btn = card?.querySelector('.btn-quick-upload');
-                if (btn) { btn.classList.add('uploading'); btn.textContent = '⏳ 上傳中...'; }
+                if (btn) { btn.classList.add('uploading'); btn.textContent = '⏳'; }
 
-                const reader = new FileReader();
-                reader.onload = async (ev) => {
-                    try {
-                        await supabaseClient.auth.getSession();
-                        const { error } = await supabaseClient.from('spots')
-                            .update({ image_url: ev.target.result })
-                            .eq('id', spotId);
-                        if (error) throw error;
+                try {
+                    await supabaseClient.auth.getSession();
+                    const imageUrl = await uploadImageToStorage(file);
+                    const { error } = await supabaseClient.from('spots')
+                        .update({ image_url: imageUrl })
+                        .eq('id', spotId);
+                    if (error) throw error;
 
-                        // Update local data
-                        const spot = spots.find(s => s.id === spotId);
-                        if (spot) spot.image_url = ev.target.result;
-
-                        // Re-render just this card
-                        if (card) {
-                            card.outerHTML = renderSpotCard(spot);
-                        }
-                        showToast('📷 圖片已上傳！');
-                    } catch (err) {
-                        console.error('Quick upload error:', err);
-                        if (btn) { btn.classList.remove('uploading'); btn.textContent = '📷 上傳圖片'; }
-                        showToast('❌ 上傳失敗：' + err.message);
-                    }
-                };
-                reader.readAsDataURL(file);
+                    const spot = spots.find(s => s.id === spotId);
+                    if (spot) spot.image_url = imageUrl;
+                    if (card) card.outerHTML = renderSpotCard(spot);
+                    showToast('📷 圖片已上傳！');
+                } catch (err) {
+                    console.error('Quick upload error:', err);
+                    if (btn) { btn.classList.remove('uploading'); btn.textContent = '📷'; }
+                    showToast('❌ 上傳失敗：' + err.message);
+                }
             };
             input.click();
         };
@@ -1341,8 +1385,9 @@
                 const item = validItems[i];
                 progress.textContent = `上傳中 ${i + 1} / ${validItems.length}...`;
                 try {
+                    const imageUrl = await uploadImageToStorage(item.file);
                     const { error } = await supabaseClient.from('spots')
-                        .update({ image_url: item.base64 })
+                        .update({ image_url: imageUrl })
                         .eq('id', item.spotId);
                     if (error) throw error;
                     ok++;
@@ -1395,7 +1440,7 @@
             document.getElementById('spotForm').reset();
             document.getElementById('inputCoords').value = '';
             selectType('pikmin');
-            currentImageBase64 = null;
+            currentImageFile = null;
             document.getElementById('imageFileInput').value = '';
             document.getElementById('imageUploadPlaceholder').style.display = 'block';
             document.getElementById('imagePreviewContainer').style.display = 'none';
@@ -1412,19 +1457,33 @@
             const lat = document.getElementById('inputLat').value, lng = document.getElementById('inputLng').value;
             if (!lat || !lng) { showToast('⚠️ 請輸入座標'); return; }
             const btn = document.getElementById('btnSubmit'); btn.disabled = true;
-            const spotData = {
-                name: document.getElementById('inputName').value.trim(),
-                country: document.getElementById('inputCountry').value.trim(),
-                city: document.getElementById('inputCity').value.trim() || null,
-                lat: parseFloat(lat), lng: parseFloat(lng),
-                type: selectedType,
-                note: document.getElementById('inputNote').value.trim() || null,
-                tags: currentTags.length > 0 ? currentTags : null,
-                image_url: currentImageBase64 || null
-            };
+
             try {
                 setSyncStatus('syncing');
-                await supabaseClient.auth.getSession(); // refresh before save
+                await supabaseClient.auth.getSession();
+
+                // Upload image to Storage if new file selected
+                let imageUrl = null;
+                if (currentImageFile) {
+                    btn.textContent = '⏳ 上傳圖片中...';
+                    imageUrl = await uploadImageToStorage(currentImageFile);
+                } else if (editingId) {
+                    // Keep existing image URL if editing and no new file
+                    const existing = spots.find(s => s.id === editingId);
+                    imageUrl = existing?.image_url || null;
+                }
+
+                const spotData = {
+                    name: document.getElementById('inputName').value.trim(),
+                    country: document.getElementById('inputCountry').value.trim(),
+                    city: document.getElementById('inputCity').value.trim() || null,
+                    lat: parseFloat(lat), lng: parseFloat(lng),
+                    type: selectedType,
+                    note: document.getElementById('inputNote').value.trim() || null,
+                    tags: currentTags.length > 0 ? currentTags : null,
+                    image_url: imageUrl
+                };
+
                 if (editingId) {
                     const { error } = await supabaseClient.from('spots').update(spotData).eq('id', editingId);
                     if (error) throw error;
@@ -1434,21 +1493,11 @@
                     if (error) throw error;
                     showToast('🌱 新純點已加入！');
                 }
-                closeModal(); await loadSpots();
+                closeModal(); await loadFilterMetadata(); await loadSpots();
             } catch (error) {
                 console.error('Save error:', error);
-                // retry with token refresh
-                if (error.message && (error.message.includes('JWT') || error.message.includes('token') || error.code === 'PGRST301')) {
-                    try {
-                        await supabaseClient.auth.refreshSession();
-                        const op = editingId ? supabaseClient.from('spots').update(spotData).eq('id', editingId) : supabaseClient.from('spots').insert([spotData]);
-                        const { error: re } = await op;
-                        if (re) throw re;
-                        showToast('🌱 儲存成功（已自動重新連線）'); closeModal(); await loadSpots(); return;
-                    } catch (re) { console.error('Retry failed:', re); }
-                }
                 setSyncStatus('error'); showToast('❌ 儲存失敗：' + error.message);
-            } finally { btn.disabled = false; }
+            } finally { btn.disabled = false; btn.textContent = editingId ? '✨ 更新純點' : '✨ 新增純點'; }
         });
 
         // ==================== 操作 ====================
@@ -1469,8 +1518,9 @@
             document.getElementById('inputLng').value = s.lng;
             document.getElementById('inputCoords').value = `${s.lat}, ${s.lng}`;
             document.getElementById('inputNote').value = s.note || '';
-            if (s.image_url) { currentImageBase64 = s.image_url; showImagePreview(s.image_url); }
-            else { currentImageBase64 = null; document.getElementById('imageUploadPlaceholder').style.display = 'block'; document.getElementById('imagePreviewContainer').style.display = 'none'; document.getElementById('imageUploadArea').classList.remove('has-image'); }
+            currentImageFile = null; // No new file yet
+            if (s.image_url) { showImagePreview(s.image_url); }
+            else { document.getElementById('imageUploadPlaceholder').style.display = 'block'; document.getElementById('imagePreviewContainer').style.display = 'none'; document.getElementById('imageUploadArea').classList.remove('has-image'); }
             currentTags = s.tags ? [...s.tags] : []; renderFormTags();
             selectType(s.type); modalOverlay.classList.add('active');
         };
@@ -1535,6 +1585,69 @@
         function formatDate() { return new Date().toISOString().slice(0,10).replace(/-/g,''); }
         function escapeXml(s) { return s ? s.replace(/[<>&'"]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;',"'":'&apos;','"':'&quot;'}[c])) : ''; }
         function showToast(msg) { toast.textContent = msg; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
+
+        // ==================== 工具面板 ====================
+        function toggleToolPanel() {
+            document.getElementById('toolPanel').classList.toggle('active');
+            document.getElementById('toolPanelOverlay').classList.toggle('active');
+            // Show migrate button if admin and there are base64 images
+            if (isAdmin) {
+                const hasBase64 = allSpotsMeta.length > 0 || spots.some(s => s.image_url && s.image_url.startsWith('data:'));
+                document.getElementById('btnMigrate').style.display = hasBase64 ? 'block' : 'block'; // Always show for admin
+            }
+        }
+        function closeToolPanel() {
+            document.getElementById('toolPanel').classList.remove('active');
+            document.getElementById('toolPanelOverlay').classList.remove('active');
+        }
+
+        // ==================== 一鍵遷移 base64 → Storage ====================
+        async function migrateBase64ToStorage() {
+            if (!confirm('將所有 base64 圖片遷移到 Supabase Storage？\n這可能需要幾分鐘，請勿關閉頁面。')) return;
+            closeToolPanel();
+            setSyncStatus('syncing');
+            showToast('🔄 開始遷移...');
+
+            try {
+                // Fetch all spots with base64 images (need to query image_url)
+                const { data, error } = await supabaseClient.from('spots')
+                    .select('id,image_url')
+                    .not('image_url', 'is', null);
+                if (error) throw error;
+
+                const base64Spots = (data || []).filter(s => s.image_url && s.image_url.startsWith('data:'));
+                if (!base64Spots.length) { showToast('✅ 沒有需要遷移的圖片'); setSyncStatus('synced'); return; }
+
+                let ok = 0, fail = 0;
+                for (let i = 0; i < base64Spots.length; i++) {
+                    showToast(`🔄 遷移中 ${i + 1} / ${base64Spots.length}...`);
+                    try {
+                        const s = base64Spots[i];
+                        const file = base64ToFile(s.image_url, `migrate_${s.id}.jpg`);
+                        const imageUrl = await uploadImageToStorage(file);
+                        const { error: updateErr } = await supabaseClient.from('spots')
+                            .update({ image_url: imageUrl })
+                            .eq('id', s.id);
+                        if (updateErr) throw updateErr;
+                        ok++;
+                    } catch (err) {
+                        console.error('Migration error for spot:', err);
+                        fail++;
+                    }
+                    // Rate limit: wait 200ms between uploads
+                    await new Promise(r => setTimeout(r, 200));
+                }
+
+                setSyncStatus('synced');
+                showToast(`🎉 遷移完成！成功 ${ok} 張${fail ? `，失敗 ${fail} 張` : ''}`);
+                await loadFilterMetadata();
+                await loadSpots();
+            } catch (err) {
+                console.error('Migration error:', err);
+                setSyncStatus('error');
+                showToast('❌ 遷移失敗：' + err.message);
+            }
+        }
 
         init();
     </script>
