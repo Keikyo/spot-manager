@@ -377,9 +377,10 @@
                     <label class="form-label">座標</label>
                     <div class="coord-input-wrapper">
                         <input type="text" class="form-input" id="inputCoords" placeholder="例如: 22.6123, 120.3456 (支援 Google Maps 網址)">
-                        <button type="button" class="btn-paste-coord" onclick="pasteCoords()">📋 貼上</button>
+                        <button type="button" class="btn-paste-coord" id="btnPasteCoord">📋 貼上</button>
                     </div>
-                    <div class="coord-hint">請利用右側「貼上」按鈕，支援 <em>Google Maps 網址</em>轉座標，並自動帶入地點資訊。</div>
+                    <div class="coord-hint">直接在輸入框<em>長按貼上</em>座標或 Google Maps 網址，系統會自動轉換座標並帶入<em>國家、縣市、地點名稱</em>。</div>
+                    <div id="coordStatus" style="font-size:0.75rem;margin-top:4px;color:var(--primary-green);font-weight:600;display:none;"></div>
                 </div>
                 <div class="form-group">
                     <label class="form-label">名稱 <span class="required">*</span></label>
@@ -553,35 +554,138 @@
             input.disabled = currentTags.length >= 3;
         }
 
-        // ==================== 座標輸入 (支援 Google Maps URL) ====================
+        // ==================== 座標輸入 (支援 Google Maps URL + 反向地理編碼) ====================
+        let reverseGeoTimer = null; // 防抖用
+
         function initCoordsInput() {
             const ci = document.getElementById('inputCoords');
+            const btn = document.getElementById('btnPasteCoord');
+
             ci.addEventListener('input', () => parseAndFillCoords(ci.value));
-            ci.addEventListener('paste', () => setTimeout(() => parseAndFillCoords(ci.value), 50));
+
+            ci.addEventListener('paste', (e) => {
+                const pastedText = e.clipboardData && e.clipboardData.getData('text');
+                if (pastedText) {
+                    e.preventDefault();
+                    ci.value = pastedText;
+                    parseAndFillCoords(pastedText);
+                } else {
+                    setTimeout(() => parseAndFillCoords(ci.value), 50);
+                }
+            });
+
+            btn.addEventListener('click', async () => {
+                ci.value = '';
+                ci.focus();
+                try {
+                    const text = await navigator.clipboard.readText();
+                    if (text) { ci.value = text; parseAndFillCoords(text); showToast('📋 已貼上'); return; }
+                } catch {}
+                ci.select();
+                showToast('👆 請在輸入框中長按貼上');
+            });
         }
-        async function pasteCoords() {
-            try {
-                const text = await navigator.clipboard.readText();
-                document.getElementById('inputCoords').value = text;
-                parseAndFillCoords(text); showToast('📋 已貼上');
-            } catch { showToast('⚠️ 請手動貼上座標或網址'); }
+
+        function showCoordStatus(msg, isSuccess) {
+            const el = document.getElementById('coordStatus');
+            el.textContent = msg;
+            el.style.color = isSuccess ? 'var(--primary-green)' : '#E65100';
+            el.style.display = 'block';
+            if (isSuccess) setTimeout(() => { el.style.display = 'none'; }, 4000);
         }
+
         function parseAndFillCoords(text) {
             if (!text) return;
             text = text.trim();
             let lat = null, lng = null, placeName = null;
             let m;
+
+            // 解析各種 Google Maps URL 格式
             if ((m = text.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/))) { lat = parseFloat(m[1]); lng = parseFloat(m[2]); }
             else if ((m = text.match(/[?&]q=(-?\d+\.?\d*),(-?\d+\.?\d*)/))) { lat = parseFloat(m[1]); lng = parseFloat(m[2]); }
             else if ((m = text.match(/[?&]ll=(-?\d+\.?\d*),(-?\d+\.?\d*)/))) { lat = parseFloat(m[1]); lng = parseFloat(m[2]); }
+
+            // 嘗試從 URL 取得地點名稱（作為備用）
             if ((m = text.match(/\/place\/([^/@]+)/))) { placeName = decodeURIComponent(m[1]).replace(/\+/g, ' '); }
+
+            // 直接座標格式
             if (lat === null) {
                 if ((m = text.match(/^(-?\d+\.?\d*)[,\s]+(-?\d+\.?\d*)$/))) { lat = parseFloat(m[1]); lng = parseFloat(m[2]); }
             }
+
             if (lat !== null && lng !== null && !isNaN(lat) && !isNaN(lng)) {
                 document.getElementById('inputLat').value = lat;
                 document.getElementById('inputLng').value = lng;
-                if (placeName && !document.getElementById('inputName').value) document.getElementById('inputName').value = placeName;
+                showCoordStatus('⏳ 座標已解析，正在查詢地點資訊...', true);
+
+                // 用反向地理編碼自動帶入國家、縣市、名稱
+                if (reverseGeoTimer) clearTimeout(reverseGeoTimer);
+                reverseGeoTimer = setTimeout(() => reverseGeocode(lat, lng, placeName), 300);
+
+            } else if (text.includes('google.com/maps') || text.includes('goo.gl') || text.includes('maps.app')) {
+                showCoordStatus('⚠️ 偵測到 Google Maps 網址，但無法解析座標。請展開完整網址（非短網址）後再試', false);
+            }
+        }
+
+        // 反向地理編碼：用座標查詢國家、縣市、地點名稱
+        async function reverseGeocode(lat, lng, fallbackName) {
+            try {
+                const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=zh-TW,zh,en&zoom=18&addressdetails=1`;
+                const resp = await fetch(url, {
+                    headers: { 'User-Agent': 'PikminSpotManager/1.0' }
+                });
+
+                if (!resp.ok) throw new Error('Nominatim API error');
+                const data = await resp.json();
+
+                if (data && data.address) {
+                    const addr = data.address;
+
+                    // ====== 國家 ======
+                    const country = addr.country || '';
+                    if (country && !document.getElementById('inputCountry').value) {
+                        document.getElementById('inputCountry').value = country;
+                    }
+
+                    // ====== 縣市 ======
+                    // Nominatim 的縣市欄位因國家而異，依序嘗試
+                    const city = addr.city || addr.town || addr.county || addr.municipality
+                                || addr.state_district || addr.village || addr.suburb || '';
+                    if (city && !document.getElementById('inputCity').value) {
+                        document.getElementById('inputCity').value = city;
+                    }
+
+                    // ====== 名稱 ======
+                    // 優先用 Nominatim 的具體地點名稱，其次 URL 中的 place name
+                    const poiName = data.name && data.name !== country && data.name !== city
+                                    ? data.name : null;
+                    const displayName = poiName
+                                     || fallbackName
+                                     || addr.amenity || addr.tourism || addr.shop || addr.building
+                                     || addr.road || '';
+
+                    if (displayName && !document.getElementById('inputName').value) {
+                        document.getElementById('inputName').value = displayName;
+                    }
+
+                    // 顯示結果
+                    const parts = [country, city, displayName].filter(Boolean);
+                    showCoordStatus(`✅ 已帶入：${parts.join(' → ')}`, true);
+
+                } else {
+                    // API 沒有回傳地址，只填座標
+                    if (fallbackName && !document.getElementById('inputName').value) {
+                        document.getElementById('inputName').value = fallbackName;
+                    }
+                    showCoordStatus('✅ 座標已填入（查無詳細地點資訊）', true);
+                }
+            } catch (err) {
+                console.error('Reverse geocode error:', err);
+                // 失敗時用 URL 中的 place name 作為備用
+                if (fallbackName && !document.getElementById('inputName').value) {
+                    document.getElementById('inputName').value = fallbackName;
+                }
+                showCoordStatus('✅ 座標已填入（地點查詢暫時無法使用）', true);
             }
         }
 
