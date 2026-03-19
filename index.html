@@ -181,6 +181,9 @@
         .spot-list.large-view .spot-actions { margin-top: 8px; }
         .spot-list.large-view .spot-actions .btn { flex: unset; }
         .spot-list.large-view .spot-actions .btn-copy { flex: 1; }
+        .spot-coords-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
+        .spot-coords-row .spot-coords { margin-bottom: 0; }
+        .spot-coords-row .spot-tags { margin: 0; }
 
         /* Quick upload button */
         .btn-quick-upload { background: linear-gradient(135deg, #F3E5F5, #E1BEE7); color: #7B1FA2; }
@@ -1126,8 +1129,10 @@
                         <div class="spot-name">${escapeHtml(s.name)}</div>
                         ${badgesHtml}
                     </div>
-                    <div class="spot-coords">${s.lat}, ${s.lng}</div>
-                    ${tagsHtml}
+                    <div class="spot-coords-row">
+                        <div class="spot-coords">${s.lat}, ${s.lng}</div>
+                        ${tagsHtml}
+                    </div>
                     ${!isList && s.note ? `<div class="spot-note">${escapeHtml(s.note)}</div>` : ''}
                     ${actionsHtml}
                 </div>
