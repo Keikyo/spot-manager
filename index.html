@@ -8,12 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         :root {
             --primary-green: #5FA85F;
             --light-green: #7BC97B;
@@ -27,1146 +22,246 @@
             --mushroom-color: #DDA0DD;
             --postcard-color: #87CEEB;
         }
-
         body {
             font-family: 'Noto Sans TC', 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
             background: linear-gradient(180deg, var(--bg-gradient-start) 0%, var(--bg-gradient-mid) 40%, var(--bg-gradient-end) 70%, var(--light-green) 100%);
-            min-height: 100vh;
-            color: var(--dark-green);
-            padding-bottom: 100px;
-            position: relative;
-            overflow-x: hidden;
+            min-height: 100vh; color: var(--dark-green); padding-bottom: 100px; position: relative; overflow-x: hidden;
         }
-
-        /* ==================== Header ==================== */
         .header {
             background: linear-gradient(180deg, #87CEEB 0%, #B8E4F0 100%);
-            padding: 25px 16px 35px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-            border-radius: 0 0 35px 35px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            padding: 25px 16px 35px; text-align: center; position: relative; overflow: hidden;
+            border-radius: 0 0 35px 35px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);
         }
-
-        .header-cloud {
-            position: absolute;
-            background: #fff;
-            border-radius: 50%;
-            opacity: 0.85;
-            will-change: transform;
-            transform: translateZ(0);
-        }
-
-        .header-cloud::before,
-        .header-cloud::after {
-            content: '';
-            position: absolute;
-            background: #fff;
-            border-radius: 50%;
-        }
-
-        .header-cloud-1 {
-            width: 80px;
-            height: 30px;
-            top: 12px;
-            left: 8%;
-            animation: cloud-drift 25s ease-in-out infinite;
-        }
+        .header-cloud { position: absolute; background: #fff; border-radius: 50%; opacity: 0.85; will-change: transform; transform: translateZ(0); }
+        .header-cloud::before, .header-cloud::after { content: ''; position: absolute; background: #fff; border-radius: 50%; }
+        .header-cloud-1 { width: 80px; height: 30px; top: 12px; left: 8%; animation: cloud-drift 25s ease-in-out infinite; }
         .header-cloud-1::before { width: 40px; height: 40px; top: -20px; left: 10px; }
         .header-cloud-1::after { width: 50px; height: 35px; top: -15px; left: 35px; }
-
-        .header-cloud-2 {
-            width: 100px;
-            height: 35px;
-            top: 18px;
-            right: 12%;
-            animation: cloud-drift 30s ease-in-out infinite;
-            animation-delay: -8s;
-        }
+        .header-cloud-2 { width: 100px; height: 35px; top: 18px; right: 12%; animation: cloud-drift 30s ease-in-out infinite; animation-delay: -8s; }
         .header-cloud-2::before { width: 50px; height: 50px; top: -25px; left: 15px; }
         .header-cloud-2::after { width: 60px; height: 40px; top: -18px; left: 45px; }
-
-        .header-cloud-3 {
-            width: 60px;
-            height: 22px;
-            top: 50px;
-            left: 45%;
-            animation: cloud-drift 22s ease-in-out infinite;
-            animation-delay: -4s;
-            opacity: 0.7;
-        }
+        .header-cloud-3 { width: 60px; height: 22px; top: 50px; left: 45%; animation: cloud-drift 22s ease-in-out infinite; animation-delay: -4s; opacity: 0.7; }
         .header-cloud-3::before { width: 30px; height: 30px; top: -15px; left: 8px; }
         .header-cloud-3::after { width: 35px; height: 25px; top: -10px; left: 25px; }
-
-        @keyframes cloud-drift {
-            0%, 100% { transform: translate3d(-15px, 0, 0); }
-            50% { transform: translate3d(15px, 0, 0); }
-        }
-
-        /* 背景漂浮白雲 */
-        /* 背景漂浮白雲 - 使用 GPU 加速優化 */
-        .floating-cloud {
-            position: fixed;
-            background: rgba(255, 255, 255, 0.65);
-            border-radius: 50%;
-            z-index: 0;
-            pointer-events: none;
-            will-change: transform;
-            transform: translateZ(0);
-        }
-
-        .floating-cloud::before,
-        .floating-cloud::after {
-            content: '';
-            position: absolute;
-            background: rgba(255, 255, 255, 0.65);
-            border-radius: 50%;
-        }
-
-        .floating-cloud-1 {
-            width: 120px;
-            height: 45px;
-            top: 25%;
-            left: -150px;
-            animation: float-across 60s linear infinite;
-        }
+        @keyframes cloud-drift { 0%, 100% { transform: translate3d(-15px, 0, 0); } 50% { transform: translate3d(15px, 0, 0); } }
+        .floating-cloud { position: fixed; background: rgba(255,255,255,0.65); border-radius: 50%; z-index: 0; pointer-events: none; will-change: transform; transform: translateZ(0); }
+        .floating-cloud::before, .floating-cloud::after { content: ''; position: absolute; background: rgba(255,255,255,0.65); border-radius: 50%; }
+        .floating-cloud-1 { width: 120px; height: 45px; top: 25%; left: -150px; animation: float-across 60s linear infinite; }
         .floating-cloud-1::before { width: 60px; height: 60px; top: -30px; left: 20px; }
         .floating-cloud-1::after { width: 70px; height: 50px; top: -25px; left: 55px; }
-
-        .floating-cloud-2 {
-            width: 100px;
-            height: 38px;
-            top: 50%;
-            left: -120px;
-            animation: float-across 75s linear infinite;
-            animation-delay: -25s;
-            opacity: 0.55;
-        }
+        .floating-cloud-2 { width: 100px; height: 38px; top: 50%; left: -120px; animation: float-across 75s linear infinite; animation-delay: -25s; opacity: 0.55; }
         .floating-cloud-2::before { width: 50px; height: 50px; top: -25px; left: 15px; }
         .floating-cloud-2::after { width: 55px; height: 40px; top: -18px; left: 45px; }
-
-        .floating-cloud-3 {
-            width: 140px;
-            height: 52px;
-            top: 75%;
-            left: -160px;
-            animation: float-across 85s linear infinite;
-            animation-delay: -50s;
-            opacity: 0.5;
-        }
+        .floating-cloud-3 { width: 140px; height: 52px; top: 75%; left: -160px; animation: float-across 85s linear infinite; animation-delay: -50s; opacity: 0.5; }
         .floating-cloud-3::before { width: 70px; height: 70px; top: -35px; left: 25px; }
         .floating-cloud-3::after { width: 80px; height: 55px; top: -28px; left: 65px; }
-
-        @keyframes float-across {
-            0% { transform: translate3d(0, 0, 0); }
-            100% { transform: translate3d(calc(100vw + 200px), 0, 0); }
-        }
-
-        /* Header Login Area */
-        .header-login-area {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            z-index: 20;
-        }
-
-        .user-info-compact {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(255,255,255,0.92);
-            padding: 8px 14px;
-            border-radius: 25px;
-            font-size: 0.82rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-            backdrop-filter: blur(8px);
-        }
-
-        .user-email {
-            color: #4A7C23;
-            font-weight: 600;
-            max-width: 140px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .user-role {
-            background: linear-gradient(135deg, #FF6B35 0%, #F7931A 100%);
-            color: white;
-            padding: 3px 10px;
-            border-radius: 12px;
-            font-size: 0.72rem;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-        }
-
-        .btn-logout {
-            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
-            color: white;
-            border: none;
-            padding: 5px 12px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .btn-logout:hover {
-            transform: scale(1.05);
-            box-shadow: 0 2px 8px rgba(238,90,90,0.4);
-        }
-
-        .btn-admin-header {
-            background: transparent;
-            border: 2px solid #FF6B35;
-            color: #FF6B35;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
-            backdrop-filter: blur(8px);
-        }
-
-        .btn-admin-header:hover {
-            background: #FF6B35;
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(255,107,53,0.3);
-        }
-
-        .header-content {
-            position: relative;
-            z-index: 10;
-        }
-
-        .seedling-icon {
-            font-size: 2.8rem;
-            display: inline-block;
-            animation: seedling-bounce 2.5s ease-in-out infinite;
-            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
-        }
-
-        @keyframes seedling-bounce {
-            0%, 100% { transform: translateY(0) rotate(-5deg); }
-            25% { transform: translateY(-10px) rotate(0deg); }
-            50% { transform: translateY(0) rotate(5deg); }
-            75% { transform: translateY(-5px) rotate(0deg); }
-        }
-
-        .header h1 {
-            font-size: 1.4rem;
-            font-weight: 800;
-            color: #4A7C23;
-            margin-top: 6px;
-            text-shadow: 1px 1px 0 rgba(255,255,255,0.6);
-        }
-
-        .header p {
-            font-size: 0.85rem;
-            color: #5A8F33;
-            font-weight: 600;
-            margin-top: 3px;
-        }
-
-        .sync-status {
-            font-size: 0.72rem;
-            margin-top: 10px;
-            padding: 5px 14px;
-            border-radius: 15px;
-            display: inline-block;
-            font-weight: 600;
-        }
+        @keyframes float-across { 0% { transform: translate3d(0,0,0); } 100% { transform: translate3d(calc(100vw + 200px),0,0); } }
+        .header-login-area { position: absolute; top: 12px; right: 12px; z-index: 20; }
+        .user-info-compact { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.92); padding: 8px 14px; border-radius: 25px; font-size: 0.82rem; box-shadow: 0 2px 10px rgba(0,0,0,0.08); backdrop-filter: blur(8px); }
+        .user-email { color: #4A7C23; font-weight: 600; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .user-role { background: linear-gradient(135deg, #FF6B35 0%, #F7931A 100%); color: white; padding: 3px 10px; border-radius: 12px; font-size: 0.72rem; font-weight: 700; }
+        .btn-logout { background: linear-gradient(135deg, #ff6b6b, #ee5a5a); color: white; border: none; padding: 5px 12px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .btn-logout:hover { transform: scale(1.05); box-shadow: 0 2px 8px rgba(238,90,90,0.4); }
+        .btn-admin-header { background: transparent; border: 2px solid #FF6B35; color: #FF6B35; padding: 8px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.3s; }
+        .btn-admin-header:hover { background: #FF6B35; color: white; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(255,107,53,0.3); }
+        .header-content { position: relative; z-index: 10; }
+        .seedling-icon { font-size: 2.8rem; display: inline-block; animation: seedling-bounce 2.5s ease-in-out infinite; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1)); }
+        @keyframes seedling-bounce { 0%, 100% { transform: translateY(0) rotate(-5deg); } 25% { transform: translateY(-10px) rotate(0deg); } 50% { transform: translateY(0) rotate(5deg); } 75% { transform: translateY(-5px) rotate(0deg); } }
+        .header h1 { font-size: 1.4rem; font-weight: 800; color: #4A7C23; margin-top: 6px; text-shadow: 1px 1px 0 rgba(255,255,255,0.6); }
+        .header p { font-size: 0.85rem; color: #5A8F33; font-weight: 600; margin-top: 3px; }
+        .sync-status { font-size: 0.72rem; margin-top: 10px; padding: 5px 14px; border-radius: 15px; display: inline-block; font-weight: 600; }
         .sync-status.syncing { background: #FFF3E0; color: #E65100; }
-        .sync-status.synced { background: rgba(232, 245, 233, 0.9); color: #2E7D32; }
+        .sync-status.synced { background: rgba(232,245,233,0.9); color: #2E7D32; }
         .sync-status.error { background: #FFEBEE; color: #C62828; }
-
-        /* ==================== Container ==================== */
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px 16px;
-        }
-
-        /* ==================== Stats Cards ==================== */
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .stat-card {
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 14px 8px;
-            text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            border-bottom: 4px solid var(--light-green);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-
+        .container { max-width: 600px; margin: 0 auto; padding: 20px 16px; }
+        .stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 20px; }
+        .stat-card { background: var(--card-bg); border-radius: 16px; padding: 14px 8px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-bottom: 4px solid var(--light-green); transition: transform 0.2s, box-shadow 0.2s; }
+        .stat-card:hover { transform: translateY(-3px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         .stat-card.flower-card { border-bottom-color: var(--flower-color); }
         .stat-card.pikmin-card { border-bottom-color: var(--pikmin-color); }
         .stat-card.mushroom-card { border-bottom-color: var(--mushroom-color); }
         .stat-card.postcard-card { border-bottom-color: var(--postcard-color); }
-
         .stat-icon { font-size: 1.5rem; }
         .stat-label { font-size: 0.72rem; color: #666; margin-top: 4px; font-weight: 600; }
         .stat-number { font-size: 1.3rem; font-weight: 800; color: var(--dark-green); margin-top: 2px; }
-
-        /* ==================== Utility Buttons ==================== */
-        .utility-section {
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 14px;
-            margin-bottom: 16px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-
-        .utility-title {
-            font-size: 0.8rem;
-            color: #666;
-            margin-bottom: 10px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .utility-buttons {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-        }
-
-        .utility-buttons.two-col {
-            grid-template-columns: repeat(2, 1fr);
-            margin-top: 10px;
-        }
-
-        .btn-utility {
-            padding: 10px 8px;
-            border: 2px solid #E0E0E0;
-            border-radius: 12px;
-            font-size: 0.78rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-family: inherit;
-            background: white;
-            color: #555;
-        }
-
-        .btn-utility:hover {
-            background: #F5F5F5;
-            transform: translateY(-2px);
-            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
-        }
-
-        .btn-utility.json-backup {
-            background: #E3F2FD;
-            border-color: #2196F3;
-            color: #1565C0;
-        }
+        .utility-section { background: var(--card-bg); border-radius: 16px; padding: 14px; margin-bottom: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .utility-title { font-size: 0.8rem; color: #666; margin-bottom: 10px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+        .utility-buttons { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
+        .utility-buttons.two-col { grid-template-columns: repeat(2,1fr); margin-top: 10px; }
+        .btn-utility { padding: 10px 8px; border: 2px solid #E0E0E0; border-radius: 12px; font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; background: white; color: #555; }
+        .btn-utility:hover { background: #F5F5F5; transform: translateY(-2px); box-shadow: 0 3px 10px rgba(0,0,0,0.08); }
+        .btn-utility.json-backup { background: #E3F2FD; border-color: #2196F3; color: #1565C0; }
         .btn-utility.json-backup:hover { background: #BBDEFB; }
-
-        .btn-utility.json-import {
-            background: #FFF3E0;
-            border-color: #FF9800;
-            color: #E65100;
-        }
+        .btn-utility.json-import { background: #FFF3E0; border-color: #FF9800; color: #E65100; }
         .btn-utility.json-import:hover { background: #FFE0B2; }
-
-        /* ==================== Filters Section ==================== */
-        .filters-section {
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 16px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-
-        .search-box {
-            position: relative;
-            margin-bottom: 16px;
-        }
-
-        .search-icon {
-            position: absolute;
-            left: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 1rem;
-            opacity: 0.6;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 12px 14px 12px 42px;
-            border: 2px solid #E8E8E8;
-            border-radius: 14px;
-            font-size: 0.9rem;
-            font-family: inherit;
-            transition: all 0.2s;
-            background: #FAFAFA;
-        }
-
-        .search-input:focus {
-            outline: none;
-            border-color: var(--light-green);
-            background: white;
-            box-shadow: 0 0 0 3px rgba(123,201,123,0.15);
-        }
-
-        /* Type Filter Pills */
-        .filter-group {
-            margin-bottom: 14px;
-        }
-
-        .filter-group:last-child {
-            margin-bottom: 0;
-        }
-
-        .filter-label {
-            font-size: 0.78rem;
-            color: #666;
-            font-weight: 700;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .type-pills {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .type-pill {
-            padding: 8px 14px;
-            border: 2px solid #E0E0E0;
-            border-radius: 20px;
-            font-size: 0.82rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            background: white;
-            color: #666;
-        }
-
-        .type-pill:hover {
-            background: #F5F5F5;
-        }
-
-        .type-pill.active {
-            background: var(--light-green);
-            color: white;
-            border-color: var(--light-green);
-        }
-
+        .filters-section { background: var(--card-bg); border-radius: 16px; padding: 16px; margin-bottom: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .search-box { position: relative; margin-bottom: 16px; }
+        .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 1rem; opacity: 0.6; }
+        .search-input { width: 100%; padding: 12px 14px 12px 42px; border: 2px solid #E8E8E8; border-radius: 14px; font-size: 0.9rem; font-family: inherit; transition: all 0.2s; background: #FAFAFA; }
+        .search-input:focus { outline: none; border-color: var(--light-green); background: white; box-shadow: 0 0 0 3px rgba(123,201,123,0.15); }
+        .filter-group { margin-bottom: 14px; }
+        .filter-group:last-child { margin-bottom: 0; }
+        .filter-label { font-size: 0.78rem; color: #666; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 5px; }
+        .type-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+        .type-pill { padding: 8px 14px; border: 2px solid #E0E0E0; border-radius: 20px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.2s; background: white; color: #666; }
+        .type-pill:hover { background: #F5F5F5; }
+        .type-pill.active { background: var(--light-green); color: white; border-color: var(--light-green); }
         .type-pill.flower { border-color: var(--flower-color); }
         .type-pill.flower.active { background: var(--flower-color); border-color: var(--flower-color); }
-
         .type-pill.pikmin { border-color: var(--pikmin-color); }
         .type-pill.pikmin.active { background: var(--pikmin-color); color: var(--dark-green); border-color: var(--pikmin-color); }
-
         .type-pill.mushroom { border-color: var(--mushroom-color); }
         .type-pill.mushroom.active { background: var(--mushroom-color); border-color: var(--mushroom-color); }
-
         .type-pill.postcard { border-color: var(--postcard-color); }
         .type-pill.postcard.active { background: var(--postcard-color); border-color: var(--postcard-color); }
-
-        /* Searchable Dropdown */
-        .dropdown-filters {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        .dropdown-group {
-            position: relative;
-        }
-
-        .dropdown-label {
-            font-size: 0.75rem;
-            color: #888;
-            font-weight: 600;
-            margin-bottom: 6px;
-            display: block;
-        }
-
-        .searchable-select {
-            position: relative;
-        }
-
-        .select-input {
-            width: 100%;
-            padding: 10px 36px 10px 12px;
-            border: 2px solid #E8E8E8;
-            border-radius: 12px;
-            font-size: 0.88rem;
-            font-family: inherit;
-            cursor: pointer;
-            background: #FAFAFA;
-            transition: all 0.2s;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            overflow: hidden;
-        }
-
-        .select-input:focus {
-            outline: none;
-            border-color: var(--light-green);
-            background: white;
-        }
-
-        .select-arrow {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            pointer-events: none;
-            font-size: 0.7rem;
-            color: #888;
-            transition: transform 0.2s;
-        }
-
-        .searchable-select.open .select-arrow {
-            transform: translateY(-50%) rotate(180deg);
-        }
-
-        .select-dropdown {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: white;
-            border: 2px solid var(--light-green);
-            border-radius: 12px;
-            margin-top: 4px;
-            max-height: 200px;
-            overflow-y: auto;
-            z-index: 100;
-            display: none;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
-        }
-
-        .searchable-select.open .select-dropdown {
-            display: block;
-            animation: dropdown-appear 0.2s ease-out;
-        }
-
-        @keyframes dropdown-appear {
-            from { opacity: 0; transform: translateY(-8px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .select-search {
-            padding: 10px;
-            border-bottom: 1px solid #EEE;
-            position: sticky;
-            top: 0;
-            background: white;
-        }
-
-        .select-search input {
-            width: 100%;
-            padding: 8px 10px;
-            border: 1px solid #E0E0E0;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            font-family: inherit;
-        }
-
-        .select-search input:focus {
-            outline: none;
-            border-color: var(--light-green);
-        }
-
-        .select-options {
-            padding: 6px 0;
-        }
-
-        .select-option {
-            padding: 10px 14px;
-            cursor: pointer;
-            font-size: 0.88rem;
-            transition: background 0.15s;
-        }
-
-        .select-option:hover {
-            background: #F0F9F0;
-        }
-
-        .select-option.active {
-            background: #E8F5E9;
-            color: var(--primary-green);
-            font-weight: 600;
-        }
-
-        .select-option.no-results {
-            color: #999;
-            font-style: italic;
-            cursor: default;
-        }
-
-        .select-option.no-results:hover {
-            background: transparent;
-        }
-
-        /* ==================== Spot List ==================== */
-        .spot-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .spot-card {
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 16px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            border-left: 5px solid var(--light-green);
-            transition: all 0.25s;
-            position: relative;
-        }
-
-        .spot-card:hover {
-            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
-            transform: translateY(-3px);
-        }
-
+        .tag-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+        .tag-pill { padding: 5px 12px; border: 2px solid #E0C8F0; border-radius: 16px; font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: all 0.2s; background: white; color: #7B1FA2; }
+        .tag-pill:hover { background: #F3E5F5; }
+        .tag-pill.active { background: #CE93D8; color: white; border-color: #CE93D8; }
+        .dropdown-filters { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .dropdown-group { position: relative; }
+        .dropdown-label { font-size: 0.75rem; color: #888; font-weight: 600; margin-bottom: 6px; display: block; }
+        .searchable-select { position: relative; }
+        .select-input { width: 100%; padding: 10px 36px 10px 12px; border: 2px solid #E8E8E8; border-radius: 12px; font-size: 0.88rem; font-family: inherit; cursor: pointer; background: #FAFAFA; transition: all 0.2s; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
+        .select-input:focus { outline: none; border-color: var(--light-green); background: white; }
+        .select-arrow { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); pointer-events: none; font-size: 0.7rem; color: #888; transition: transform 0.2s; }
+        .searchable-select.open .select-arrow { transform: translateY(-50%) rotate(180deg); }
+        .select-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 2px solid var(--light-green); border-radius: 12px; margin-top: 4px; max-height: 200px; overflow-y: auto; z-index: 100; display: none; box-shadow: 0 6px 20px rgba(0,0,0,0.12); }
+        .searchable-select.open .select-dropdown { display: block; animation: dropdown-appear 0.2s ease-out; }
+        @keyframes dropdown-appear { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+        .select-search { padding: 10px; border-bottom: 1px solid #EEE; position: sticky; top: 0; background: white; }
+        .select-search input { width: 100%; padding: 8px 10px; border: 1px solid #E0E0E0; border-radius: 8px; font-size: 0.85rem; font-family: inherit; }
+        .select-search input:focus { outline: none; border-color: var(--light-green); }
+        .select-options { padding: 6px 0; }
+        .select-option { padding: 10px 14px; cursor: pointer; font-size: 0.88rem; transition: background 0.15s; }
+        .select-option:hover { background: #F0F9F0; }
+        .select-option.active { background: #E8F5E9; color: var(--primary-green); font-weight: 600; }
+        .select-option.no-results { color: #999; font-style: italic; cursor: default; }
+        .select-option.no-results:hover { background: transparent; }
+        .spot-list { display: flex; flex-direction: column; gap: 12px; }
+        .spot-card { background: var(--card-bg); border-radius: 16px; padding: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-left: 5px solid var(--light-green); transition: all 0.25s; position: relative; }
+        .spot-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.1); transform: translateY(-3px); }
         .spot-card.flower-card { border-left-color: var(--flower-color); }
         .spot-card.pikmin-card { border-left-color: var(--pikmin-color); }
         .spot-card.mushroom-card { border-left-color: var(--mushroom-color); }
         .spot-card.postcard-card { border-left-color: var(--postcard-color); }
-
-        .spot-card.select-mode {
-            padding-left: 50px;
-        }
-
-        .spot-checkbox {
-            position: absolute;
-            left: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 22px;
-            height: 22px;
-            cursor: pointer;
-            accent-color: var(--primary-green);
-        }
-
-        .spot-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 8px;
-            gap: 10px;
-        }
-
-        .spot-name {
-            font-size: 1.05rem;
-            font-weight: 700;
-            color: var(--dark-green);
-            flex: 1;
-            line-height: 1.3;
-        }
-
-        .spot-badges {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-            align-items: center;
-        }
-
-        .spot-region, .spot-city {
-            font-size: 0.7rem;
-            padding: 4px 8px;
-            border-radius: 10px;
-            font-weight: 600;
-        }
-
-        .spot-region {
-            background: #E8F5E9;
-            color: #2E7D32;
-        }
-
-        .spot-city {
-            background: #E3F2FD;
-            color: #1565C0;
-        }
-
-        .spot-type-badge {
-            font-size: 0.7rem;
-            padding: 4px 10px;
-            border-radius: 10px;
-            font-weight: 700;
-            background: #F5F5F5;
-            color: #666;
-        }
-
+        .spot-card.select-mode { padding-left: 50px; }
+        .spot-checkbox { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); width: 22px; height: 22px; cursor: pointer; accent-color: var(--primary-green); }
+        .spot-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; gap: 10px; }
+        .spot-name { font-size: 1.05rem; font-weight: 700; color: var(--dark-green); flex: 1; line-height: 1.3; }
+        .spot-badges { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+        .spot-region, .spot-city { font-size: 0.7rem; padding: 4px 8px; border-radius: 10px; font-weight: 600; }
+        .spot-region { background: #E8F5E9; color: #2E7D32; }
+        .spot-city { background: #E3F2FD; color: #1565C0; }
+        .spot-type-badge { font-size: 0.7rem; padding: 4px 10px; border-radius: 10px; font-weight: 700; background: #F5F5F5; color: #666; }
         .spot-type-badge.flower { background: #FFE4E9; color: #C2185B; }
         .spot-type-badge.pikmin { background: #E8F5E9; color: #2E7D32; }
         .spot-type-badge.mushroom { background: #F3E5F5; color: #7B1FA2; }
         .spot-type-badge.postcard { background: #E3F2FD; color: #1565C0; }
-
-        .spot-coords {
-            font-size: 0.78rem;
-            color: #888;
-            font-family: 'Courier New', monospace;
-            margin-bottom: 6px;
-            background: #F8F8F8;
-            padding: 4px 8px;
-            border-radius: 6px;
-            display: inline-block;
-        }
-
-        .spot-note {
-            font-size: 0.88rem;
-            color: #555;
-            margin: 10px 0;
-            padding: 10px 12px;
-            background: linear-gradient(135deg, #FAFAFA 0%, #F5F5F5 100%);
-            border-radius: 10px;
-            border-left: 3px solid #DDD;
-        }
-
-        .spot-actions {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-top: 12px;
-        }
-
-        .btn {
-            padding: 9px 14px;
-            border: none;
-            border-radius: 10px;
-            font-size: 0.82rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-family: inherit;
-        }
-
-        .btn-copy {
-            background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
-            color: #1565C0;
-            flex: 1;
-        }
-        .btn-copy:hover { 
-            background: linear-gradient(135deg, #BBDEFB 0%, #90CAF9 100%);
-            transform: translateY(-2px);
-        }
-
-        .btn-edit {
-            background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%);
-            color: #E65100;
-        }
-        .btn-edit:hover { 
-            background: linear-gradient(135deg, #FFE0B2 0%, #FFCC80 100%);
-            transform: translateY(-2px);
-        }
-
-        .btn-delete {
-            background: linear-gradient(135deg, #FFEBEE 0%, #FFCDD2 100%);
-            color: #C62828;
-        }
-        .btn-delete:hover { 
-            background: linear-gradient(135deg, #FFCDD2 0%, #EF9A9A 100%);
-            transform: translateY(-2px);
-        }
-
-        /* Empty State */
-        .empty-state {
-            text-align: center;
-            padding: 50px 20px;
-            background: var(--card-bg);
-            border-radius: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-
-        .empty-state-icon {
-            font-size: 4rem;
-            margin-bottom: 16px;
-            animation: seedling-bounce 2.5s ease-in-out infinite;
-        }
-
-        .empty-state-text {
-            font-size: 1rem;
-            color: #888;
-            line-height: 1.6;
-        }
-
-        /* ==================== FAB ==================== */
-        .fab {
-            position: fixed;
-            bottom: 28px;
-            right: 24px;
-            width: 62px;
-            height: 62px;
-            background: linear-gradient(135deg, var(--light-green) 0%, var(--primary-green) 100%);
-            border-radius: 50%;
-            border: none;
-            font-size: 2rem;
-            color: white;
-            cursor: pointer;
-            box-shadow: 0 6px 24px rgba(123,201,123,0.45);
-            transition: all 0.3s ease;
-            z-index: 100;
-        }
-
-        .fab:hover {
-            transform: scale(1.1) rotate(90deg);
-            box-shadow: 0 8px 28px rgba(123,201,123,0.55);
-        }
-
-        .fab:active {
-            transform: scale(0.95);
-        }
-
-        /* ==================== Select Bar ==================== */
-        .select-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: white;
-            padding: 14px 20px;
-            box-shadow: 0 -4px 20px rgba(0,0,0,0.12);
-            z-index: 200;
-            display: none;
-        }
-
-        .select-bar.active {
-            display: block;
-            animation: slide-up 0.3s ease-out;
-        }
-
-        @keyframes slide-up {
-            from { transform: translateY(100%); }
-            to { transform: translateY(0); }
-        }
-
-        .select-bar-content {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            max-width: 600px;
-            margin: 0 auto;
-            gap: 12px;
-        }
-
-        .select-count {
-            font-weight: 700;
-            color: var(--dark-green);
-            font-size: 0.95rem;
-        }
-
-        .btn-select-action {
-            padding: 10px 18px;
-            border: none;
-            border-radius: 12px;
-            font-weight: 700;
-            font-size: 0.88rem;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .btn-select-cancel {
-            background: #F5F5F5;
-            color: #666;
-        }
-        .btn-select-cancel:hover { background: #EEEEEE; }
-
-        .btn-select-export {
-            background: linear-gradient(135deg, var(--light-green) 0%, var(--primary-green) 100%);
-            color: white;
-        }
-        .btn-select-export:hover { 
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(95,168,95,0.4);
-        }
-
-        /* ==================== Modal ==================== */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s;
-            padding: 16px;
-            backdrop-filter: blur(4px);
-        }
-
-        .modal-overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .modal {
-            background: white;
-            border-radius: 24px;
-            padding: 28px 24px;
-            max-width: 480px;
-            width: 100%;
-            max-height: 88vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
-            transform: scale(0.92) translateY(20px);
-            transition: all 0.3s;
-        }
-
-        .modal-overlay.active .modal {
-            transform: scale(1) translateY(0);
-        }
-
-        .modal h2 {
-            font-size: 1.4rem;
-            color: var(--dark-green);
-            margin-bottom: 20px;
-            font-weight: 800;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .form-group {
-            margin-bottom: 16px;
-        }
-
-        .form-label {
-            display: block;
-            font-size: 0.88rem;
-            font-weight: 700;
-            color: #4A7C23;
-            margin-bottom: 6px;
-        }
-
-        .form-label .required {
-            color: #E65100;
-            margin-left: 2px;
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 12px 14px;
-            border: 2px solid #E8E8E8;
-            border-radius: 12px;
-            font-size: 0.95rem;
-            font-family: inherit;
-            transition: all 0.2s;
-            background: #FAFAFA;
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: var(--light-green);
-            background: white;
-            box-shadow: 0 0 0 3px rgba(123,201,123,0.12);
-        }
-
-        .type-options {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-        }
-
-        .type-option {
-            padding: 14px 10px;
-            border: 2px solid #E8E8E8;
-            border-radius: 14px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-weight: 600;
-            font-size: 0.92rem;
-            background: #FAFAFA;
-        }
-
-        .type-option:hover {
-            border-color: #CCC;
-            background: #F5F5F5;
-        }
-
-        .type-option.selected {
-            border-width: 3px;
-            background: white;
-        }
-
+        .spot-coords { font-size: 0.78rem; color: #888; font-family: 'Courier New', monospace; margin-bottom: 6px; background: #F8F8F8; padding: 4px 8px; border-radius: 6px; display: inline-block; }
+        .spot-note { font-size: 0.88rem; color: #555; margin: 10px 0; padding: 10px 12px; background: linear-gradient(135deg, #FAFAFA, #F5F5F5); border-radius: 10px; border-left: 3px solid #DDD; }
+        .spot-image-container { margin: 10px 0; border-radius: 12px; overflow: hidden; }
+        .spot-image-container img { width: 100%; height: auto; max-height: 250px; object-fit: cover; display: block; cursor: pointer; transition: transform 0.3s; }
+        .spot-image-container img:hover { transform: scale(1.02); }
+        .spot-tags { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0; }
+        .spot-tag { font-size: 0.72rem; padding: 3px 10px; border-radius: 12px; font-weight: 600; background: #F3E5F5; color: #7B1FA2; border: 1px solid #E0C8F0; }
+        .spot-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+        .btn { padding: 9px 14px; border: none; border-radius: 10px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+        .btn-copy { background: linear-gradient(135deg, #E3F2FD, #BBDEFB); color: #1565C0; flex: 1; }
+        .btn-copy:hover { background: linear-gradient(135deg, #BBDEFB, #90CAF9); transform: translateY(-2px); }
+        .btn-edit { background: linear-gradient(135deg, #FFF3E0, #FFE0B2); color: #E65100; }
+        .btn-edit:hover { background: linear-gradient(135deg, #FFE0B2, #FFCC80); transform: translateY(-2px); }
+        .btn-delete { background: linear-gradient(135deg, #FFEBEE, #FFCDD2); color: #C62828; }
+        .btn-delete:hover { background: linear-gradient(135deg, #FFCDD2, #EF9A9A); transform: translateY(-2px); }
+        .empty-state { text-align: center; padding: 50px 20px; background: var(--card-bg); border-radius: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .empty-state-icon { font-size: 4rem; margin-bottom: 16px; animation: seedling-bounce 2.5s ease-in-out infinite; }
+        .empty-state-text { font-size: 1rem; color: #888; line-height: 1.6; }
+        .fab { position: fixed; bottom: 28px; right: 24px; width: 62px; height: 62px; background: linear-gradient(135deg, var(--light-green), var(--primary-green)); border-radius: 50%; border: none; font-size: 2rem; color: white; cursor: pointer; box-shadow: 0 6px 24px rgba(123,201,123,0.45); transition: all 0.3s ease; z-index: 100; }
+        .fab:hover { transform: scale(1.1) rotate(90deg); box-shadow: 0 8px 28px rgba(123,201,123,0.55); }
+        .fab:active { transform: scale(0.95); }
+        .select-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; padding: 14px 20px; box-shadow: 0 -4px 20px rgba(0,0,0,0.12); z-index: 200; display: none; }
+        .select-bar.active { display: block; animation: slide-up 0.3s ease-out; }
+        @keyframes slide-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .select-bar-content { display: flex; align-items: center; justify-content: space-between; max-width: 600px; margin: 0 auto; gap: 12px; }
+        .select-count { font-weight: 700; color: var(--dark-green); font-size: 0.95rem; }
+        .btn-select-action { padding: 10px 18px; border: none; border-radius: 12px; font-weight: 700; font-size: 0.88rem; cursor: pointer; transition: all 0.2s; }
+        .btn-select-cancel { background: #F5F5F5; color: #666; }
+        .btn-select-cancel:hover { background: #EEE; }
+        .btn-select-export { background: linear-gradient(135deg, var(--light-green), var(--primary-green)); color: white; }
+        .btn-select-export:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(95,168,95,0.4); }
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; visibility: hidden; transition: all 0.3s; padding: 16px; backdrop-filter: blur(4px); }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        .modal { background: white; border-radius: 24px; padding: 28px 24px; max-width: 480px; width: 100%; max-height: 88vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.25); transform: scale(0.92) translateY(20px); transition: all 0.3s; }
+        .modal-overlay.active .modal { transform: scale(1) translateY(0); }
+        .modal h2 { font-size: 1.4rem; color: var(--dark-green); margin-bottom: 20px; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+        .form-group { margin-bottom: 16px; }
+        .form-label { display: block; font-size: 0.88rem; font-weight: 700; color: #4A7C23; margin-bottom: 6px; }
+        .form-label .required { color: #E65100; margin-left: 2px; }
+        .form-input { width: 100%; padding: 12px 14px; border: 2px solid #E8E8E8; border-radius: 12px; font-size: 0.95rem; font-family: inherit; transition: all 0.2s; background: #FAFAFA; }
+        .form-input:focus { outline: none; border-color: var(--light-green); background: white; box-shadow: 0 0 0 3px rgba(123,201,123,0.12); }
+        .coord-input-wrapper { display: flex; gap: 8px; }
+        .coord-input-wrapper .form-input { flex: 1; }
+        .btn-paste-coord { padding: 10px 14px; background: linear-gradient(135deg, #E8F5E9, #C8E6C9); border: 2px solid var(--light-green); border-radius: 12px; font-size: 0.82rem; font-weight: 700; cursor: pointer; color: var(--dark-green); transition: all 0.2s; white-space: nowrap; font-family: inherit; }
+        .btn-paste-coord:hover { background: linear-gradient(135deg, #C8E6C9, #A5D6A7); transform: translateY(-1px); }
+        .coord-hint { font-size: 0.75rem; color: #888; margin-top: 4px; line-height: 1.4; }
+        .coord-hint em { color: var(--primary-green); font-style: normal; font-weight: 600; }
+        .image-upload-area { border: 2px dashed #D0D0D0; border-radius: 14px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.2s; background: #FAFAFA; position: relative; }
+        .image-upload-area:hover { border-color: var(--light-green); background: #F0F9F0; }
+        .image-upload-area.has-image { padding: 8px; border-style: solid; border-color: var(--light-green); }
+        .image-upload-icon { font-size: 2rem; margin-bottom: 6px; }
+        .image-upload-text { font-size: 0.82rem; color: #888; font-weight: 600; }
+        .image-upload-text small { display: block; margin-top: 4px; font-size: 0.72rem; color: #AAA; }
+        .image-preview { max-height: 200px; border-radius: 10px; object-fit: cover; width: 100%; }
+        .btn-remove-image { position: absolute; top: 12px; right: 12px; width: 28px; height: 28px; border-radius: 50%; background: rgba(0,0,0,0.6); color: white; border: none; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .btn-remove-image:hover { background: rgba(200,0,0,0.8); transform: scale(1.1); }
+        .tags-input-container { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 10px; border: 2px solid #E8E8E8; border-radius: 12px; background: #FAFAFA; min-height: 46px; align-items: center; cursor: text; transition: all 0.2s; }
+        .tags-input-container:focus-within { border-color: var(--light-green); background: white; box-shadow: 0 0 0 3px rgba(123,201,123,0.12); }
+        .tag-badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; background: linear-gradient(135deg, #F3E5F5, #E8D5F5); border: 1px solid #CE93D8; border-radius: 14px; font-size: 0.8rem; font-weight: 600; color: #7B1FA2; }
+        .tag-badge .tag-remove { cursor: pointer; font-size: 0.9rem; line-height: 1; opacity: 0.7; transition: opacity 0.2s; }
+        .tag-badge .tag-remove:hover { opacity: 1; }
+        .tags-text-input { border: none; outline: none; background: transparent; font-size: 0.88rem; font-family: inherit; min-width: 80px; flex: 1; padding: 4px 2px; }
+        .tags-hint { font-size: 0.72rem; color: #AAA; margin-top: 4px; }
+        .type-options { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; }
+        .type-option { padding: 14px 10px; border: 2px solid #E8E8E8; border-radius: 14px; text-align: center; cursor: pointer; transition: all 0.2s; font-weight: 600; font-size: 0.92rem; background: #FAFAFA; }
+        .type-option:hover { border-color: #CCC; background: #F5F5F5; }
+        .type-option.selected { border-width: 3px; background: white; }
         .type-option.flower.selected { border-color: var(--flower-color); background: #FFF5F7; }
         .type-option.pikmin.selected { border-color: var(--pikmin-color); background: #F0FFF0; }
         .type-option.mushroom.selected { border-color: var(--mushroom-color); background: #FDF5FF; }
         .type-option.postcard.selected { border-color: var(--postcard-color); background: #F5FAFF; }
-
-        .modal-actions {
-            display: flex;
-            gap: 12px;
-            margin-top: 24px;
-        }
-
-        .btn-cancel {
-            flex: 1;
-            padding: 14px;
-            background: #F5F5F5;
-            border: none;
-            border-radius: 14px;
-            font-size: 0.95rem;
-            font-weight: 700;
-            cursor: pointer;
-            color: #666;
-            transition: all 0.2s;
-        }
-
-        .btn-cancel:hover {
-            background: #EEEEEE;
-        }
-
-        .btn-submit {
-            flex: 2;
-            padding: 14px;
-            background: linear-gradient(135deg, var(--light-green) 0%, var(--primary-green) 100%);
-            border: none;
-            border-radius: 14px;
-            font-size: 0.95rem;
-            font-weight: 700;
-            cursor: pointer;
-            color: white;
-            transition: all 0.2s;
-        }
-
-        .btn-submit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(95,168,95,0.4);
-        }
-
-        /* Login Modal */
-        .login-modal {
-            background: white;
-            border-radius: 24px;
-            padding: 32px 28px;
-            max-width: 400px;
-            width: 100%;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
-            transform: scale(0.92) translateY(20px);
-            transition: all 0.3s;
-            text-align: center;
-        }
-
-        .modal-overlay.active .login-modal {
-            transform: scale(1) translateY(0);
-        }
-
-        .login-title {
-            font-size: 1.5rem;
-            color: var(--dark-green);
-            margin: 16px 0 10px;
-            font-weight: 800;
-        }
-
-        .login-subtitle {
-            font-size: 0.9rem;
-            color: #666;
-            margin-bottom: 24px;
-            line-height: 1.6;
-        }
-
-        .btn-admin {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #FF6B35 0%, #F7931A 100%);
-            border: none;
-            border-radius: 14px;
-            font-size: 1rem;
-            font-weight: 700;
-            cursor: pointer;
-            color: white;
-            transition: all 0.2s;
-        }
-
-        .btn-admin:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 18px rgba(255,107,53,0.4);
-        }
-
-        /* ==================== Toast ==================== */
-        .toast {
-            position: fixed;
-            bottom: 100px;
-            left: 50%;
-            transform: translateX(-50%) translateY(20px);
-            background: rgba(45,80,22,0.95);
-            color: white;
-            padding: 14px 24px;
-            border-radius: 14px;
-            font-size: 0.92rem;
-            font-weight: 600;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-            z-index: 2000;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
-            backdrop-filter: blur(8px);
-        }
-
-        .toast.show {
-            opacity: 1;
-            visibility: visible;
-            transform: translateX(-50%) translateY(0);
-        }
-
-        /* ==================== Responsive ==================== */
+        .modal-actions { display: flex; gap: 12px; margin-top: 24px; }
+        .btn-cancel { flex: 1; padding: 14px; background: #F5F5F5; border: none; border-radius: 14px; font-size: 0.95rem; font-weight: 700; cursor: pointer; color: #666; transition: all 0.2s; }
+        .btn-cancel:hover { background: #EEE; }
+        .btn-submit { flex: 2; padding: 14px; background: linear-gradient(135deg, var(--light-green), var(--primary-green)); border: none; border-radius: 14px; font-size: 0.95rem; font-weight: 700; cursor: pointer; color: white; transition: all 0.2s; }
+        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(95,168,95,0.4); }
+        .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+        .login-modal { background: white; border-radius: 24px; padding: 32px 28px; max-width: 400px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.25); transform: scale(0.92) translateY(20px); transition: all 0.3s; text-align: center; }
+        .modal-overlay.active .login-modal { transform: scale(1) translateY(0); }
+        .login-title { font-size: 1.5rem; color: var(--dark-green); margin: 16px 0 10px; font-weight: 800; }
+        .login-subtitle { font-size: 0.9rem; color: #666; margin-bottom: 24px; line-height: 1.6; }
+        .btn-admin { width: 100%; padding: 14px; background: linear-gradient(135deg, #FF6B35, #F7931A); border: none; border-radius: 14px; font-size: 1rem; font-weight: 700; cursor: pointer; color: white; transition: all 0.2s; }
+        .btn-admin:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(255,107,53,0.4); }
+        .lightbox-overlay { position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.85); z-index: 3000; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: all 0.3s; cursor: zoom-out; }
+        .lightbox-overlay.active { opacity: 1; visibility: visible; }
+        .lightbox-overlay img { max-width: 92vw; max-height: 90vh; object-fit: contain; border-radius: 8px; }
+        .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(20px); background: rgba(45,80,22,0.95); color: white; padding: 14px 24px; border-radius: 14px; font-size: 0.92rem; font-weight: 600; opacity: 0; visibility: hidden; transition: all 0.3s ease; z-index: 2000; box-shadow: 0 6px 20px rgba(0,0,0,0.2); backdrop-filter: blur(8px); }
+        .toast.show { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
         @media (max-width: 400px) {
-            .stats {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .dropdown-filters {
-                grid-template-columns: 1fr;
-            }
-            
-            .utility-buttons {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .type-pills {
-                justify-content: center;
-            }
+            .stats { grid-template-columns: repeat(2,1fr); }
+            .dropdown-filters { grid-template-columns: 1fr; }
+            .utility-buttons { grid-template-columns: repeat(2,1fr); }
+            .type-pills { justify-content: center; }
         }
     </style>
 </head>
 <body>
-    <!-- 背景漂浮白雲（優化版 - 減少數量） -->
     <div class="floating-cloud floating-cloud-1"></div>
     <div class="floating-cloud floating-cloud-2"></div>
     <div class="floating-cloud floating-cloud-3"></div>
-
-    <!-- Header -->
     <div class="header">
         <div class="header-cloud header-cloud-1"></div>
         <div class="header-cloud header-cloud-2"></div>
         <div class="header-cloud header-cloud-3"></div>
-        
-        <!-- 右上角登入區域 -->
         <div class="header-login-area">
             <div id="userInfo" class="user-info-compact" style="display: none;">
                 <span id="userEmail" class="user-email"></span>
@@ -1177,8 +272,6 @@
                 <button class="btn-admin-header" onclick="showLoginModal()">🔑 管理員登入</button>
             </div>
         </div>
-        
-        <!-- 中間主要內容 -->
         <div class="header-content">
             <div class="seedling-icon">🌱</div>
             <h1>皮克敏純點管理器</h1>
@@ -1186,33 +279,13 @@
             <div id="syncStatus" class="sync-status synced">✨ 已同步</div>
         </div>
     </div>
-
     <div class="container">
-        <!-- Stats -->
         <div class="stats">
-            <div class="stat-card flower-card">
-                <div class="stat-icon">🌸</div>
-                <div class="stat-label">大花</div>
-                <div class="stat-number" id="stat-flower">0</div>
-            </div>
-            <div class="stat-card pikmin-card">
-                <div class="stat-icon">🌱</div>
-                <div class="stat-label">皮克敏</div>
-                <div class="stat-number" id="stat-pikmin">0</div>
-            </div>
-            <div class="stat-card mushroom-card">
-                <div class="stat-icon">🍄</div>
-                <div class="stat-label">蘑菇</div>
-                <div class="stat-number" id="stat-mushroom">0</div>
-            </div>
-            <div class="stat-card postcard-card">
-                <div class="stat-icon">🏠</div>
-                <div class="stat-label">明信片</div>
-                <div class="stat-number" id="stat-postcard">0</div>
-            </div>
+            <div class="stat-card flower-card"><div class="stat-icon">🌸</div><div class="stat-label">大花</div><div class="stat-number" id="stat-flower">0</div></div>
+            <div class="stat-card pikmin-card"><div class="stat-icon">🌱</div><div class="stat-label">皮克敏</div><div class="stat-number" id="stat-pikmin">0</div></div>
+            <div class="stat-card mushroom-card"><div class="stat-icon">🍄</div><div class="stat-label">蘑菇</div><div class="stat-number" id="stat-mushroom">0</div></div>
+            <div class="stat-card postcard-card"><div class="stat-icon">🏠</div><div class="stat-label">明信片</div><div class="stat-number" id="stat-postcard">0</div></div>
         </div>
-
-        <!-- Utility Section -->
         <div class="utility-section">
             <div class="utility-title">📦 匯入 / 匯出</div>
             <div class="utility-buttons">
@@ -1225,14 +298,11 @@
                 <button class="btn-utility json-import" onclick="importJson()">📂 匯入 JSON</button>
             </div>
         </div>
-
-        <!-- Filters Section -->
         <div class="filters-section">
             <div class="search-box">
                 <span class="search-icon">🔍</span>
-                <input type="text" class="search-input" id="searchInput" placeholder="搜尋名稱、備註、地點...">
+                <input type="text" class="search-input" id="searchInput" placeholder="搜尋名稱、備註、地點、標籤...">
             </div>
-
             <div class="filter-group">
                 <div class="filter-label">🏷️ 純點類型</div>
                 <div class="type-pills">
@@ -1243,7 +313,10 @@
                     <div class="type-pill postcard" data-filter="postcard" onclick="setFilter('postcard')">🏠 明信片</div>
                 </div>
             </div>
-
+            <div class="filter-group" id="tagFilterGroup" style="display:none;">
+                <div class="filter-label">🏷️ 熱門標籤</div>
+                <div class="tag-pills" id="tagFilterPills"></div>
+            </div>
             <div class="filter-group">
                 <div class="filter-label">📍 地區篩選</div>
                 <div class="dropdown-filters">
@@ -1253,9 +326,7 @@
                             <input type="text" class="select-input" id="countryInput" placeholder="選擇國家" readonly>
                             <span class="select-arrow">▼</span>
                             <div class="select-dropdown">
-                                <div class="select-search">
-                                    <input type="text" id="countrySearch" placeholder="搜尋國家...">
-                                </div>
+                                <div class="select-search"><input type="text" id="countrySearch" placeholder="搜尋國家..."></div>
                                 <div class="select-options" id="countryOptions"></div>
                             </div>
                         </div>
@@ -1266,9 +337,7 @@
                             <input type="text" class="select-input" id="cityInput" placeholder="選擇縣市" readonly>
                             <span class="select-arrow">▼</span>
                             <div class="select-dropdown">
-                                <div class="select-search">
-                                    <input type="text" id="citySearch" placeholder="搜尋縣市...">
-                                </div>
+                                <div class="select-search"><input type="text" id="citySearch" placeholder="搜尋縣市..."></div>
                                 <div class="select-options" id="cityOptions"></div>
                             </div>
                         </div>
@@ -1276,15 +345,9 @@
                 </div>
             </div>
         </div>
-
-        <!-- Spot List -->
         <div class="spot-list" id="spotList"></div>
     </div>
-
-    <!-- FAB -->
     <button class="fab" onclick="openAddModal()">+</button>
-
-    <!-- Select Bar -->
     <div class="select-bar" id="selectBar">
         <div class="select-bar-content">
             <div class="select-count">已選 <span id="selectedCount">0</span> 個</div>
@@ -1292,37 +355,50 @@
             <button class="btn-select-action btn-select-export" id="btnConfirmExport">📤 匯出</button>
         </div>
     </div>
-
-    <!-- Add/Edit Modal -->
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal">
             <h2 id="modalTitle">🌱 新增純點</h2>
             <form id="spotForm">
                 <div class="form-group">
+                    <label class="form-label">上傳圖片</label>
+                    <div class="image-upload-area" id="imageUploadArea" onclick="document.getElementById('imageFileInput').click()">
+                        <div id="imageUploadPlaceholder">
+                            <div class="image-upload-icon">📷</div>
+                            <div class="image-upload-text">選擇檔案<small>未選擇任何檔案</small></div>
+                        </div>
+                        <div id="imagePreviewContainer" style="display:none;">
+                            <img id="imagePreview" class="image-preview" src="">
+                            <button type="button" class="btn-remove-image" onclick="removeImage(event)">✕</button>
+                        </div>
+                    </div>
+                    <input type="file" id="imageFileInput" accept="image/*" style="display:none;">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">座標</label>
+                    <div class="coord-input-wrapper">
+                        <input type="text" class="form-input" id="inputCoords" placeholder="例如: 22.6123, 120.3456 (支援 Google Maps 網址)">
+                        <button type="button" class="btn-paste-coord" onclick="pasteCoords()">📋 貼上</button>
+                    </div>
+                    <div class="coord-hint">請利用右側「貼上」按鈕，支援 <em>Google Maps 網址</em>轉座標，並自動帶入地點資訊。</div>
+                </div>
+                <div class="form-group">
                     <label class="form-label">名稱 <span class="required">*</span></label>
                     <input type="text" class="form-input" id="inputName" placeholder="純點名稱" required>
                 </div>
-
                 <div class="form-group">
                     <label class="form-label">國家 <span class="required">*</span></label>
                     <input type="text" class="form-input" id="inputCountry" placeholder="例：台灣" required>
                 </div>
-
                 <div class="form-group">
                     <label class="form-label">縣市</label>
                     <input type="text" class="form-input" id="inputCity" placeholder="例：台北市">
                 </div>
-
-                <div class="form-group">
-                    <label class="form-label">緯度 <span class="required">*</span></label>
-                    <input type="number" step="any" class="form-input" id="inputLat" placeholder="例：25.0330" required>
+                <div class="form-group" style="display:none;">
+                    <input type="number" step="any" class="form-input" id="inputLat">
                 </div>
-
-                <div class="form-group">
-                    <label class="form-label">經度 <span class="required">*</span></label>
-                    <input type="number" step="any" class="form-input" id="inputLng" placeholder="例：121.5654" required>
+                <div class="form-group" style="display:none;">
+                    <input type="number" step="any" class="form-input" id="inputLng">
                 </div>
-
                 <div class="form-group">
                     <label class="form-label">類型 <span class="required">*</span></label>
                     <div class="type-options">
@@ -1332,12 +408,17 @@
                         <div class="type-option postcard" data-type="postcard" onclick="selectType('postcard')">🏠 明信片</div>
                     </div>
                 </div>
-
+                <div class="form-group">
+                    <label class="form-label">標籤 (最多3個)</label>
+                    <div class="tags-input-container" id="tagsInputContainer" onclick="document.getElementById('tagsTextInput').focus()">
+                        <input type="text" class="tags-text-input" id="tagsTextInput" placeholder="輸入標籤後按 Enter">
+                    </div>
+                    <div class="tags-hint">輸入後按 Enter 新增，可加 # 前綴（會自動補上）</div>
+                </div>
                 <div class="form-group">
                     <label class="form-label">備註（選填）</label>
                     <input type="text" class="form-input" id="inputNote" placeholder="額外資訊">
                 </div>
-
                 <div class="modal-actions">
                     <button type="button" class="btn-cancel" onclick="closeModal()">取消</button>
                     <button type="submit" class="btn-submit" id="btnSubmit">✨ 新增純點</button>
@@ -1345,51 +426,33 @@
             </form>
         </div>
     </div>
-
-    <!-- Login Modal -->
     <div class="modal-overlay" id="loginModal">
         <div class="login-modal">
             <div class="seedling-icon" style="font-size: 4rem;">🌱</div>
             <h2 class="login-title">皮克敏純點管理器</h2>
-            <p class="login-subtitle">
-                你已經可以查看、新增和編輯所有資料！<br>
-                只有管理員需要登入以使用刪除功能。
-            </p>
+            <p class="login-subtitle">你已經可以查看、新增和編輯所有資料！<br>只有管理員需要登入以使用刪除功能。</p>
             <button class="btn-admin" onclick="loginAsAdmin()">🔑 管理員登入</button>
             <button class="btn-cancel" onclick="closeLoginModal()" style="margin-top: 12px; width: 100%;">關閉</button>
         </div>
     </div>
-
-    <!-- Toast -->
+    <div class="lightbox-overlay" id="lightboxOverlay" onclick="closeLightbox()">
+        <img id="lightboxImage" src="">
+    </div>
     <div class="toast" id="toast"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // ==================== Supabase 設定 ====================
-        // 👇 請在這裡填入你的 Supabase 專案資訊
         const SUPABASE_URL = 'https://byeyuxfhmackhmngksij.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ5ZXl1eGZobWFja2htbmdrc2lqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyNTcyMDgsImV4cCI6MjA4NTgzMzIwOH0.ckXTWnDCksvDJMdd8MR9iykh6iu1IBtKi4zuLF4W87I';
-        
-        // 管理員 Email（與 Supabase users 表對應）
         const ADMIN_EMAIL = 'hangonroku@gmail.com';
-        
         const { createClient } = supabase;
         const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // ==================== 全域變數 ====================
-        let spots = [];
-        let currentFilter = 'all';
-        let currentCountry = 'all';
-        let currentCity = 'all';
-        let searchQuery = '';
-        let editingId = null;
-        let selectedType = 'pikmin';
-        let selectMode = false;
-        let selectedSpots = new Set();
-        let currentUser = null;
-        let isAdmin = false;
+        let spots = [], currentFilter = 'all', currentCountry = 'all', currentCity = 'all', currentTag = 'all';
+        let searchQuery = '', editingId = null, selectedType = 'pikmin';
+        let selectMode = false, selectedSpots = new Set(), currentUser = null, isAdmin = false;
+        let currentTags = [], currentImageBase64 = null;
 
-        // ==================== DOM 元素 ====================
         const modalOverlay = document.getElementById('modalOverlay');
         const loginModal = document.getElementById('loginModal');
         const spotList = document.getElementById('spotList');
@@ -1397,459 +460,293 @@
         const syncStatus = document.getElementById('syncStatus');
         const selectBar = document.getElementById('selectBar');
 
+        // ==================== BUG FIX: visibilitychange + focus 刷新 session ====================
+        document.addEventListener('visibilitychange', async () => {
+            if (document.visibilityState === 'visible') {
+                try {
+                    const { data: { session }, error } = await supabaseClient.auth.getSession();
+                    if (error) {
+                        await supabaseClient.auth.refreshSession();
+                    }
+                    if (session) { currentUser = session.user; await checkAdminStatus(); updateUserInfo(); }
+                } catch (err) { console.error('visibilitychange error:', err); }
+            }
+        });
+        window.addEventListener('focus', async () => {
+            try {
+                const { data: { session }, error } = await supabaseClient.auth.getSession();
+                if (error) await supabaseClient.auth.refreshSession();
+            } catch (err) {}
+        });
+
         // ==================== 初始化 ====================
         async function init() {
-            // 先載入所有公開資料（訪客也能看）
             await loadSpots();
-            
-            // 檢查是否已登入
             const { data: { session } } = await supabaseClient.auth.getSession();
-            
-            if (session) {
-                currentUser = session.user;
-                await checkAdminStatus();
-                updateUserInfo();
-                renderSpots(); // 重新渲染以顯示刪除按鈕
-            }
-
-            // 監聽驗證狀態變化
+            if (session) { currentUser = session.user; await checkAdminStatus(); updateUserInfo(); renderSpots(); }
             supabaseClient.auth.onAuthStateChange(async (event, session) => {
-                if (event === 'SIGNED_IN') {
-                    currentUser = session.user;
-                    await checkAdminStatus();
-                    loginModal.classList.remove('active');
-                    updateUserInfo();
-                    renderSpots();
-                    showToast('✅ 登入成功！');
-                } else if (event === 'SIGNED_OUT') {
-                    currentUser = null;
-                    isAdmin = false;
-                    updateUserInfo();
-                    renderSpots();
+                if (event === 'SIGNED_IN') { currentUser = session.user; await checkAdminStatus(); loginModal.classList.remove('active'); updateUserInfo(); renderSpots(); showToast('✅ 登入成功！'); }
+                else if (event === 'SIGNED_OUT') { currentUser = null; isAdmin = false; updateUserInfo(); renderSpots(); }
+                else if (event === 'TOKEN_REFRESHED' && session) { currentUser = session.user; }
+            });
+            initSearchableSelects(); initImageUpload(); initTagsInput(); initCoordsInput();
+        }
+
+        // ==================== 圖片上傳 ====================
+        function initImageUpload() {
+            document.getElementById('imageFileInput').addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                if (file.size > 2 * 1024 * 1024) { showToast('⚠️ 圖片大小不能超過 2MB'); e.target.value = ''; return; }
+                const reader = new FileReader();
+                reader.onload = (ev) => { currentImageBase64 = ev.target.result; showImagePreview(currentImageBase64); };
+                reader.readAsDataURL(file);
+            });
+        }
+        function showImagePreview(src) {
+            document.getElementById('imagePreview').src = src;
+            document.getElementById('imageUploadPlaceholder').style.display = 'none';
+            document.getElementById('imagePreviewContainer').style.display = 'block';
+            document.getElementById('imageUploadArea').classList.add('has-image');
+        }
+        function removeImage(e) {
+            e.stopPropagation(); currentImageBase64 = null;
+            document.getElementById('imageFileInput').value = '';
+            document.getElementById('imageUploadPlaceholder').style.display = 'block';
+            document.getElementById('imagePreviewContainer').style.display = 'none';
+            document.getElementById('imageUploadArea').classList.remove('has-image');
+        }
+
+        // ==================== 標籤 ====================
+        function initTagsInput() {
+            const input = document.getElementById('tagsTextInput');
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') { e.preventDefault(); addTag(input.value); input.value = ''; }
+            });
+            input.addEventListener('input', (e) => {
+                const val = e.target.value;
+                if (val.includes(',') || val.includes('，')) {
+                    val.split(/[,，]/).forEach(p => { if (p.trim()) addTag(p.trim()); });
+                    input.value = '';
                 }
             });
-
-            // 初始化下拉選單
-            initSearchableSelects();
+        }
+        function addTag(text) {
+            text = text.trim().replace(/^#/, '');
+            if (!text) return;
+            if (currentTags.length >= 3) { showToast('⚠️ 最多只能加 3 個標籤'); return; }
+            if (currentTags.includes(text)) { showToast('⚠️ 標籤已存在'); return; }
+            currentTags.push(text); renderFormTags();
+        }
+        function removeTag(index) { currentTags.splice(index, 1); renderFormTags(); }
+        function renderFormTags() {
+            const container = document.getElementById('tagsInputContainer');
+            const input = document.getElementById('tagsTextInput');
+            container.querySelectorAll('.tag-badge').forEach(el => el.remove());
+            currentTags.forEach((tag, i) => {
+                const badge = document.createElement('span');
+                badge.className = 'tag-badge';
+                badge.innerHTML = `#${escapeHtml(tag)} <span class="tag-remove" onclick="removeTag(${i})">✕</span>`;
+                container.insertBefore(badge, input);
+            });
+            input.placeholder = currentTags.length >= 3 ? '已達上限' : '輸入標籤後按 Enter';
+            input.disabled = currentTags.length >= 3;
         }
 
-        // ==================== 可搜尋下拉選單 ====================
+        // ==================== 座標輸入 (支援 Google Maps URL) ====================
+        function initCoordsInput() {
+            const ci = document.getElementById('inputCoords');
+            ci.addEventListener('input', () => parseAndFillCoords(ci.value));
+            ci.addEventListener('paste', () => setTimeout(() => parseAndFillCoords(ci.value), 50));
+        }
+        async function pasteCoords() {
+            try {
+                const text = await navigator.clipboard.readText();
+                document.getElementById('inputCoords').value = text;
+                parseAndFillCoords(text); showToast('📋 已貼上');
+            } catch { showToast('⚠️ 請手動貼上座標或網址'); }
+        }
+        function parseAndFillCoords(text) {
+            if (!text) return;
+            text = text.trim();
+            let lat = null, lng = null, placeName = null;
+            let m;
+            if ((m = text.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/))) { lat = parseFloat(m[1]); lng = parseFloat(m[2]); }
+            else if ((m = text.match(/[?&]q=(-?\d+\.?\d*),(-?\d+\.?\d*)/))) { lat = parseFloat(m[1]); lng = parseFloat(m[2]); }
+            else if ((m = text.match(/[?&]ll=(-?\d+\.?\d*),(-?\d+\.?\d*)/))) { lat = parseFloat(m[1]); lng = parseFloat(m[2]); }
+            if ((m = text.match(/\/place\/([^/@]+)/))) { placeName = decodeURIComponent(m[1]).replace(/\+/g, ' '); }
+            if (lat === null) {
+                if ((m = text.match(/^(-?\d+\.?\d*)[,\s]+(-?\d+\.?\d*)$/))) { lat = parseFloat(m[1]); lng = parseFloat(m[2]); }
+            }
+            if (lat !== null && lng !== null && !isNaN(lat) && !isNaN(lng)) {
+                document.getElementById('inputLat').value = lat;
+                document.getElementById('inputLng').value = lng;
+                if (placeName && !document.getElementById('inputName').value) document.getElementById('inputName').value = placeName;
+            }
+        }
+
+        // ==================== 下拉選單 ====================
         function initSearchableSelects() {
-            // 國家選單
-            const countrySelect = document.getElementById('countrySelect');
-            const countryInput = document.getElementById('countryInput');
-            const countrySearch = document.getElementById('countrySearch');
-            
-            countryInput.addEventListener('click', (e) => {
-                e.stopPropagation();
-                closeAllDropdowns();
-                countrySelect.classList.add('open');
-                countrySearch.value = '';
-                countrySearch.focus();
-                renderCountryOptions('');
-            });
-
-            countrySearch.addEventListener('input', (e) => {
-                renderCountryOptions(e.target.value);
-            });
-
-            countrySearch.addEventListener('click', (e) => e.stopPropagation());
-
-            // 城市選單
-            const citySelect = document.getElementById('citySelect');
-            const cityInput = document.getElementById('cityInput');
-            const citySearch = document.getElementById('citySearch');
-            
-            cityInput.addEventListener('click', (e) => {
-                e.stopPropagation();
-                closeAllDropdowns();
-                citySelect.classList.add('open');
-                citySearch.value = '';
-                citySearch.focus();
-                renderCityOptions('');
-            });
-
-            citySearch.addEventListener('input', (e) => {
-                renderCityOptions(e.target.value);
-            });
-
-            citySearch.addEventListener('click', (e) => e.stopPropagation());
-
-            // 點擊外部關閉
-            document.addEventListener('click', () => {
-                closeAllDropdowns();
-            });
+            const cs = document.getElementById('countrySelect'), ci = document.getElementById('countryInput'), csr = document.getElementById('countrySearch');
+            ci.addEventListener('click', (e) => { e.stopPropagation(); closeAllDropdowns(); cs.classList.add('open'); csr.value = ''; csr.focus(); renderCountryOptions(''); });
+            csr.addEventListener('input', (e) => renderCountryOptions(e.target.value));
+            csr.addEventListener('click', (e) => e.stopPropagation());
+            const xs = document.getElementById('citySelect'), xi = document.getElementById('cityInput'), xsr = document.getElementById('citySearch');
+            xi.addEventListener('click', (e) => { e.stopPropagation(); closeAllDropdowns(); xs.classList.add('open'); xsr.value = ''; xsr.focus(); renderCityOptions(''); });
+            xsr.addEventListener('input', (e) => renderCityOptions(e.target.value));
+            xsr.addEventListener('click', (e) => e.stopPropagation());
+            document.addEventListener('click', () => closeAllDropdowns());
         }
-
-        function closeAllDropdowns() {
-            document.querySelectorAll('.searchable-select').forEach(el => {
-                el.classList.remove('open');
-            });
-        }
-
+        function closeAllDropdowns() { document.querySelectorAll('.searchable-select').forEach(el => el.classList.remove('open')); }
         function renderCountryOptions(search = '') {
             const countries = ['all', ...new Set(spots.map(s => s.country).filter(Boolean))];
-            const filtered = countries.filter(c => 
-                c === 'all' || c.toLowerCase().includes(search.toLowerCase())
-            );
-            
+            const filtered = countries.filter(c => c === 'all' || c.toLowerCase().includes(search.toLowerCase()));
             const container = document.getElementById('countryOptions');
-            
-            if (filtered.length === 0) {
-                container.innerHTML = '<div class="select-option no-results">找不到結果</div>';
-                return;
-            }
-            
-            container.innerHTML = filtered.map(country => `
-                <div class="select-option ${country === currentCountry ? 'active' : ''}" 
-                     onclick="selectCountry('${country}')">
-                    ${country === 'all' ? '🌍 全部國家' : country}
-                </div>
-            `).join('');
+            if (!filtered.length) { container.innerHTML = '<div class="select-option no-results">找不到結果</div>'; return; }
+            container.innerHTML = filtered.map(c => `<div class="select-option ${c === currentCountry ? 'active' : ''}" onclick="selectCountry('${c}')">${c === 'all' ? '🌍 全部國家' : c}</div>`).join('');
         }
-
         function renderCityOptions(search = '') {
-            const filteredByCountry = currentCountry === 'all' 
-                ? spots 
-                : spots.filter(s => s.country === currentCountry);
-            
-            const cities = ['all', ...new Set(filteredByCountry.map(s => s.city).filter(Boolean))];
-            const filtered = cities.filter(c => 
-                c === 'all' || c.toLowerCase().includes(search.toLowerCase())
-            );
-            
+            const base = currentCountry === 'all' ? spots : spots.filter(s => s.country === currentCountry);
+            const cities = ['all', ...new Set(base.map(s => s.city).filter(Boolean))];
+            const filtered = cities.filter(c => c === 'all' || c.toLowerCase().includes(search.toLowerCase()));
             const container = document.getElementById('cityOptions');
-            
-            if (filtered.length === 0) {
-                container.innerHTML = '<div class="select-option no-results">找不到結果</div>';
-                return;
-            }
-            
-            container.innerHTML = filtered.map(city => `
-                <div class="select-option ${city === currentCity ? 'active' : ''}" 
-                     onclick="selectCity('${city}')">
-                    ${city === 'all' ? '🏙️ 全部縣市' : city}
-                </div>
-            `).join('');
+            if (!filtered.length) { container.innerHTML = '<div class="select-option no-results">找不到結果</div>'; return; }
+            container.innerHTML = filtered.map(c => `<div class="select-option ${c === currentCity ? 'active' : ''}" onclick="selectCity('${c}')">${c === 'all' ? '🏙️ 全部縣市' : c}</div>`).join('');
         }
+        function selectCountry(c) { currentCountry = c; currentCity = 'all'; document.getElementById('countryInput').value = c === 'all' ? '🌍 全部國家' : c; document.getElementById('cityInput').value = '🏙️ 全部縣市'; closeAllDropdowns(); renderSpots(); }
+        function selectCity(c) { currentCity = c; document.getElementById('cityInput').value = c === 'all' ? '🏙️ 全部縣市' : c; closeAllDropdowns(); renderSpots(); }
 
-        function selectCountry(country) {
-            currentCountry = country;
-            currentCity = 'all'; // 重置城市
-            document.getElementById('countryInput').value = country === 'all' ? '🌍 全部國家' : country;
-            document.getElementById('cityInput').value = '🏙️ 全部縣市';
-            closeAllDropdowns();
-            renderSpots();
+        // ==================== 標籤篩選 ====================
+        function getAllTags() {
+            const m = {};
+            spots.forEach(s => { if (s.tags && Array.isArray(s.tags)) s.tags.forEach(t => m[t] = (m[t]||0)+1); });
+            return Object.entries(m).sort((a,b) => b[1]-a[1]);
         }
-
-        function selectCity(city) {
-            currentCity = city;
-            document.getElementById('cityInput').value = city === 'all' ? '🏙️ 全部縣市' : city;
-            closeAllDropdowns();
-            renderSpots();
+        function renderTagFilters() {
+            const tags = getAllTags(), g = document.getElementById('tagFilterGroup'), c = document.getElementById('tagFilterPills');
+            if (!tags.length) { g.style.display = 'none'; return; }
+            g.style.display = 'block';
+            c.innerHTML = `<div class="tag-pill ${currentTag==='all'?'active':''}" onclick="setTagFilter('all')">全部</div>` +
+                tags.slice(0,10).map(([t,n]) => `<div class="tag-pill ${currentTag===t?'active':''}" onclick="setTagFilter('${escapeHtml(t)}')">#${escapeHtml(t)} (${n})</div>`).join('');
         }
+        function setTagFilter(t) { currentTag = t; renderTagFilters(); renderSpots(); }
 
-        // ==================== 登入功能 ====================
+        // ==================== 登入 ====================
         async function loginAsAdmin() {
-            const password = prompt('請輸入管理員密碼：');
-            if (!password) return;
-
+            const pw = prompt('請輸入管理員密碼：'); if (!pw) return;
             try {
                 setSyncStatus('syncing');
-                
-                // 使用管理員信箱登入
-                const { data, error } = await supabaseClient.auth.signInWithPassword({
-                    email: ADMIN_EMAIL,
-                    password: password
-                });
-
+                const { data, error } = await supabaseClient.auth.signInWithPassword({ email: ADMIN_EMAIL, password: pw });
                 if (error) {
-                    // 如果帳號不存在，自動註冊
                     if (error.message.includes('Invalid login credentials')) {
-                        const confirmCreate = confirm('帳號尚未建立，是否使用此密碼建立管理員帳號？');
-                        if (!confirmCreate) {
-                            setSyncStatus('synced');
-                            return;
-                        }
-                        
-                        const { data: signUpData, error: signUpError } = await supabaseClient.auth.signUp({
-                            email: ADMIN_EMAIL,
-                            password: password
-                        });
-                        
-                        if (signUpError) throw signUpError;
-                        
-                        // 註冊成功後，將使用者加入 users 表並設為 admin
-                        if (signUpData.user) {
-                            const { error: insertError } = await supabaseClient
-                                .from('users')
-                                .upsert({
-                                    id: signUpData.user.id,
-                                    email: ADMIN_EMAIL,
-                                    role: 'admin'
-                                }, { onConflict: 'id' });
-                            
-                            if (insertError) {
-                                console.error('設定管理員角色失敗:', insertError);
-                            }
-                        }
-                        
-                        showToast('✅ 管理員帳號已建立！請檢查信箱確認（如有啟用郵件驗證）');
-                    } else {
-                        throw error;
-                    }
+                        if (!confirm('帳號尚未建立，是否使用此密碼建立管理員帳號？')) { setSyncStatus('synced'); return; }
+                        const { data: sd, error: se } = await supabaseClient.auth.signUp({ email: ADMIN_EMAIL, password: pw });
+                        if (se) throw se;
+                        if (sd.user) await supabaseClient.from('users').upsert({ id: sd.user.id, email: ADMIN_EMAIL, role: 'admin' }, { onConflict: 'id' });
+                        showToast('✅ 管理員帳號已建立！');
+                    } else throw error;
                 }
-                
                 setSyncStatus('synced');
-            } catch (error) {
-                console.error('Admin login error:', error);
-                setSyncStatus('error');
-                showToast('❌ 登入失敗：' + error.message);
-            }
+            } catch (e) { console.error(e); setSyncStatus('error'); showToast('❌ 登入失敗：' + e.message); }
         }
-
         async function logout() {
-            try {
-                await supabaseClient.auth.signOut();
-                currentUser = null;
-                isAdmin = false;
-                updateUserInfo();
-                renderSpots();
-                showToast('👋 已登出');
-            } catch (error) {
-                console.error('Logout error:', error);
-            }
+            try { await supabaseClient.auth.signOut(); currentUser = null; isAdmin = false; updateUserInfo(); renderSpots(); showToast('👋 已登出'); } catch (e) { console.error(e); }
         }
-
-        // ==================== 管理員狀態檢查 ====================
         async function checkAdminStatus() {
-            if (!currentUser) {
-                isAdmin = false;
-                return;
-            }
-            
-            console.log('🔍 檢查管理員狀態，使用者:', currentUser.email);
-            
-            // 方法 1：檢查 email 是否為管理員 email
+            if (!currentUser) { isAdmin = false; return; }
             if (currentUser.email === ADMIN_EMAIL) {
-                // 方法 2：同時從 users 表確認 role
                 try {
-                    const { data, error } = await supabaseClient
-                        .from('users')
-                        .select('role')
-                        .eq('id', currentUser.id)
-                        .single();
-                    
-                    if (error) {
-                        console.log('⚠️ 查詢 users 表失敗，但 email 匹配，設為管理員');
-                        isAdmin = true;
-                    } else if (data && data.role === 'admin') {
-                        console.log('✅ 確認為管理員（資料庫驗證）');
-                        isAdmin = true;
-                    } else {
-                        console.log('⚠️ Email 匹配但 role 不是 admin，嘗試更新');
-                        // 如果 email 匹配但 role 不對，更新它
-                        const { error: updateError } = await supabaseClient
-                            .from('users')
-                            .upsert({
-                                id: currentUser.id,
-                                email: ADMIN_EMAIL,
-                                role: 'admin'
-                            }, { onConflict: 'id' });
-                        
-                        isAdmin = true;
-                    }
-                } catch (err) {
-                    console.log('⚠️ users 表查詢異常，根據 email 設為管理員');
-                    isAdmin = true;
-                }
-            } else {
-                isAdmin = false;
-            }
-            
-            console.log('📊 管理員狀態:', isAdmin);
+                    const { data, error } = await supabaseClient.from('users').select('role').eq('id', currentUser.id).single();
+                    if (!error && data && data.role === 'admin') { isAdmin = true; }
+                    else { await supabaseClient.from('users').upsert({ id: currentUser.id, email: ADMIN_EMAIL, role: 'admin' }, { onConflict: 'id' }); isAdmin = true; }
+                } catch { isAdmin = true; }
+            } else { isAdmin = false; }
         }
-
         function updateUserInfo() {
-            const userInfo = document.getElementById('userInfo');
-            const guestInfo = document.getElementById('guestInfo');
-            const userEmail = document.getElementById('userEmail');
-            const userRole = document.getElementById('userRole');
-
+            const ui = document.getElementById('userInfo'), gi = document.getElementById('guestInfo');
             if (currentUser && !currentUser.is_anonymous) {
-                userInfo.style.display = 'flex';
-                guestInfo.style.display = 'none';
-                userEmail.textContent = currentUser.email;
-                userRole.textContent = isAdmin ? '管理員' : '';
-                userRole.style.display = isAdmin ? 'inline-block' : 'none';
-            } else {
-                userInfo.style.display = 'none';
-                guestInfo.style.display = 'inline-block';
-            }
+                ui.style.display = 'flex'; gi.style.display = 'none';
+                document.getElementById('userEmail').textContent = currentUser.email;
+                const r = document.getElementById('userRole'); r.textContent = isAdmin ? '管理員' : ''; r.style.display = isAdmin ? 'inline-block' : 'none';
+            } else { ui.style.display = 'none'; gi.style.display = 'inline-block'; }
         }
-
-        function showLoginModal() {
-            loginModal.classList.add('active');
-        }
-
-        function closeLoginModal() {
-            loginModal.classList.remove('active');
-        }
+        function showLoginModal() { loginModal.classList.add('active'); }
+        function closeLoginModal() { loginModal.classList.remove('active'); }
 
         // ==================== 資料載入 ====================
         async function loadSpots() {
-            console.log('🔄 開始載入資料...');
-            
             try {
                 setSyncStatus('syncing');
-                
-                const { data, error } = await supabaseClient
-                    .from('spots')
-                    .select('*')
-                    .order('created_at', { ascending: false });
-
-                if (error) {
-                    console.error('❌ 載入錯誤:', error);
-                    throw error;
-                }
-
-                console.log('✅ 載入成功，共', data?.length || 0, '筆資料');
-
+                const { data, error } = await supabaseClient.from('spots').select('*').order('created_at', { ascending: false });
+                if (error) throw error;
                 spots = data || [];
-                
-                // 更新下拉選單顯示
                 document.getElementById('countryInput').value = currentCountry === 'all' ? '🌍 全部國家' : currentCountry;
                 document.getElementById('cityInput').value = currentCity === 'all' ? '🏙️ 全部縣市' : currentCity;
-                
-                renderSpots();
-                updateStats();
-                setSyncStatus('synced');
-            } catch (error) {
-                console.error('❌ Load error:', error);
-                setSyncStatus('error');
-                showToast('❌ 載入失敗');
-            }
+                renderSpots(); updateStats(); renderTagFilters(); setSyncStatus('synced');
+            } catch (e) { console.error(e); setSyncStatus('error'); showToast('❌ 載入失敗'); }
         }
+        function setSyncStatus(s) { syncStatus.className = `sync-status ${s}`; syncStatus.textContent = { syncing: '⏳ 同步中...', synced: '✨ 已同步', error: '❌ 同步失敗' }[s] || ''; }
 
-        function setSyncStatus(status) {
-            syncStatus.className = `sync-status ${status}`;
-            const statusText = {
-                syncing: '⏳ 同步中...',
-                synced: '✨ 已同步',
-                error: '❌ 同步失敗'
-            };
-            syncStatus.textContent = statusText[status] || '';
-        }
+        // ==================== 篩選 & 渲染 ====================
+        function setFilter(type) { currentFilter = type; document.querySelectorAll('.type-pill').forEach(p => p.classList.toggle('active', p.dataset.filter === type)); renderSpots(); }
+        document.getElementById('searchInput').addEventListener('input', (e) => { searchQuery = e.target.value.toLowerCase(); renderSpots(); });
 
-        // ==================== 篩選功能 ====================
-        function setFilter(type) {
-            currentFilter = type;
-            document.querySelectorAll('.type-pill').forEach(pill => {
-                pill.classList.toggle('active', pill.dataset.filter === type);
-            });
-            renderSpots();
-        }
-
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            searchQuery = e.target.value.toLowerCase();
-            renderSpots();
-        });
-
-        // ==================== 渲染 ====================
         function getFilteredSpots() {
-            return spots.filter(spot => {
-                const matchesType = currentFilter === 'all' || spot.type === currentFilter;
-                const matchesCountry = currentCountry === 'all' || spot.country === currentCountry;
-                const matchesCity = currentCity === 'all' || spot.city === currentCity;
-                const matchesSearch = spot.name.toLowerCase().includes(searchQuery) ||
-                                     (spot.note && spot.note.toLowerCase().includes(searchQuery)) ||
-                                     (spot.country && spot.country.toLowerCase().includes(searchQuery)) ||
-                                     (spot.city && spot.city.toLowerCase().includes(searchQuery));
-                return matchesType && matchesCountry && matchesCity && matchesSearch;
+            return spots.filter(s => {
+                const mt = currentFilter === 'all' || s.type === currentFilter;
+                const mc = currentCountry === 'all' || s.country === currentCountry;
+                const mci = currentCity === 'all' || s.city === currentCity;
+                const mtag = currentTag === 'all' || (s.tags && s.tags.includes(currentTag));
+                const ts = (s.tags || []).join(' ').toLowerCase();
+                const ms = s.name.toLowerCase().includes(searchQuery) || (s.note && s.note.toLowerCase().includes(searchQuery)) || (s.country && s.country.toLowerCase().includes(searchQuery)) || (s.city && s.city.toLowerCase().includes(searchQuery)) || ts.includes(searchQuery);
+                return mt && mc && mci && mtag && ms;
             });
         }
 
         function renderSpots() {
-            const filteredSpots = getFilteredSpots();
-
-            if (filteredSpots.length === 0) {
-                spotList.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">🌱</div>
-                        <div class="empty-state-text">
-                            ${spots.length === 0 ? '還沒有純點呢！<br>點擊 + 開始收藏吧' : '找不到符合的純點 🔍'}
-                        </div>
-                    </div>
-                `;
+            const fs = getFilteredSpots();
+            if (!fs.length) {
+                spotList.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🌱</div><div class="empty-state-text">${spots.length === 0 ? '還沒有純點呢！<br>點擊 + 開始收藏吧' : '找不到符合的純點 🔍'}</div></div>`;
                 return;
             }
-
-            spotList.innerHTML = filteredSpots.map(spot => `
-                <div class="spot-card ${spot.type}-card ${selectMode ? 'select-mode' : ''}" data-id="${spot.id}">
-                    ${selectMode ? `<input type="checkbox" class="spot-checkbox" ${selectedSpots.has(spot.id) ? 'checked' : ''}>` : ''}
+            spotList.innerHTML = fs.map(s => `
+                <div class="spot-card ${s.type}-card ${selectMode ? 'select-mode' : ''}" data-id="${s.id}">
+                    ${selectMode ? `<input type="checkbox" class="spot-checkbox" ${selectedSpots.has(s.id) ? 'checked' : ''}>` : ''}
                     <div class="spot-content">
+                        ${s.image_url ? `<div class="spot-image-container"><img src="${escapeHtml(s.image_url)}" alt="${escapeHtml(s.name)}" onclick="openLightbox(this.src)" loading="lazy"></div>` : ''}
                         <div class="spot-header">
-                            <div class="spot-name">${escapeHtml(spot.name)}</div>
+                            <div class="spot-name">${escapeHtml(s.name)}</div>
                             <div class="spot-badges">
-                                ${spot.country ? `<span class="spot-region">🌍 ${escapeHtml(spot.country)}</span>` : ''}
-                                ${spot.city ? `<span class="spot-city">🏙️ ${escapeHtml(spot.city)}</span>` : ''}
-                                <span class="spot-type-badge ${spot.type}">${getTypeLabel(spot.type)}</span>
+                                ${s.country ? `<span class="spot-region">🌍 ${escapeHtml(s.country)}</span>` : ''}
+                                ${s.city ? `<span class="spot-city">🏙️ ${escapeHtml(s.city)}</span>` : ''}
+                                <span class="spot-type-badge ${s.type}">${getTypeLabel(s.type)}</span>
                             </div>
                         </div>
-                        <div class="spot-coords">${spot.lat}, ${spot.lng}</div>
-                        ${spot.note ? `<div class="spot-note">${escapeHtml(spot.note)}</div>` : ''}
-                        ${!selectMode ? `
-                        <div class="spot-actions">
-                            <button class="btn btn-copy" onclick="copyCoords('${spot.lat}, ${spot.lng}')">📋 複製座標</button>
-                            <button class="btn btn-edit" onclick="editSpot('${spot.id}')">✏️ 編輯</button>
-                            ${isAdmin ? `<button class="btn btn-delete" onclick="deleteSpot('${spot.id}')">🗑️ 刪除</button>` : ''}
-                        </div>
-                        ` : ''}
+                        <div class="spot-coords">${s.lat}, ${s.lng}</div>
+                        ${s.tags && s.tags.length ? `<div class="spot-tags">${s.tags.map(t => `<span class="spot-tag">#${escapeHtml(t)}</span>`).join('')}</div>` : ''}
+                        ${s.note ? `<div class="spot-note">${escapeHtml(s.note)}</div>` : ''}
+                        ${!selectMode ? `<div class="spot-actions">
+                            <button class="btn btn-copy" onclick="copyCoords('${s.lat}, ${s.lng}')">📋 複製座標</button>
+                            <button class="btn btn-edit" onclick="editSpot('${s.id}')">✏️ 編輯</button>
+                            ${isAdmin ? `<button class="btn btn-delete" onclick="deleteSpot('${s.id}')">🗑️ 刪除</button>` : ''}
+                        </div>` : ''}
                     </div>
-                </div>
-            `).join('');
+                </div>`).join('');
 
             if (selectMode) {
-                document.querySelectorAll('.spot-checkbox').forEach(checkbox => {
-                    checkbox.addEventListener('change', (e) => {
-                        const spotId = e.target.closest('.spot-card').dataset.id;
-                        if (e.target.checked) {
-                            selectedSpots.add(spotId);
-                        } else {
-                            selectedSpots.delete(spotId);
-                        }
-                        updateSelectBar();
-                    });
+                document.querySelectorAll('.spot-checkbox').forEach(cb => {
+                    cb.addEventListener('change', (e) => { const id = e.target.closest('.spot-card').dataset.id; e.target.checked ? selectedSpots.add(id) : selectedSpots.delete(id); updateSelectBar(); });
                 });
-
                 document.querySelectorAll('.spot-card').forEach(card => {
-                    card.addEventListener('click', (e) => {
-                        if (e.target.classList.contains('spot-checkbox')) return;
-                        const checkbox = card.querySelector('.spot-checkbox');
-                        checkbox.checked = !checkbox.checked;
-                        checkbox.dispatchEvent(new Event('change'));
-                    });
+                    card.addEventListener('click', (e) => { if (e.target.classList.contains('spot-checkbox')) return; const cb = card.querySelector('.spot-checkbox'); cb.checked = !cb.checked; cb.dispatchEvent(new Event('change')); });
                 });
             }
         }
 
-        function getTypeLabel(type) {
-            const labels = {
-                flower: '🌸 大花',
-                pikmin: '🌱 皮克敏',
-                mushroom: '🍄 蘑菇',
-                postcard: '🏠 明信片'
-            };
-            return labels[type] || type;
-        }
-
-        function escapeHtml(str) {
-            if (!str) return '';
-            const div = document.createElement('div');
-            div.textContent = str;
-            return div.innerHTML;
-        }
-
+        function openLightbox(src) { document.getElementById('lightboxImage').src = src; document.getElementById('lightboxOverlay').classList.add('active'); }
+        function closeLightbox() { document.getElementById('lightboxOverlay').classList.remove('active'); }
+        function getTypeLabel(t) { return { flower: '🌸 大花', pikmin: '🌱 皮克敏', mushroom: '🍄 蘑菇', postcard: '🏠 明信片' }[t] || t; }
+        function escapeHtml(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
         function updateStats() {
             document.getElementById('stat-flower').textContent = spots.filter(s => s.type === 'flower').length;
             document.getElementById('stat-pikmin').textContent = spots.filter(s => s.type === 'pikmin').length;
@@ -1857,374 +754,155 @@
             document.getElementById('stat-postcard').textContent = spots.filter(s => s.type === 'postcard').length;
         }
 
-        // ==================== Modal 控制 ====================
+        // ==================== Modal ====================
         function openAddModal() {
             editingId = null;
             document.getElementById('modalTitle').textContent = '🌱 新增純點';
             document.getElementById('btnSubmit').textContent = '✨ 新增純點';
             document.getElementById('spotForm').reset();
+            document.getElementById('inputCoords').value = '';
             selectType('pikmin');
+            currentImageBase64 = null;
+            document.getElementById('imageFileInput').value = '';
+            document.getElementById('imageUploadPlaceholder').style.display = 'block';
+            document.getElementById('imagePreviewContainer').style.display = 'none';
+            document.getElementById('imageUploadArea').classList.remove('has-image');
+            currentTags = []; renderFormTags();
             modalOverlay.classList.add('active');
         }
-
-        function closeModal() {
-            modalOverlay.classList.remove('active');
-        }
-
-        function selectType(type) {
-            selectedType = type;
-            document.querySelectorAll('.type-option').forEach(opt => {
-                opt.classList.toggle('selected', opt.dataset.type === type);
-            });
-        }
+        function closeModal() { modalOverlay.classList.remove('active'); }
+        function selectType(t) { selectedType = t; document.querySelectorAll('.type-option').forEach(o => o.classList.toggle('selected', o.dataset.type === t)); }
 
         // ==================== 表單提交 ====================
         document.getElementById('spotForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+            const lat = document.getElementById('inputLat').value, lng = document.getElementById('inputLng').value;
+            if (!lat || !lng) { showToast('⚠️ 請輸入座標'); return; }
+            const btn = document.getElementById('btnSubmit'); btn.disabled = true;
             const spotData = {
                 name: document.getElementById('inputName').value.trim(),
                 country: document.getElementById('inputCountry').value.trim(),
                 city: document.getElementById('inputCity').value.trim() || null,
-                lat: parseFloat(document.getElementById('inputLat').value),
-                lng: parseFloat(document.getElementById('inputLng').value),
+                lat: parseFloat(lat), lng: parseFloat(lng),
                 type: selectedType,
-                note: document.getElementById('inputNote').value.trim() || null
+                note: document.getElementById('inputNote').value.trim() || null,
+                tags: currentTags.length > 0 ? currentTags : null,
+                image_url: currentImageBase64 || null
             };
-
             try {
                 setSyncStatus('syncing');
-
+                await supabaseClient.auth.getSession(); // refresh before save
                 if (editingId) {
-                    const { error } = await supabaseClient
-                        .from('spots')
-                        .update(spotData)
-                        .eq('id', editingId);
-                    
+                    const { error } = await supabaseClient.from('spots').update(spotData).eq('id', editingId);
                     if (error) throw error;
                     showToast('✏️ 純點已更新！');
                 } else {
-                    const { error } = await supabaseClient
-                        .from('spots')
-                        .insert([spotData]);
-                    
+                    const { error } = await supabaseClient.from('spots').insert([spotData]);
                     if (error) throw error;
                     showToast('🌱 新純點已加入！');
                 }
-
-                closeModal();
-                await loadSpots();
+                closeModal(); await loadSpots();
             } catch (error) {
                 console.error('Save error:', error);
-                setSyncStatus('error');
-                showToast('❌ 儲存失敗：' + error.message);
-            }
+                // retry with token refresh
+                if (error.message && (error.message.includes('JWT') || error.message.includes('token') || error.code === 'PGRST301')) {
+                    try {
+                        await supabaseClient.auth.refreshSession();
+                        const op = editingId ? supabaseClient.from('spots').update(spotData).eq('id', editingId) : supabaseClient.from('spots').insert([spotData]);
+                        const { error: re } = await op;
+                        if (re) throw re;
+                        showToast('🌱 儲存成功（已自動重新連線）'); closeModal(); await loadSpots(); return;
+                    } catch (re) { console.error('Retry failed:', re); }
+                }
+                setSyncStatus('error'); showToast('❌ 儲存失敗：' + error.message);
+            } finally { btn.disabled = false; }
         });
 
-        // ==================== 操作功能 ====================
+        // ==================== 操作 ====================
         window.copyCoords = function(coords) {
-            navigator.clipboard.writeText(coords).then(() => {
-                showToast('📋 座標已複製！');
-            }).catch(() => {
-                const textarea = document.createElement('textarea');
-                textarea.value = coords;
-                document.body.appendChild(textarea);
-                textarea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textarea);
-                showToast('📋 座標已複製！');
+            navigator.clipboard.writeText(coords).then(() => showToast('📋 座標已複製！')).catch(() => {
+                const ta = document.createElement('textarea'); ta.value = coords; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); showToast('📋 座標已複製！');
             });
         };
-
         window.editSpot = function(id) {
-            const spot = spots.find(s => s.id === id);
-            if (!spot) return;
-
+            const s = spots.find(x => x.id === id); if (!s) return;
             editingId = id;
             document.getElementById('modalTitle').textContent = '✏️ 編輯純點';
             document.getElementById('btnSubmit').textContent = '✨ 更新純點';
-            document.getElementById('inputName').value = spot.name;
-            document.getElementById('inputCountry').value = spot.country || '';
-            document.getElementById('inputCity').value = spot.city || '';
-            document.getElementById('inputLat').value = spot.lat;
-            document.getElementById('inputLng').value = spot.lng;
-            document.getElementById('inputNote').value = spot.note || '';
-
-            selectType(spot.type);
-            modalOverlay.classList.add('active');
+            document.getElementById('inputName').value = s.name;
+            document.getElementById('inputCountry').value = s.country || '';
+            document.getElementById('inputCity').value = s.city || '';
+            document.getElementById('inputLat').value = s.lat;
+            document.getElementById('inputLng').value = s.lng;
+            document.getElementById('inputCoords').value = `${s.lat}, ${s.lng}`;
+            document.getElementById('inputNote').value = s.note || '';
+            if (s.image_url) { currentImageBase64 = s.image_url; showImagePreview(s.image_url); }
+            else { currentImageBase64 = null; document.getElementById('imageUploadPlaceholder').style.display = 'block'; document.getElementById('imagePreviewContainer').style.display = 'none'; document.getElementById('imageUploadArea').classList.remove('has-image'); }
+            currentTags = s.tags ? [...s.tags] : []; renderFormTags();
+            selectType(s.type); modalOverlay.classList.add('active');
         };
-
         window.deleteSpot = async function(id) {
-            if (!isAdmin) {
-                showToast('❌ 只有管理員能刪除');
-                return;
-            }
-
-            if (confirm('確定要刪除這個純點嗎？')) {
-                try {
-                    setSyncStatus('syncing');
-                    const { error } = await supabaseClient
-                        .from('spots')
-                        .delete()
-                        .eq('id', id);
-
-                    if (error) throw error;
-
-                    await loadSpots();
-                    showToast('🗑️ 純點已刪除');
-                } catch (error) {
-                    console.error('Delete error:', error);
-                    setSyncStatus('error');
-                    showToast('❌ 刪除失敗：' + error.message);
-                }
-            }
+            if (!isAdmin) { showToast('❌ 只有管理員能刪除'); return; }
+            if (!confirm('確定要刪除這個純點嗎？')) return;
+            try {
+                setSyncStatus('syncing'); await supabaseClient.auth.getSession();
+                const { error } = await supabaseClient.from('spots').delete().eq('id', id);
+                if (error) throw error;
+                await loadSpots(); showToast('🗑️ 純點已刪除');
+            } catch (e) { console.error(e); setSyncStatus('error'); showToast('❌ 刪除失敗：' + e.message); }
         };
 
         // ==================== 選擇模式 ====================
-        function enterSelectMode() {
-            selectMode = true;
-            selectedSpots.clear();
-            selectBar.classList.add('active');
-            renderSpots();
-            updateSelectBar();
-        }
-
-        function exitSelectMode() {
-            selectMode = false;
-            selectedSpots.clear();
-            selectBar.classList.remove('active');
-            renderSpots();
-        }
-
-        function updateSelectBar() {
-            document.getElementById('selectedCount').textContent = selectedSpots.size;
-        }
-
+        function enterSelectMode() { selectMode = true; selectedSpots.clear(); selectBar.classList.add('active'); renderSpots(); updateSelectBar(); }
+        function exitSelectMode() { selectMode = false; selectedSpots.clear(); selectBar.classList.remove('active'); renderSpots(); }
+        function updateSelectBar() { document.getElementById('selectedCount').textContent = selectedSpots.size; }
         document.getElementById('btnCancelSelect').addEventListener('click', exitSelectMode);
-
         document.getElementById('btnConfirmExport').addEventListener('click', () => {
-            if (selectedSpots.size === 0) {
-                showToast('⚠️ 請先選擇要匯出的純點');
-                return;
-            }
-            const selectedData = spots.filter(s => selectedSpots.has(s.id));
-            exportGpx(selectedData);
-            exitSelectMode();
+            if (!selectedSpots.size) { showToast('⚠️ 請先選擇要匯出的純點'); return; }
+            exportGpx(spots.filter(s => selectedSpots.has(s.id))); exitSelectMode();
         });
 
-        // ==================== GPX 匯出 ====================
+        // ==================== GPX/JSON ====================
         function exportGpx(data) {
-            const gpxContent = `<?xml version="1.0" encoding="UTF-8"?>
-<gpx version="1.1" creator="Pikmin Spot Manager">
-  <metadata>
-    <name>Pikmin Spots</name>
-    <time>${new Date().toISOString()}</time>
-  </metadata>
-${data.map(spot => `  <wpt lat="${spot.lat}" lon="${spot.lng}">
-    <name>${escapeXml(spot.name)}</name>
-    <desc>${escapeXml((spot.country || '') + (spot.city ? ' ' + spot.city : '') + (spot.note ? ' - ' + spot.note : ''))}</desc>
-    <type>${spot.type}</type>
-  </wpt>`).join('\n')}
-</gpx>`;
-
-            downloadFile(gpxContent, `pikmin_spots_${formatDate()}.gpx`, 'application/gpx+xml');
-            showToast(`📤 已匯出 ${data.length} 個純點`);
+            const gpx = `<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="Pikmin Spot Manager">\n  <metadata><n>Pikmin Spots</n><time>${new Date().toISOString()}</time></metadata>\n${data.map(s => `  <wpt lat="${s.lat}" lon="${s.lng}"><n>${escapeXml(s.name)}</n><desc>${escapeXml((s.country||'')+(s.city?' '+s.city:'')+(s.note?' - '+s.note:''))}</desc><type>${s.type}</type></wpt>`).join('\n')}\n</gpx>`;
+            downloadFile(gpx, `pikmin_spots_${formatDate()}.gpx`, 'application/gpx+xml'); showToast(`📤 已匯出 ${data.length} 個純點`);
         }
-
-        function exportAllGpx() {
-            if (spots.length === 0) {
-                showToast('⚠️ 沒有資料可匯出');
-                return;
-            }
-            exportGpx(spots);
-        }
-
-        // ==================== GPX 匯入 ====================
+        function exportAllGpx() { if (!spots.length) { showToast('⚠️ 沒有資料可匯出'); return; } exportGpx(spots); }
         function importGpx() {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = '.gpx';
-            input.onchange = async (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-
+            const inp = document.createElement('input'); inp.type = 'file'; inp.accept = '.gpx';
+            inp.onchange = async (e) => {
+                const file = e.target.files[0]; if (!file) return;
                 try {
-                    const text = await file.text();
-                    const parser = new DOMParser();
-                    const xml = parser.parseFromString(text, 'text/xml');
-                    const waypoints = xml.querySelectorAll('wpt');
-
-                    if (waypoints.length === 0) {
-                        showToast('⚠️ GPX 檔案中沒有找到航點');
-                        return;
-                    }
-
-                    setSyncStatus('syncing');
-                    let successCount = 0;
-                    let errorCount = 0;
-
-                    for (const wpt of waypoints) {
-                        try {
-                            const lat = parseFloat(wpt.getAttribute('lat'));
-                            const lng = parseFloat(wpt.getAttribute('lon'));
-                            const name = wpt.querySelector('name')?.textContent || '未命名';
-                            const desc = wpt.querySelector('desc')?.textContent || '';
-                            const type = wpt.querySelector('type')?.textContent || 'pikmin';
-
-                            const validType = ['flower', 'pikmin', 'mushroom', 'postcard'].includes(type) ? type : 'pikmin';
-
-                            const { error } = await supabaseClient
-                                .from('spots')
-                                .insert([{
-                                    name,
-                                    lat,
-                                    lng,
-                                    type: validType,
-                                    note: desc,
-                                    country: '未分類'
-                                }]);
-
-                            if (error) {
-                                errorCount++;
-                            } else {
-                                successCount++;
-                            }
-                        } catch (err) {
-                            errorCount++;
-                        }
-                    }
-
-                    await loadSpots();
-                    setSyncStatus('synced');
-
-                    if (errorCount === 0) {
-                        showToast(`🎉 成功匯入 ${successCount} 個純點！`);
-                    } else {
-                        showToast(`⚠️ 匯入完成：成功 ${successCount} 個，失敗 ${errorCount} 個`);
-                    }
-                } catch (error) {
-                    console.error('GPX 匯入錯誤:', error);
-                    setSyncStatus('error');
-                    showToast('❌ 匯入失敗，請檢查檔案格式');
-                }
-            };
-            input.click();
+                    const xml = new DOMParser().parseFromString(await file.text(), 'text/xml');
+                    const wpts = xml.querySelectorAll('wpt');
+                    if (!wpts.length) { showToast('⚠️ GPX 中沒有航點'); return; }
+                    setSyncStatus('syncing'); let ok = 0, fail = 0;
+                    for (const w of wpts) { try { const { error } = await supabaseClient.from('spots').insert([{ name: w.querySelector('name')?.textContent||'未命名', lat: parseFloat(w.getAttribute('lat')), lng: parseFloat(w.getAttribute('lon')), type: ['flower','pikmin','mushroom','postcard'].includes(w.querySelector('type')?.textContent) ? w.querySelector('type').textContent : 'pikmin', note: w.querySelector('desc')?.textContent||'', country: '未分類' }]); error ? fail++ : ok++; } catch { fail++; } }
+                    await loadSpots(); setSyncStatus('synced'); showToast(fail ? `⚠️ 成功 ${ok}，失敗 ${fail}` : `🎉 成功匯入 ${ok} 個純點！`);
+                } catch { setSyncStatus('error'); showToast('❌ 匯入失敗'); }
+            }; inp.click();
         }
-
-        // ==================== JSON 備份/匯入 ====================
-        function exportJson() {
-            if (spots.length === 0) {
-                showToast('⚠️ 沒有資料可備份');
-                return;
-            }
-
-            const jsonContent = JSON.stringify(spots, null, 2);
-            downloadFile(jsonContent, `pikmin_backup_${formatDate()}.json`, 'application/json');
-            showToast(`💾 已備份 ${spots.length} 筆資料`);
-        }
-
+        function exportJson() { if (!spots.length) { showToast('⚠️ 沒有資料'); return; } downloadFile(JSON.stringify(spots, null, 2), `pikmin_backup_${formatDate()}.json`, 'application/json'); showToast(`💾 已備份 ${spots.length} 筆`); }
         function importJson() {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = '.json';
-            input.onchange = async (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-
+            const inp = document.createElement('input'); inp.type = 'file'; inp.accept = '.json';
+            inp.onchange = async (e) => {
+                const file = e.target.files[0]; if (!file) return;
                 try {
-                    const text = await file.text();
-                    const data = JSON.parse(text);
-
-                    if (!Array.isArray(data)) {
-                        showToast('❌ JSON 格式錯誤');
-                        return;
-                    }
-
-                    const confirm = window.confirm(`即將匯入 ${data.length} 筆資料，是否繼續？`);
-                    if (!confirm) return;
-
-                    setSyncStatus('syncing');
-                    let successCount = 0;
-                    let errorCount = 0;
-
-                    for (const spot of data) {
-                        try {
-                            const spotData = {
-                                name: spot.name,
-                                country: spot.country || null,
-                                city: spot.city || null,
-                                lat: parseFloat(spot.lat),
-                                lng: parseFloat(spot.lng),
-                                type: spot.type,
-                                note: spot.note || null
-                            };
-
-                            const { error } = await supabaseClient
-                                .from('spots')
-                                .insert([spotData]);
-
-                            if (error) {
-                                errorCount++;
-                            } else {
-                                successCount++;
-                            }
-                        } catch (err) {
-                            errorCount++;
-                        }
-                    }
-
-                    await loadSpots();
-                    setSyncStatus('synced');
-
-                    if (errorCount === 0) {
-                        showToast(`🎉 成功匯入 ${successCount} 筆資料！`);
-                    } else {
-                        showToast(`⚠️ 匯入完成：成功 ${successCount} 筆，失敗 ${errorCount} 筆`);
-                    }
-                } catch (error) {
-                    console.error('JSON 匯入錯誤:', error);
-                    setSyncStatus('error');
-                    showToast('❌ 匯入失敗，請檢查檔案格式');
-                }
-            };
-            input.click();
+                    const data = JSON.parse(await file.text());
+                    if (!Array.isArray(data)) { showToast('❌ JSON 格式錯誤'); return; }
+                    if (!window.confirm(`即將匯入 ${data.length} 筆，繼續？`)) return;
+                    setSyncStatus('syncing'); let ok = 0, fail = 0;
+                    for (const s of data) { try { const { error } = await supabaseClient.from('spots').insert([{ name: s.name, country: s.country||null, city: s.city||null, lat: parseFloat(s.lat), lng: parseFloat(s.lng), type: s.type, note: s.note||null, tags: s.tags||null, image_url: s.image_url||null }]); error ? fail++ : ok++; } catch { fail++; } }
+                    await loadSpots(); setSyncStatus('synced'); showToast(fail ? `⚠️ 成功 ${ok}，失敗 ${fail}` : `🎉 成功匯入 ${ok} 筆！`);
+                } catch { setSyncStatus('error'); showToast('❌ 匯入失敗'); }
+            }; inp.click();
         }
 
-        // ==================== 工具函數 ====================
-        function downloadFile(content, filename, type) {
-            const blob = new Blob([content], { type });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            a.click();
-            URL.revokeObjectURL(url);
-        }
+        function downloadFile(c, f, t) { const u = URL.createObjectURL(new Blob([c], { type: t })); const a = document.createElement('a'); a.href = u; a.download = f; a.click(); URL.revokeObjectURL(u); }
+        function formatDate() { return new Date().toISOString().slice(0,10).replace(/-/g,''); }
+        function escapeXml(s) { return s ? s.replace(/[<>&'"]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;',"'":'&apos;','"':'&quot;'}[c])) : ''; }
+        function showToast(msg) { toast.textContent = msg; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
 
-        function formatDate() {
-            return new Date().toISOString().slice(0, 10).replace(/-/g, '');
-        }
-
-        function escapeXml(str) {
-            if (!str) return '';
-            return str.replace(/[<>&'"]/g, c => ({
-                '<': '&lt;',
-                '>': '&gt;',
-                '&': '&amp;',
-                "'": '&apos;',
-                '"': '&quot;'
-            }[c]));
-        }
-
-        function showToast(message) {
-            toast.textContent = message;
-            toast.classList.add('show');
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 2500);
-        }
-
-        // ==================== 啟動應用 ====================
         init();
     </script>
 </body>
