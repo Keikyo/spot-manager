@@ -145,26 +145,45 @@
         .view-mode-btn { padding: 6px 14px; border: 2px solid #E0E0E0; border-radius: 10px; font-size: 0.78rem; font-weight: 600; cursor: pointer; background: white; color: #666; transition: all 0.2s; font-family: inherit; }
         .view-mode-btn.active { background: var(--light-green); color: white; border-color: var(--light-green); }
         .view-mode-info { font-size: 0.75rem; color: #888; font-weight: 600; }
-        /* Grid mode for small thumbnails */
+
+        /* ===== GRID (小縮圖) ===== */
         .spot-list.grid-view { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
         .spot-list.grid-view .spot-card { padding: 10px; border-left-width: 3px; }
-        .spot-list.grid-view .spot-image-container img { max-height: 100px; }
+        .spot-list.grid-view .spot-image-container img { max-height: 110px; }
         .spot-list.grid-view .spot-header { flex-direction: column; gap: 4px; }
-        .spot-list.grid-view .spot-name { font-size: 0.85rem; }
+        .spot-list.grid-view .spot-name { font-size: 0.88rem; }
         .spot-list.grid-view .spot-badges { display: none; }
         .spot-list.grid-view .spot-coords { font-size: 0.68rem; }
         .spot-list.grid-view .spot-note { display: none; }
         .spot-list.grid-view .spot-tags { display: none; }
-        .spot-list.grid-view .spot-actions { flex-direction: column; gap: 4px; }
-        .spot-list.grid-view .spot-actions .btn { font-size: 0.72rem; padding: 6px 8px; }
+        .spot-list.grid-view .spot-actions { gap: 4px; }
+        .spot-list.grid-view .spot-actions .btn { font-size: 0.72rem; padding: 6px 8px; flex: 1; text-align: center; }
         .spot-list.grid-view .spot-actions .btn-copy { display: none; }
-        .spot-list.grid-view .btn-quick-upload { font-size: 0.72rem; padding: 6px 8px; }
-        /* List mode (no images) */
+
+        /* ===== LIST (清單) ===== */
+        .spot-list.list-view .spot-card { padding: 10px 14px; border-left-width: 3px; }
         .spot-list.list-view .spot-image-container { display: none; }
-        .spot-list.list-view .spot-card { padding: 12px 14px; }
         .spot-list.list-view .spot-note { display: none; }
+        .spot-list.list-view .spot-content { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
+        .spot-list.list-view .spot-header { flex: 1; min-width: 0; margin-bottom: 0; }
+        .spot-list.list-view .spot-name { font-size: 0.92rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .spot-list.list-view .spot-badges { flex-shrink: 0; }
+        .spot-list.list-view .spot-coords { font-size: 0.72rem; margin-bottom: 0; }
+        .spot-list.list-view .spot-tags { margin: 0; }
+        .spot-list.list-view .spot-tags .spot-tag { font-size: 0.68rem; padding: 2px 8px; }
+        .spot-list.list-view .spot-actions { width: 100%; margin-top: 6px; }
+        .spot-list.list-view .spot-actions .btn { padding: 6px 12px; font-size: 0.78rem; }
+
+        /* ===== LARGE (大圖) ===== */
+        .spot-list.large-view .spot-card { padding: 14px; }
+        .spot-list.large-view .spot-image-container { margin: 0 0 10px 0; }
+        .spot-list.large-view .spot-image-container img { max-height: 220px; }
+        .spot-list.large-view .spot-actions { margin-top: 8px; }
+        .spot-list.large-view .spot-actions .btn { flex: unset; }
+        .spot-list.large-view .spot-actions .btn-copy { flex: 1; }
+
         /* Quick upload button */
-        .btn-quick-upload { background: linear-gradient(135deg, #F3E5F5, #E1BEE7); color: #7B1FA2; padding: 9px 14px; border: none; border-radius: 10px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+        .btn-quick-upload { background: linear-gradient(135deg, #F3E5F5, #E1BEE7); color: #7B1FA2; }
         .btn-quick-upload:hover { background: linear-gradient(135deg, #E1BEE7, #CE93D8); transform: translateY(-2px); }
         .btn-quick-upload.uploading { opacity: 0.6; pointer-events: none; }
         /* Pagination loader */
@@ -407,7 +426,8 @@
             <button class="btn-utility" onclick="openBatchUpload()" style="display:inline-flex;align-items:center;gap:6px;background:#F3E5F5;border-color:#CE93D8;color:#7B1FA2;">📷 批次上傳圖片</button>
         </div>
         <div class="spot-list" id="spotList"></div>
-        <!-- Pagination sentinel -->
+        <!-- Pagination -->
+        <div id="paginationSentinel" style="height:1px;"></div>
         <div id="paginationLoader" class="pagination-loader" style="display:none;"><div class="loader-spinner"></div></div>
         <div id="paginationEnd" class="pagination-end" style="display:none;">🌱 已顯示全部</div>
     </div>
@@ -1046,7 +1066,7 @@
 
         // Will observe after init
         function initPagination() {
-            const sentinel = document.getElementById('paginationLoader');
+            const sentinel = document.getElementById('paginationSentinel');
             if (sentinel) paginationObserver.observe(sentinel);
         }
 
@@ -1056,10 +1076,10 @@
         function setViewMode(mode) {
             currentViewMode = mode;
             document.querySelectorAll('.view-mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
-            spotList.classList.remove('grid-view', 'list-view');
+            spotList.classList.remove('grid-view', 'list-view', 'large-view');
             if (mode === 'grid') spotList.classList.add('grid-view');
             else if (mode === 'list') spotList.classList.add('list-view');
-            // Re-render to update card content
+            else spotList.classList.add('large-view');
             renderSpots(true);
         }
 
@@ -1081,30 +1101,37 @@
 
         function renderSpotCard(s) {
             const isGrid = currentViewMode === 'grid';
-            return `
-                <div class="spot-card ${s.type}-card ${selectMode ? 'select-mode' : ''}" data-id="${s.id}">
-                    ${selectMode ? `<input type="checkbox" class="spot-checkbox" ${selectedSpots.has(s.id) ? 'checked' : ''}>` : ''}
-                    <div class="spot-content">
-                        ${s.image_url ? `<div class="spot-image-container"><img src="${escapeHtml(s.image_url)}" alt="${escapeHtml(s.name)}" onclick="openLightbox(this.src)" loading="lazy"></div>` : ''}
-                        <div class="spot-header">
-                            <div class="spot-name">${escapeHtml(s.name)}</div>
-                            <div class="spot-badges">
-                                ${s.country ? `<span class="spot-region">🌍 ${escapeHtml(s.country)}</span>` : ''}
-                                ${s.city ? `<span class="spot-city">🏙️ ${escapeHtml(s.city)}</span>` : ''}
-                                <span class="spot-type-badge ${s.type}">${getTypeLabel(s.type)}</span>
-                            </div>
-                        </div>
-                        <div class="spot-coords">${s.lat}, ${s.lng}</div>
-                        ${s.tags && s.tags.length ? `<div class="spot-tags">${s.tags.map(t => `<span class="spot-tag">#${escapeHtml(t)}</span>`).join('')}</div>` : ''}
-                        ${s.note ? `<div class="spot-note">${escapeHtml(s.note)}</div>` : ''}
-                        ${!selectMode ? `<div class="spot-actions">
-                            <button class="btn btn-copy" onclick="copyCoords('${s.lat}, ${s.lng}')">📋 複製座標</button>
-                            ${!s.image_url ? `<button class="btn btn-quick-upload" onclick="quickUpload('${s.id}')">📷${isGrid ? '' : ' 上傳圖片'}</button>` : ''}
-                            <button class="btn btn-edit" onclick="editSpot('${s.id}')">✏️${isGrid ? '' : ' 編輯'}</button>
-                            ${isAdmin ? `<button class="btn btn-delete" onclick="deleteSpot('${s.id}')">🗑️${isGrid ? '' : ' 刪除'}</button>` : ''}
-                        </div>` : ''}
+            const isList = currentViewMode === 'list';
+            const short = isGrid || isList;
+            const tagsHtml = s.tags && s.tags.length ? `<div class="spot-tags">${s.tags.map(t => `<span class="spot-tag">#${escapeHtml(t)}</span>`).join('')}</div>` : '';
+            const badgesHtml = `<div class="spot-badges">
+                ${s.country ? `<span class="spot-region">🌍 ${escapeHtml(s.country)}</span>` : ''}
+                ${s.city ? `<span class="spot-city">🏙️ ${escapeHtml(s.city)}</span>` : ''}
+                <span class="spot-type-badge ${s.type}">${getTypeLabel(s.type)}</span>
+            </div>`;
+            const imgHtml = s.image_url ? `<div class="spot-image-container"><img src="${escapeHtml(s.image_url)}" alt="${escapeHtml(s.name)}" onclick="openLightbox(this.src)" loading="lazy"></div>` : '';
+            const quickUploadHtml = !s.image_url && !selectMode ? `<button class="btn btn-quick-upload" onclick="quickUpload('${s.id}')">📷${short ? '' : ' 上傳圖片'}</button>` : '';
+            const actionsHtml = !selectMode ? `<div class="spot-actions">
+                <button class="btn btn-copy" onclick="copyCoords('${s.lat}, ${s.lng}')">📋${short ? '' : ' 複製座標'}</button>
+                ${quickUploadHtml}
+                <button class="btn btn-edit" onclick="editSpot('${s.id}')">✏️${short ? '' : ' 編輯'}</button>
+                ${isAdmin ? `<button class="btn btn-delete" onclick="deleteSpot('${s.id}')">🗑️${short ? '' : ' 刪除'}</button>` : ''}
+            </div>` : '';
+
+            return `<div class="spot-card ${s.type}-card ${selectMode ? 'select-mode' : ''}" data-id="${s.id}">
+                ${selectMode ? `<input type="checkbox" class="spot-checkbox" ${selectedSpots.has(s.id) ? 'checked' : ''}>` : ''}
+                <div class="spot-content">
+                    ${imgHtml}
+                    <div class="spot-header">
+                        <div class="spot-name">${escapeHtml(s.name)}</div>
+                        ${badgesHtml}
                     </div>
-                </div>`;
+                    <div class="spot-coords">${s.lat}, ${s.lng}</div>
+                    ${tagsHtml}
+                    ${!isList && s.note ? `<div class="spot-note">${escapeHtml(s.note)}</div>` : ''}
+                    ${actionsHtml}
+                </div>
+            </div>`;
         }
 
         function renderSpots(reset = true) {
@@ -1121,9 +1148,10 @@
             }
 
             // Apply view mode class
-            spotList.classList.remove('grid-view', 'list-view');
+            spotList.classList.remove('grid-view', 'list-view', 'large-view');
             if (currentViewMode === 'grid') spotList.classList.add('grid-view');
             else if (currentViewMode === 'list') spotList.classList.add('list-view');
+            else spotList.classList.add('large-view');
 
             if (reset) {
                 spotList.innerHTML = fs.map(s => renderSpotCard(s)).join('');
@@ -1222,23 +1250,75 @@
         function renderBatchList() {
             const spotsWithoutImage = (allSpotsMeta.length ? allSpotsMeta : spots).filter(s => !s.image_url);
             const list = document.getElementById('batchList');
-            list.innerHTML = batchItems.map((item, i) => `
-                <div class="batch-item">
+            list.innerHTML = batchItems.map((item, i) => {
+                const selectedSpot = spotsWithoutImage.find(s => s.id === item.spotId);
+                return `
+                <div class="batch-item" data-batch-idx="${i}">
                     <img src="${item.base64}">
                     <div class="batch-item-info">
                         <div style="font-size:0.75rem;color:#888;margin-bottom:4px;">${escapeHtml(item.file.name)}</div>
-                        <select onchange="batchItems[${i}].spotId=this.value">
-                            <option value="">-- 選擇要配對的純點 --</option>
-                            ${spotsWithoutImage.map(s => `<option value="${s.id}" ${item.spotId === s.id ? 'selected' : ''}>${escapeHtml(s.name)} (${s.country || ''}${s.city ? ' ' + s.city : ''})</option>`).join('')}
-                        </select>
+                        <div class="batch-search-select" style="position:relative;">
+                            <input type="text" class="batch-search-input" data-idx="${i}"
+                                placeholder="搜尋純點名稱..."
+                                value="${selectedSpot ? escapeHtml(selectedSpot.name) + ' (' + (selectedSpot.country || '') + ')' : ''}"
+                                style="width:100%;padding:8px 10px;border:2px solid #E8E8E8;border-radius:10px;font-size:0.82rem;font-family:inherit;background:white;">
+                            <div class="batch-search-dropdown" data-idx="${i}" style="display:none;position:absolute;top:100%;left:0;right:0;background:white;border:2px solid var(--light-green);border-radius:10px;margin-top:4px;max-height:180px;overflow-y:auto;z-index:50;box-shadow:0 6px 20px rgba(0,0,0,0.12);"></div>
+                        </div>
                     </div>
                     <button class="batch-item-remove" onclick="batchItems.splice(${i},1);renderBatchList();">✕</button>
-                </div>
-            `).join('');
+                </div>`;
+            }).join('');
+
+            // Attach search listeners
+            list.querySelectorAll('.batch-search-input').forEach(input => {
+                const idx = parseInt(input.dataset.idx);
+                const dropdown = list.querySelector(`.batch-search-dropdown[data-idx="${idx}"]`);
+
+                input.addEventListener('focus', () => {
+                    input.select();
+                    showBatchDropdown(idx, input.value, dropdown, spotsWithoutImage);
+                });
+                input.addEventListener('input', () => {
+                    showBatchDropdown(idx, input.value, dropdown, spotsWithoutImage);
+                });
+                input.addEventListener('blur', () => {
+                    setTimeout(() => { dropdown.style.display = 'none'; }, 200);
+                });
+            });
 
             document.getElementById('btnBatchSubmit').style.display = batchItems.length > 0 ? 'block' : 'none';
-            document.getElementById('batchSelectArea').style.display = 'block'; // Always allow adding more
+            document.getElementById('batchSelectArea').style.display = 'block';
         }
+
+        function showBatchDropdown(idx, query, dropdown, spotsData) {
+            const q = query.toLowerCase().trim();
+            const filtered = spotsData.filter(s =>
+                s.name.toLowerCase().includes(q) ||
+                (s.country && s.country.toLowerCase().includes(q)) ||
+                (s.city && s.city.toLowerCase().includes(q))
+            ).slice(0, 20);
+
+            if (!filtered.length) {
+                dropdown.innerHTML = '<div style="padding:10px;color:#999;font-size:0.82rem;">找不到結果</div>';
+            } else {
+                dropdown.innerHTML = filtered.map(s =>
+                    `<div style="padding:8px 12px;cursor:pointer;font-size:0.82rem;transition:background 0.15s;" 
+                        onmousedown="selectBatchSpot(${idx},'${s.id}','${escapeHtml(s.name).replace(/'/g, "\\'")}','${escapeHtml(s.country || '').replace(/'/g, "\\'")}')"
+                        onmouseover="this.style.background='#F0F9F0'" onmouseout="this.style.background='white'">
+                        ${escapeHtml(s.name)} <span style="color:#888;font-size:0.75rem;">(${s.country || ''}${s.city ? ' ' + s.city : ''})</span>
+                    </div>`
+                ).join('');
+            }
+            dropdown.style.display = 'block';
+        }
+
+        window.selectBatchSpot = function(idx, spotId, name, country) {
+            batchItems[idx].spotId = spotId;
+            const input = document.querySelector(`.batch-search-input[data-idx="${idx}"]`);
+            if (input) input.value = `${name} (${country})`;
+            const dropdown = document.querySelector(`.batch-search-dropdown[data-idx="${idx}"]`);
+            if (dropdown) dropdown.style.display = 'none';
+        };
 
         async function submitBatchUpload() {
             const validItems = batchItems.filter(item => item.spotId);
