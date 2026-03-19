@@ -554,35 +554,23 @@
             input.disabled = currentTags.length >= 3;
         }
 
-        // ==================== 座標輸入 (支援 Google Maps URL + 反向地理編碼) ====================
-        let reverseGeoTimer = null; // 防抖用
+        // ==================== 座標輸入 (支援 Google Maps URL + 地理編碼) ====================
+        let geoTimer = null;
 
         function initCoordsInput() {
             const ci = document.getElementById('inputCoords');
             const btn = document.getElementById('btnPasteCoord');
 
-            ci.addEventListener('input', () => parseAndFillCoords(ci.value));
-
+            ci.addEventListener('input', () => handleCoordInput(ci.value));
             ci.addEventListener('paste', (e) => {
                 const pastedText = e.clipboardData && e.clipboardData.getData('text');
-                if (pastedText) {
-                    e.preventDefault();
-                    ci.value = pastedText;
-                    parseAndFillCoords(pastedText);
-                } else {
-                    setTimeout(() => parseAndFillCoords(ci.value), 50);
-                }
+                if (pastedText) { e.preventDefault(); ci.value = pastedText; handleCoordInput(pastedText); }
+                else { setTimeout(() => handleCoordInput(ci.value), 50); }
             });
-
             btn.addEventListener('click', async () => {
-                ci.value = '';
-                ci.focus();
-                try {
-                    const text = await navigator.clipboard.readText();
-                    if (text) { ci.value = text; parseAndFillCoords(text); showToast('📋 已貼上'); return; }
-                } catch {}
-                ci.select();
-                showToast('👆 請在輸入框中長按貼上');
+                ci.value = ''; ci.focus();
+                try { const t = await navigator.clipboard.readText(); if (t) { ci.value = t; handleCoordInput(t); showToast('📋 已貼上'); return; } } catch {}
+                ci.select(); showToast('👆 請在輸入框中長按貼上');
             });
         }
 
@@ -591,89 +579,138 @@
             el.textContent = msg;
             el.style.color = isSuccess ? 'var(--primary-green)' : '#E65100';
             el.style.display = 'block';
-            if (isSuccess) setTimeout(() => { el.style.display = 'none'; }, 4000);
+            if (isSuccess) setTimeout(() => { el.style.display = 'none'; }, 5000);
         }
 
-        function parseAndFillCoords(text) {
+        // 主入口：判斷輸入類型後分流處理
+        function handleCoordInput(text) {
             if (!text) return;
             text = text.trim();
-            let lat = null, lng = null, placeName = null;
-            let m;
+            if (geoTimer) clearTimeout(geoTimer);
 
-            // 解析各種 Google Maps URL 格式
-            if ((m = text.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/))) { lat = parseFloat(m[1]); lng = parseFloat(m[2]); }
-            else if ((m = text.match(/[?&]q=(-?\d+\.?\d*),(-?\d+\.?\d*)/))) { lat = parseFloat(m[1]); lng = parseFloat(m[2]); }
-            else if ((m = text.match(/[?&]ll=(-?\d+\.?\d*),(-?\d+\.?\d*)/))) { lat = parseFloat(m[1]); lng = parseFloat(m[2]); }
-
-            // 嘗試從 URL 取得地點名稱（作為備用）
-            if ((m = text.match(/\/place\/([^/@]+)/))) { placeName = decodeURIComponent(m[1]).replace(/\+/g, ' '); }
-
-            // 直接座標格式
-            if (lat === null) {
-                if ((m = text.match(/^(-?\d+\.?\d*)[,\s]+(-?\d+\.?\d*)$/))) { lat = parseFloat(m[1]); lng = parseFloat(m[2]); }
+            // 1. 嘗試直接解析座標
+            const coords = extractCoordsFromText(text);
+            if (coords) {
+                document.getElementById('inputLat').value = coords.lat;
+                document.getElementById('inputLng').value = coords.lng;
+                showCoordStatus('⏳ 座標已解析，正在查詢地點資訊...', true);
+                geoTimer = setTimeout(() => reverseGeocode(coords.lat, coords.lng, coords.placeName), 300);
+                return;
             }
 
-            if (lat !== null && lng !== null && !isNaN(lat) && !isNaN(lng)) {
-                document.getElementById('inputLat').value = lat;
-                document.getElementById('inputLng').value = lng;
-                showCoordStatus('⏳ 座標已解析，正在查詢地點資訊...', true);
+            // 2. 有 /place/地名 但沒有座標 → 用地名做正向地理編碼
+            const placeName = extractPlaceName(text);
+            if (placeName && isGoogleMapsUrl(text)) {
+                showCoordStatus('⏳ 正在用地點名稱查詢座標...', true);
+                geoTimer = setTimeout(() => forwardGeocode(placeName), 300);
+                return;
+            }
 
-                // 用反向地理編碼自動帶入國家、縣市、名稱
-                if (reverseGeoTimer) clearTimeout(reverseGeoTimer);
-                reverseGeoTimer = setTimeout(() => reverseGeocode(lat, lng, placeName), 300);
+            // 3. 短網址（goo.gl / maps.app.goo.gl）→ 提示使用者
+            if (isShortUrl(text)) {
+                showCoordStatus('⚠️ 偵測到短網址。請在 Google Maps 中點「分享」→「複製連結」取得完整網址，或直接複製網址列的長網址', false);
+                return;
+            }
 
-            } else if (text.includes('google.com/maps') || text.includes('goo.gl') || text.includes('maps.app')) {
-                showCoordStatus('⚠️ 偵測到 Google Maps 網址，但無法解析座標。請展開完整網址（非短網址）後再試', false);
+            // 4. 看起來像 Google Maps URL 但都解析不出來
+            if (isGoogleMapsUrl(text)) {
+                showCoordStatus('⚠️ 無法從此網址解析座標，請嘗試從 Google Maps 網址列複製完整網址', false);
             }
         }
 
-        // 反向地理編碼：用座標查詢國家、縣市、地點名稱
+        function isGoogleMapsUrl(text) {
+            return /google\.com\/maps|maps\.google|goo\.gl\/maps|maps\.app\.goo\.gl/.test(text);
+        }
+
+        function isShortUrl(text) {
+            return /goo\.gl\/maps|maps\.app\.goo\.gl/.test(text) && !text.includes('google.com/maps');
+        }
+
+        // 從文字中提取座標（支援多種格式）
+        function extractCoordsFromText(text) {
+            let lat, lng, m;
+
+            // Google Maps @lat,lng 格式
+            if ((m = text.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/))) {
+                lat = parseFloat(m[1]); lng = parseFloat(m[2]);
+            }
+            // ?q=lat,lng
+            else if ((m = text.match(/[?&]q=(-?\d+\.?\d*),(-?\d+\.?\d*)/))) {
+                lat = parseFloat(m[1]); lng = parseFloat(m[2]);
+            }
+            // ?ll=lat,lng
+            else if ((m = text.match(/[?&]ll=(-?\d+\.?\d*),(-?\d+\.?\d*)/))) {
+                lat = parseFloat(m[1]); lng = parseFloat(m[2]);
+            }
+            // Google Maps !3d lat !4d lng 格式（data= 參數中）
+            else if ((m = text.match(/!3d(-?\d+\.?\d+)!4d(-?\d+\.?\d+)/))) {
+                lat = parseFloat(m[1]); lng = parseFloat(m[2]);
+            }
+            // 直接座標格式 "lat, lng" 或 "lat lng"
+            else if ((m = text.match(/^(-?\d+\.?\d*)[,\s]+(-?\d+\.?\d*)$/))) {
+                lat = parseFloat(m[1]); lng = parseFloat(m[2]);
+            }
+
+            if (lat != null && lng != null && !isNaN(lat) && !isNaN(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180) {
+                return { lat, lng, placeName: extractPlaceName(text) };
+            }
+            return null;
+        }
+
+        // 從 Google Maps URL 提取 /place/地名
+        function extractPlaceName(text) {
+            const m = text.match(/\/place\/([^/@?]+)/);
+            if (m) {
+                return decodeURIComponent(m[1]).replace(/\+/g, ' ');
+            }
+            return null;
+        }
+
+        // 正向地理編碼：用地名查座標 + 地址資訊
+        async function forwardGeocode(placeName) {
+            try {
+                const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(placeName)}&format=json&accept-language=zh-TW,zh,en&addressdetails=1&limit=1`;
+                const resp = await fetch(url, { headers: { 'User-Agent': 'PikminSpotManager/1.0' } });
+                if (!resp.ok) throw new Error('Nominatim search error');
+                const results = await resp.json();
+
+                if (results && results.length > 0) {
+                    const r = results[0];
+                    const lat = parseFloat(r.lat);
+                    const lng = parseFloat(r.lon);
+
+                    document.getElementById('inputLat').value = lat;
+                    document.getElementById('inputLng').value = lng;
+
+                    fillAddressFields(r.address, r.name, placeName);
+                    const parts = buildStatusParts(r.address, r.name, placeName);
+                    showCoordStatus(`✅ 已帶入：${parts}（${lat.toFixed(4)}, ${lng.toFixed(4)}）`, true);
+                } else {
+                    showCoordStatus('⚠️ 查詢不到此地點，請手動輸入座標', false);
+                }
+            } catch (err) {
+                console.error('Forward geocode error:', err);
+                // 至少把 place name 填入名稱欄
+                if (placeName && !document.getElementById('inputName').value) {
+                    document.getElementById('inputName').value = placeName;
+                }
+                showCoordStatus('⚠️ 地點查詢失敗，已填入地點名稱，請手動輸入座標', false);
+            }
+        }
+
+        // 反向地理編碼：用座標查地址資訊
         async function reverseGeocode(lat, lng, fallbackName) {
             try {
                 const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=zh-TW,zh,en&zoom=18&addressdetails=1`;
-                const resp = await fetch(url, {
-                    headers: { 'User-Agent': 'PikminSpotManager/1.0' }
-                });
-
-                if (!resp.ok) throw new Error('Nominatim API error');
+                const resp = await fetch(url, { headers: { 'User-Agent': 'PikminSpotManager/1.0' } });
+                if (!resp.ok) throw new Error('Nominatim reverse error');
                 const data = await resp.json();
 
                 if (data && data.address) {
-                    const addr = data.address;
-
-                    // ====== 國家 ======
-                    const country = addr.country || '';
-                    if (country && !document.getElementById('inputCountry').value) {
-                        document.getElementById('inputCountry').value = country;
-                    }
-
-                    // ====== 縣市 ======
-                    // Nominatim 的縣市欄位因國家而異，依序嘗試
-                    const city = addr.city || addr.town || addr.county || addr.municipality
-                                || addr.state_district || addr.village || addr.suburb || '';
-                    if (city && !document.getElementById('inputCity').value) {
-                        document.getElementById('inputCity').value = city;
-                    }
-
-                    // ====== 名稱 ======
-                    // 優先用 Nominatim 的具體地點名稱，其次 URL 中的 place name
-                    const poiName = data.name && data.name !== country && data.name !== city
-                                    ? data.name : null;
-                    const displayName = poiName
-                                     || fallbackName
-                                     || addr.amenity || addr.tourism || addr.shop || addr.building
-                                     || addr.road || '';
-
-                    if (displayName && !document.getElementById('inputName').value) {
-                        document.getElementById('inputName').value = displayName;
-                    }
-
-                    // 顯示結果
-                    const parts = [country, city, displayName].filter(Boolean);
-                    showCoordStatus(`✅ 已帶入：${parts.join(' → ')}`, true);
-
+                    fillAddressFields(data.address, data.name, fallbackName);
+                    const parts = buildStatusParts(data.address, data.name, fallbackName);
+                    showCoordStatus(`✅ 已帶入：${parts}`, true);
                 } else {
-                    // API 沒有回傳地址，只填座標
                     if (fallbackName && !document.getElementById('inputName').value) {
                         document.getElementById('inputName').value = fallbackName;
                     }
@@ -681,12 +718,50 @@
                 }
             } catch (err) {
                 console.error('Reverse geocode error:', err);
-                // 失敗時用 URL 中的 place name 作為備用
                 if (fallbackName && !document.getElementById('inputName').value) {
                     document.getElementById('inputName').value = fallbackName;
                 }
                 showCoordStatus('✅ 座標已填入（地點查詢暫時無法使用）', true);
             }
+        }
+
+        // 共用：將地址資訊填入表單
+        function fillAddressFields(addr, apiName, fallbackName) {
+            if (!addr) return;
+
+            // 國家
+            const country = addr.country || '';
+            if (country && !document.getElementById('inputCountry').value) {
+                document.getElementById('inputCountry').value = country;
+            }
+
+            // 縣市（各國欄位不同，依序嘗試）
+            const city = addr.city || addr.town || addr.county || addr.municipality
+                        || addr.state_district || addr.village || addr.suburb
+                        || addr.state || addr.province || '';
+            if (city && !document.getElementById('inputCity').value) {
+                document.getElementById('inputCity').value = city;
+            }
+
+            // 名稱：API 回傳的具體名稱 > URL 中的 place name > 地址中的 POI
+            const poiName = apiName && apiName !== country && apiName !== city ? apiName : null;
+            const displayName = poiName
+                             || fallbackName
+                             || addr.amenity || addr.tourism || addr.shop || addr.building
+                             || addr.road || '';
+            if (displayName && !document.getElementById('inputName').value) {
+                document.getElementById('inputName').value = displayName;
+            }
+        }
+
+        // 共用：組合狀態文字
+        function buildStatusParts(addr, apiName, fallbackName) {
+            if (!addr) return fallbackName || '';
+            const country = addr.country || '';
+            const city = addr.city || addr.town || addr.county || addr.municipality || addr.state_district || addr.village || '';
+            const poiName = apiName && apiName !== country && apiName !== city ? apiName : null;
+            const name = poiName || fallbackName || addr.amenity || addr.tourism || addr.road || '';
+            return [country, city, name].filter(Boolean).join(' → ');
         }
 
         // ==================== 下拉選單 ====================
