@@ -323,9 +323,45 @@
         @media (max-width: 400px) {
             .stats { grid-template-columns: repeat(2,1fr); }
             .dropdown-filters { grid-template-columns: 1fr; }
-            .utility-buttons { grid-template-columns: repeat(2,1fr); }
             .type-pills { justify-content: center; }
         }
+        /* Detail Modal */
+        .detail-modal { background: white; border-radius: 24px; padding: 0; max-width: 520px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.25); transform: scale(0.92) translateY(20px); transition: all 0.3s; }
+        .modal-overlay.active .detail-modal { transform: scale(1) translateY(0); }
+        .detail-modal-img { width: 100%; max-height: 300px; object-fit: cover; border-radius: 24px 24px 0 0; display: block; }
+        .detail-modal-body { padding: 20px; }
+        .detail-modal-name { font-size: 1.2rem; font-weight: 800; color: var(--dark-green); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+        .detail-modal-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+        .detail-modal-coords { font-size: 0.82rem; color: #888; font-family: 'Courier New', monospace; background: #F8F8F8; padding: 6px 10px; border-radius: 8px; display: inline-block; margin-bottom: 8px; }
+        .detail-modal-note { font-size: 0.9rem; color: #555; padding: 10px 12px; background: #FAFAFA; border-radius: 10px; border-left: 3px solid #DDD; margin: 10px 0; }
+        .detail-modal-by { font-size: 0.78rem; color: #AAA; margin-top: 8px; }
+        .detail-modal-actions { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+        /* Favorite button */
+        .btn-fav { padding: 9px 14px; border: 2px solid #FFD54F; border-radius: 10px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; background: white; color: #F9A825; }
+        .btn-fav.active { background: #FFF8E1; border-color: #FFB300; }
+        .btn-fav:hover { transform: translateY(-2px); }
+        /* Profile Panel */
+        .profile-panel { position: fixed; top: 0; right: -340px; width: 320px; height: 100%; background: white; z-index: 301; overflow-y: auto; box-shadow: -4px 0 20px rgba(0,0,0,0.15); transition: right 0.3s ease; }
+        .profile-panel.active { right: 0; }
+        .profile-header { padding: 24px 20px 16px; background: linear-gradient(135deg, #E8F5E9, #C8E6C9); text-align: center; }
+        .profile-avatar { width: 56px; height: 56px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .profile-name { font-size: 1rem; font-weight: 800; color: var(--dark-green); margin-top: 8px; }
+        .profile-email { font-size: 0.75rem; color: #888; margin-top: 2px; }
+        .profile-tabs { display: flex; border-bottom: 2px solid #E8E8E8; }
+        .profile-tab { flex: 1; padding: 10px; text-align: center; font-size: 0.82rem; font-weight: 700; cursor: pointer; color: #888; border-bottom: 3px solid transparent; transition: all 0.2s; }
+        .profile-tab.active { color: var(--primary-green); border-bottom-color: var(--primary-green); }
+        .profile-list { padding: 12px; }
+        .profile-spot-item { display: flex; gap: 10px; align-items: center; padding: 10px; border-radius: 12px; cursor: pointer; transition: background 0.2s; border-bottom: 1px solid #F0F0F0; }
+        .profile-spot-item:hover { background: #F5F5F5; }
+        .profile-spot-img { width: 48px; height: 48px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }
+        .profile-spot-info { flex: 1; min-width: 0; }
+        .profile-spot-name { font-size: 0.85rem; font-weight: 700; color: var(--dark-green); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .profile-spot-sub { font-size: 0.72rem; color: #999; }
+        .profile-empty { text-align: center; padding: 30px; color: #CCC; font-size: 0.88rem; }
+        /* Tag search input */
+        .tag-search-box { margin-bottom: 8px; }
+        .tag-search-input { width: 100%; padding: 6px 10px; border: 2px solid #E0C8F0; border-radius: 10px; font-size: 0.8rem; font-family: inherit; background: #FAFAFA; }
+        .tag-search-input:focus { outline: none; border-color: #CE93D8; background: white; }
     </style>
 </head>
 <body>
@@ -338,8 +374,8 @@
         <div class="header-cloud header-cloud-3"></div>
         <div class="header-login-area">
             <div id="userInfo" class="user-info-compact" style="display: none;">
-                <img id="userAvatar" src="" style="width:24px;height:24px;border-radius:50%;display:none;">
-                <span id="userDisplayName" class="user-email"></span>
+                <img id="userAvatar" src="" style="width:24px;height:24px;border-radius:50%;display:none;cursor:pointer;" onclick="openProfile()">
+                <span id="userDisplayName" class="user-email" style="cursor:pointer;" onclick="openProfile()"></span>
                 <span id="userRole" class="user-role"></span>
                 <button class="btn-logout" onclick="logout()">登出</button>
             </div>
@@ -378,6 +414,7 @@
             </div>
             <div class="filter-group" id="tagFilterGroup" style="display:none;">
                 <div class="filter-label">🏷️ 熱門標籤</div>
+                <div class="tag-search-box"><input type="text" class="tag-search-input" id="tagSearchInput" placeholder="搜尋標籤..." oninput="filterTagPills(this.value)"></div>
                 <div class="tag-pills" id="tagFilterPills"></div>
             </div>
             <div class="filter-group">
@@ -563,6 +600,25 @@
             </div>
         </div>
     </div>
+    <!-- Detail Modal -->
+    <div class="modal-overlay" id="detailModal" onclick="if(event.target===this)closeDetail()">
+        <div class="detail-modal" id="detailModalContent"></div>
+    </div>
+    <!-- Profile Panel -->
+    <div class="tool-panel-overlay" id="profileOverlay" onclick="closeProfile()"></div>
+    <div class="profile-panel" id="profilePanel">
+        <div class="profile-header">
+            <button onclick="closeProfile()" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:1.2rem;cursor:pointer;color:#666;">✕</button>
+            <img id="profileAvatar" class="profile-avatar" src="">
+            <div id="profileName" class="profile-name"></div>
+            <div id="profileEmail" class="profile-email"></div>
+        </div>
+        <div class="profile-tabs">
+            <div class="profile-tab active" data-tab="my" onclick="setProfileTab('my')">我的純點</div>
+            <div class="profile-tab" data-tab="fav" onclick="setProfileTab('fav')">我的最愛</div>
+        </div>
+        <div class="profile-list" id="profileList"></div>
+    </div>
     <div class="lightbox-overlay" id="lightboxOverlay" onclick="closeLightbox()">
         <img id="lightboxImage" src="">
     </div>
@@ -589,6 +645,9 @@
         let currentViewMode = 'large'; // 'large' | 'grid' | 'list'
         // Batch upload
         let batchItems = []; // { file, base64, spotId }
+        let userFavorites = new Set();
+        let profileTab = 'my';
+        let tagSearchQuery = '';
 
         const modalOverlay = document.getElementById('modalOverlay');
         const loginModal = document.getElementById('loginModal');
@@ -597,16 +656,25 @@
         const syncStatus = document.getElementById('syncStatus');
         const selectBar = document.getElementById('selectBar');
 
-        // ==================== BUG FIX: visibilitychange + focus 刷新 session ====================
-        document.addEventListener('visibilitychange', async () => {
-            if (document.visibilityState === 'visible') {
-                try {
-                    const { data: { session }, error } = await supabaseClient.auth.getSession();
-                    if (error) {
-                        await supabaseClient.auth.refreshSession();
-                    }
-                    if (session) { currentUser = session.user; await checkAdminStatus(); updateUserInfo(); }
-                } catch (err) { console.error('visibilitychange error:', err); }
+        // ==================== BUG FIX: visibilitychange + focus 刷新 session + 滾動位置記憶 ====================
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'hidden') {
+                // Save scroll position when leaving
+                try { sessionStorage.setItem('pikmin_scroll', String(window.scrollY)); } catch {}
+            } else if (document.visibilityState === 'visible') {
+                // Refresh session when coming back
+                (async () => {
+                    try {
+                        const { data: { session }, error } = await supabaseClient.auth.getSession();
+                        if (error) await supabaseClient.auth.refreshSession();
+                        if (session) { currentUser = session.user; await checkAdminStatus(); updateUserInfo(); }
+                    } catch (err) { console.error('visibilitychange error:', err); }
+                    // Restore scroll position
+                    try {
+                        const saved = sessionStorage.getItem('pikmin_scroll');
+                        if (saved) { requestAnimationFrame(() => window.scrollTo(0, parseInt(saved))); }
+                    } catch {}
+                })();
             }
         });
         window.addEventListener('focus', async () => {
@@ -633,11 +701,12 @@
             await loadFilterMetadata();
             await loadSpots();
             const { data: { session } } = await supabaseClient.auth.getSession();
-            if (session) { currentUser = session.user; await checkAdminStatus(); updateUserInfo(); renderSpots(); }
+            if (session) { currentUser = session.user; await checkAdminStatus(); await loadFavorites(); updateUserInfo(); renderSpots(); }
             supabaseClient.auth.onAuthStateChange(async (event, session) => {
                 if (event === 'SIGNED_IN') {
                     currentUser = session.user;
                     await checkAdminStatus();
+                    await loadFavorites();
                     loginModal.classList.remove('active');
                     updateUserInfo();
                     renderSpots();
@@ -649,7 +718,7 @@
                         await doSubmitSpot(saved);
                     }
                 }
-                else if (event === 'SIGNED_OUT') { currentUser = null; isAdmin = false; updateUserInfo(); loadSpots(); }
+                else if (event === 'SIGNED_OUT') { currentUser = null; isAdmin = false; userFavorites.clear(); updateUserInfo(); loadSpots(); }
                 else if (event === 'TOKEN_REFRESHED' && session) { currentUser = session.user; }
             });
             initSearchableSelects(); initImageUpload(); initTagsInput(); initCoordsInput(); initPagination();
@@ -1032,22 +1101,37 @@
         }
         let tagExpanded = false;
         function renderTagFilters() {
-            const tags = getAllTags(), g = document.getElementById('tagFilterGroup'), c = document.getElementById('tagFilterPills');
-            if (!tags.length) { g.style.display = 'none'; return; }
+            const allTags = getAllTags(), g = document.getElementById('tagFilterGroup'), c = document.getElementById('tagFilterPills');
+            if (!allTags.length) { g.style.display = 'none'; return; }
             g.style.display = 'block';
-            const top3 = tags.slice(0, 3);
-            const rest = tags.slice(3);
-            let html = `<div class="tag-pill ${currentTag==='all'?'active':''}" onclick="setTagFilter('all')">全部</div>`;
-            html += top3.map(([t,n]) => `<div class="tag-pill ${currentTag===t?'active':''}" onclick="setTagFilter('${escapeHtml(t)}')">#${escapeHtml(t)} (${n})</div>`).join('');
-            if (rest.length > 0) {
-                if (tagExpanded) {
-                    html += rest.map(([t,n]) => `<div class="tag-pill ${currentTag===t?'active':''}" onclick="setTagFilter('${escapeHtml(t)}')">#${escapeHtml(t)} (${n})</div>`).join('');
-                    html += `<div class="tag-pill" onclick="toggleTagExpand()" style="background:#F5F5F5;border-color:#CCC;color:#888;">▲ 收合</div>`;
-                } else {
-                    html += `<div class="tag-pill" onclick="toggleTagExpand()" style="background:#F5F5F5;border-color:#CCC;color:#888;">▼ 更多 (${rest.length})</div>`;
+
+            // Filter tags by search query
+            const filtered = tagSearchQuery
+                ? allTags.filter(([t]) => t.toLowerCase().includes(tagSearchQuery))
+                : allTags;
+
+            if (tagSearchQuery) {
+                // When searching, show all matching tags (no fold)
+                let html = `<div class="tag-pill ${currentTag==='all'?'active':''}" onclick="setTagFilter('all')">全部</div>`;
+                html += filtered.map(([t,n]) => `<div class="tag-pill ${currentTag===t?'active':''}" onclick="setTagFilter('${escapeHtml(t)}')">#${escapeHtml(t)} (${n})</div>`).join('');
+                if (!filtered.length) html += '<span style="font-size:0.78rem;color:#AAA;">找不到標籤</span>';
+                c.innerHTML = html;
+            } else {
+                // Normal mode: top 3 + fold
+                const top3 = filtered.slice(0, 3);
+                const rest = filtered.slice(3);
+                let html = `<div class="tag-pill ${currentTag==='all'?'active':''}" onclick="setTagFilter('all')">全部</div>`;
+                html += top3.map(([t,n]) => `<div class="tag-pill ${currentTag===t?'active':''}" onclick="setTagFilter('${escapeHtml(t)}')">#${escapeHtml(t)} (${n})</div>`).join('');
+                if (rest.length > 0) {
+                    if (tagExpanded) {
+                        html += rest.map(([t,n]) => `<div class="tag-pill ${currentTag===t?'active':''}" onclick="setTagFilter('${escapeHtml(t)}')">#${escapeHtml(t)} (${n})</div>`).join('');
+                        html += `<div class="tag-pill" onclick="toggleTagExpand()" style="background:#F5F5F5;border-color:#CCC;color:#888;">▲ 收合</div>`;
+                    } else {
+                        html += `<div class="tag-pill" onclick="toggleTagExpand()" style="background:#F5F5F5;border-color:#CCC;color:#888;">▼ 更多 (${rest.length})</div>`;
+                    }
                 }
+                c.innerHTML = html;
             }
-            c.innerHTML = html;
         }
         function toggleTagExpand() { tagExpanded = !tagExpanded; renderTagFilters(); }
         function setTagFilter(t) { currentTag = t; renderTagFilters(); loadSpots(); }
@@ -1326,18 +1410,21 @@
                 ${s.city ? `<span class="spot-city">🏙️ ${escapeHtml(s.city)}</span>` : ''}
                 <span class="spot-type-badge ${s.type}">${getTypeLabel(s.type)}</span>
             </div>`;
-            const imgHtml = s.image_url ? `<div class="spot-image-container"><img src="${escapeHtml(s.image_url)}" alt="${escapeHtml(s.name)}" onclick="openLightbox(this.src)" loading="lazy"></div>` : '';
+            const imgHtml = s.image_url ? `<div class="spot-image-container"><img src="${escapeHtml(s.image_url)}" alt="${escapeHtml(s.name)}" onclick="event.stopPropagation();openLightbox(this.src)" loading="lazy"></div>` : '';
             const showEdit = canEditSpot(s);
             const showDelete = canDeleteSpot(s);
-            const quickUploadHtml = !s.image_url && !selectMode && showEdit ? `<button class="btn btn-quick-upload" onclick="quickUpload('${s.id}')">📷${short ? '' : ' 上傳圖片'}</button>` : '';
+            const isFav = userFavorites.has(s.id);
+            const quickUploadHtml = !s.image_url && !selectMode && showEdit ? `<button class="btn btn-quick-upload" onclick="event.stopPropagation();quickUpload('${s.id}')">📷${short ? '' : ' 上傳圖片'}</button>` : '';
+            const favBtnHtml = currentUser ? `<button class="btn btn-fav ${isFav ? 'active' : ''}" onclick="event.stopPropagation();toggleFavorite('${s.id}')">${isFav ? '⭐' : '☆'}${short ? '' : (isFav ? ' 已收藏' : ' 收藏')}</button>` : '';
             const actionsHtml = !selectMode ? `<div class="spot-actions">
-                <button class="btn btn-copy" onclick="copyCoords('${s.lat}, ${s.lng}')">📋${short ? '' : ' 複製座標'}</button>
+                <button class="btn btn-copy" onclick="event.stopPropagation();copyCoords('${s.lat}, ${s.lng}')">📋${short ? '' : ' 複製座標'}</button>
+                ${favBtnHtml}
                 ${quickUploadHtml}
-                ${showEdit ? `<button class="btn btn-edit" onclick="editSpot('${s.id}')">✏️${short ? '' : ' 編輯'}</button>` : ''}
-                ${showDelete ? `<button class="btn btn-delete" onclick="deleteSpot('${s.id}')">🗑️${short ? '' : ' 刪除'}</button>` : ''}
+                ${showEdit ? `<button class="btn btn-edit" onclick="event.stopPropagation();editSpot('${s.id}')">✏️${short ? '' : ' 編輯'}</button>` : ''}
+                ${showDelete ? `<button class="btn btn-delete" onclick="event.stopPropagation();deleteSpot('${s.id}')">🗑️${short ? '' : ' 刪除'}</button>` : ''}
             </div>` : '';
 
-            return `<div class="spot-card ${s.type}-card ${selectMode ? 'select-mode' : ''}" data-id="${s.id}">
+            return `<div class="spot-card ${s.type}-card ${selectMode ? 'select-mode' : ''}" data-id="${s.id}" onclick="openDetail('${s.id}')" style="cursor:pointer;">
                 ${selectMode ? `<input type="checkbox" class="spot-checkbox" ${selectedSpots.has(s.id) ? 'checked' : ''}>` : ''}
                 <div class="spot-content">
                     ${imgHtml}
@@ -1786,6 +1873,140 @@
         function formatDate() { return new Date().toISOString().slice(0,10).replace(/-/g,''); }
         function escapeXml(s) { return s ? s.replace(/[<>&'"]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;',"'":'&apos;','"':'&quot;'}[c])) : ''; }
         function showToast(msg) { toast.textContent = msg; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2500); }
+
+        // ==================== 詳細資料彈窗 ====================
+        function openDetail(spotId) {
+            if (selectMode) return; // Don't open detail in select mode
+            const s = spots.find(x => x.id === spotId);
+            if (!s) return;
+            const isFav = userFavorites.has(s.id);
+            const showEdit = canEditSpot(s);
+            const showDelete = canDeleteSpot(s);
+            const container = document.getElementById('detailModalContent');
+            container.innerHTML = `
+                ${s.image_url ? `<img class="detail-modal-img" src="${escapeHtml(s.image_url)}" onclick="openLightbox(this.src)" style="cursor:zoom-in;">` : ''}
+                <div class="detail-modal-body">
+                    <div class="detail-modal-name">${escapeHtml(s.name)}</div>
+                    <div class="detail-modal-meta">
+                        ${s.country ? `<span class="spot-region">🌍 ${escapeHtml(s.country)}</span>` : ''}
+                        ${s.city ? `<span class="spot-city">🏙️ ${escapeHtml(s.city)}</span>` : ''}
+                        <span class="spot-type-badge ${s.type}">${getTypeLabel(s.type)}</span>
+                    </div>
+                    <div class="detail-modal-coords">${s.lat}, ${s.lng}</div>
+                    ${s.tags && s.tags.length ? `<div class="spot-tags">${s.tags.map(t => `<span class="spot-tag">#${escapeHtml(t)}</span>`).join('')}</div>` : ''}
+                    ${s.note ? `<div class="detail-modal-note">${escapeHtml(s.note)}</div>` : ''}
+                    ${s.created_by_name ? `<div class="detail-modal-by">By ${escapeHtml(s.created_by_name)}</div>` : ''}
+                    <div class="detail-modal-actions">
+                        <button class="btn btn-copy" onclick="copyCoords('${s.lat}, ${s.lng}')">📋 複製座標</button>
+                        ${currentUser ? `<button class="btn btn-fav ${isFav ? 'active' : ''}" onclick="toggleFavorite('${s.id}');closeDetail();setTimeout(()=>openDetail('${s.id}'),300);">${isFav ? '⭐ 已收藏' : '☆ 收藏'}</button>` : ''}
+                        ${showEdit ? `<button class="btn btn-edit" onclick="closeDetail();editSpot('${s.id}')">✏️ 編輯</button>` : ''}
+                        ${showDelete ? `<button class="btn btn-delete" onclick="closeDetail();deleteSpot('${s.id}')">🗑️ 刪除</button>` : ''}
+                    </div>
+                </div>`;
+            document.getElementById('detailModal').classList.add('active');
+        }
+        function closeDetail() { document.getElementById('detailModal').classList.remove('active'); }
+
+        // ==================== 最愛功能 ====================
+        async function loadFavorites() {
+            if (!currentUser) { userFavorites.clear(); return; }
+            try {
+                const { data, error } = await supabaseClient.from('favorites')
+                    .select('spot_id')
+                    .eq('user_id', currentUser.id);
+                if (!error && data) {
+                    userFavorites = new Set(data.map(f => f.spot_id));
+                }
+            } catch (e) { console.error('Load favorites error:', e); }
+        }
+
+        async function toggleFavorite(spotId) {
+            if (!currentUser) { showToast('👤 請先登入才能收藏'); showLoginModal(); return; }
+            const isFav = userFavorites.has(spotId);
+            try {
+                if (isFav) {
+                    const { error } = await supabaseClient.from('favorites')
+                        .delete()
+                        .eq('user_id', currentUser.id)
+                        .eq('spot_id', spotId);
+                    if (error) throw error;
+                    userFavorites.delete(spotId);
+                    showToast('已取消收藏');
+                } else {
+                    const { error } = await supabaseClient.from('favorites')
+                        .insert([{ user_id: currentUser.id, spot_id: spotId }]);
+                    if (error) throw error;
+                    userFavorites.add(spotId);
+                    showToast('⭐ 已加入收藏');
+                }
+                renderSpots(true); // Re-render to update favorite buttons
+            } catch (e) { console.error('Toggle favorite error:', e); showToast('❌ 操作失敗'); }
+        }
+
+        // ==================== 個人頁面 ====================
+        async function openProfile() {
+            if (!currentUser) { showLoginModal(); return; }
+            document.getElementById('profileAvatar').src = getUserAvatar(currentUser) || '';
+            document.getElementById('profileName').textContent = getUserDisplayName(currentUser);
+            document.getElementById('profileEmail').textContent = currentUser.email || '';
+            document.getElementById('profilePanel').classList.add('active');
+            document.getElementById('profileOverlay').classList.add('active');
+            profileTab = 'my';
+            document.querySelectorAll('.profile-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === 'my'));
+            await renderProfileList();
+        }
+        function closeProfile() {
+            document.getElementById('profilePanel').classList.remove('active');
+            document.getElementById('profileOverlay').classList.remove('active');
+        }
+        async function setProfileTab(tab) {
+            profileTab = tab;
+            document.querySelectorAll('.profile-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+            await renderProfileList();
+        }
+        async function renderProfileList() {
+            const list = document.getElementById('profileList');
+            list.innerHTML = '<div class="profile-empty">載入中...</div>';
+            try {
+                let items = [];
+                if (profileTab === 'my') {
+                    const { data, error } = await supabaseClient.from('spots')
+                        .select('id,name,country,city,type,image_url')
+                        .eq('created_by', currentUser.id)
+                        .order('created_at', { ascending: false })
+                        .limit(50);
+                    if (!error) items = data || [];
+                } else {
+                    // Load favorites
+                    const favIds = [...userFavorites];
+                    if (favIds.length > 0) {
+                        const { data, error } = await supabaseClient.from('spots')
+                            .select('id,name,country,city,type,image_url')
+                            .in('id', favIds);
+                        if (!error) items = data || [];
+                    }
+                }
+                if (!items.length) {
+                    list.innerHTML = `<div class="profile-empty">${profileTab === 'my' ? '你還沒有新增純點' : '你還沒有收藏任何純點'}</div>`;
+                    return;
+                }
+                list.innerHTML = items.map(s => `
+                    <div class="profile-spot-item" onclick="closeProfile();openDetail('${s.id}')">
+                        ${s.image_url ? `<img class="profile-spot-img" src="${escapeHtml(s.image_url)}">` : `<div class="profile-spot-img" style="background:#F0F0F0;display:flex;align-items:center;justify-content:center;font-size:1.2rem;">${getTypeLabel(s.type).split(' ')[0]}</div>`}
+                        <div class="profile-spot-info">
+                            <div class="profile-spot-name">${escapeHtml(s.name)}</div>
+                            <div class="profile-spot-sub">${s.country || ''}${s.city ? ' · ' + s.city : ''}</div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (e) { console.error('Profile list error:', e); list.innerHTML = '<div class="profile-empty">載入失敗</div>'; }
+        }
+
+        // ==================== 標籤搜尋 ====================
+        function filterTagPills(query) {
+            tagSearchQuery = query.toLowerCase().trim();
+            renderTagFilters();
+        }
 
         // ==================== 工具面板 ====================
         function toggleToolPanel() {
