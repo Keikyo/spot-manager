@@ -479,6 +479,7 @@
             <button class="btn-utility" onclick="openBatchUpload();closeToolPanel();" style="background:#F3E5F5;border-color:#CE93D8;color:#7B1FA2;">📷 批次上傳圖片</button>
             <button class="btn-utility" id="btnMigrate" onclick="migrateBase64ToStorage()" style="display:none;background:#FFF3E0;border-color:#FF9800;color:#E65100;">🔄 遷移舊圖片到 Storage</button>
             <button class="btn-utility" id="btnClaimData" onclick="claimLegacyData()" style="display:none;background:#E8F5E9;border-color:#66BB6A;color:#2E7D32;">👤 認領舊資料為我的</button>
+            <button class="btn-utility" id="btnViewSuggestions" onclick="openSuggestionsList();closeToolPanel();" style="display:none;background:#FFF8E1;border-color:#FFD54F;color:#F57F17;">📬 查看使用者建議</button>
             <button class="btn-utility" id="btnAdminLogin" onclick="loginAsAdmin();closeToolPanel();" style="background:#F5F5F5;border-color:#CCC;color:#888;font-size:0.75rem;">🔑 管理員密碼登入</button>
         </div>
     </div>
@@ -611,6 +612,32 @@
         </div>
         <div class="profile-list" id="profileList"></div>
     </div>
+    <!-- Suggestion Modal -->
+    <div class="modal-overlay" id="suggestionModal" onclick="if(event.target===this)closeSuggestionModal()">
+        <div class="modal" style="max-width:440px;">
+            <h2>💡 建議修改</h2>
+            <p style="font-size:0.85rem;color:#888;margin-bottom:16px;">你的建議會送給管理員審核，通過後會更新此純點。</p>
+            <div class="form-group">
+                <label class="form-label">建議內容 <span class="required">*</span></label>
+                <textarea id="suggestionText" class="form-input" rows="4" placeholder="例如：名稱有誤、座標不準、建議加上某個標籤..." style="resize:vertical;"></textarea>
+            </div>
+            <input type="hidden" id="suggestionSpotId">
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" onclick="closeSuggestionModal()">取消</button>
+                <button type="button" class="btn-submit" onclick="submitSuggestion()" id="btnSubmitSuggestion">📨 送出建議</button>
+            </div>
+        </div>
+    </div>
+    <!-- Admin Suggestions Panel (inside tool panel) -->
+    <div class="modal-overlay" id="suggestionsListModal" onclick="if(event.target===this)closeSuggestionsList()">
+        <div class="modal" style="max-width:520px;max-height:85vh;">
+            <h2>📬 使用者建議</h2>
+            <div id="suggestionsListContent" style="max-height:60vh;overflow-y:auto;"></div>
+            <div class="modal-actions" style="margin-top:16px;">
+                <button type="button" class="btn-cancel" onclick="closeSuggestionsList()" style="flex:1;">關閉</button>
+            </div>
+        </div>
+    </div>
     <div class="lightbox-overlay" id="lightboxOverlay" onclick="closeLightbox()">
         <img id="lightboxImage" src="">
     </div>
@@ -622,7 +649,15 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ5ZXl1eGZobWFja2htbmdrc2lqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyNTcyMDgsImV4cCI6MjA4NTgzMzIwOH0.ckXTWnDCksvDJMdd8MR9iykh6iu1IBtKi4zuLF4W87I';
         const ADMIN_EMAIL = 'hangonroku@gmail.com';
         const { createClient } = supabase;
-        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+            auth: {
+                autoRefreshToken: true,
+                persistSession: true,
+                detectSessionInUrl: true,
+                storageKey: 'pikmin-spot-auth',
+                storage: window.localStorage
+            }
+        });
 
         let spots = [], currentFilter = 'all', currentCountry = 'all', currentCity = 'all', currentTag = 'all';
         let searchQuery = '', editingId = null, selectedType = 'pikmin';
@@ -648,31 +683,59 @@
         const syncStatus = document.getElementById('syncStatus');
         const selectBar = document.getElementById('selectBar');
 
-        // ==================== 安全查詢 wrapper（自動重試） ====================
-        // All DB operations should go through this to handle token expiry gracefully
+        // ==================== 安全查詢 wrapper（自動重試 + session 恢復） ====================
         async function safeQuery(queryFn, retried = false) {
             try {
                 const result = await queryFn();
                 if (result.error) {
-                    // Check if it's an auth error
                     const msg = result.error.message || '';
                     const code = result.error.code || '';
-                    if (!retried && (msg.includes('JWT') || msg.includes('token') || msg.includes('expired') || code === 'PGRST301' || code === '401')) {
-                        console.log('🔄 Token 可能過期，等待自動刷新後重試...');
-                        // Wait for Supabase client to auto-refresh
-                        await new Promise(r => setTimeout(r, 1000));
-                        return safeQuery(queryFn, true);
+                    const isAuthError = msg.includes('JWT') || msg.includes('token') || msg.includes('expired') || code === 'PGRST301' || code === '401';
+                    if (!retried && isAuthError) {
+                        console.log('🔄 Token 過期，嘗試恢復 session...');
+                        const recovered = await tryRecoverSession();
+                        if (recovered) {
+                            return safeQuery(queryFn, true);
+                        }
+                        throw result.error;
                     }
                     throw result.error;
                 }
                 return result;
             } catch (err) {
-                if (!retried && err.message && (err.message.includes('JWT') || err.message.includes('fetch'))) {
-                    console.log('🔄 請求失敗，重試中...');
-                    await new Promise(r => setTimeout(r, 1000));
-                    return safeQuery(queryFn, true);
+                if (!retried && err.message && (err.message.includes('JWT') || err.message.includes('fetch') || err.message.includes('Failed'))) {
+                    console.log('🔄 請求失敗，嘗試恢復 session 後重試...');
+                    const recovered = await tryRecoverSession();
+                    if (recovered) {
+                        return safeQuery(queryFn, true);
+                    }
                 }
                 throw err;
+            }
+        }
+
+        // 嘗試恢復 session：先 refreshSession，失敗則 getSession
+        async function tryRecoverSession() {
+            try {
+                // Step 1: 嘗試刷新 token
+                const { data: refreshData, error: refreshError } = await supabaseClient.auth.refreshSession();
+                if (!refreshError && refreshData?.session) {
+                    currentUser = refreshData.session.user;
+                    console.log('✅ Session 已透過 refreshSession 恢復');
+                    return true;
+                }
+                // Step 2: 刷新失敗，嘗試從 storage 取回 session
+                const { data: sessionData } = await supabaseClient.auth.getSession();
+                if (sessionData?.session) {
+                    currentUser = sessionData.session.user;
+                    console.log('✅ Session 已透過 getSession 恢復');
+                    return true;
+                }
+                console.warn('⚠️ Session 恢復失敗，使用者可能需要重新登入');
+                return false;
+            } catch (e) {
+                console.error('Session 恢復錯誤:', e);
+                return false;
             }
         }
 
@@ -715,19 +778,35 @@
         }
         function clearDraft() { try { sessionStorage.removeItem('pikmin_draft'); } catch {} }
 
-        // ==================== 滾動位置記憶 + 簡化的 visibilitychange ====================
-        document.addEventListener('visibilitychange', () => {
+        // ==================== 滾動位置記憶 + visibilitychange session 恢復 ====================
+        document.addEventListener('visibilitychange', async () => {
             if (document.visibilityState === 'hidden') {
                 try { sessionStorage.setItem('pikmin_scroll', String(window.scrollY)); } catch {}
             } else if (document.visibilityState === 'visible') {
-                // Restore scroll position — Supabase client handles token refresh automatically
+                // 恢復滾動位置
                 try {
                     const saved = sessionStorage.getItem('pikmin_scroll');
                     if (saved) { requestAnimationFrame(() => window.scrollTo(0, parseInt(saved))); }
                 } catch {}
+                // 主動恢復 session（解決切換 App/分頁後 token 失效的問題）
+                if (currentUser) {
+                    try {
+                        const { data, error } = await supabaseClient.auth.getSession();
+                        if (error || !data?.session) {
+                            console.log('⚠️ 頁面回來後 session 遺失，嘗試刷新...');
+                            const recovered = await tryRecoverSession();
+                            if (!recovered) {
+                                showToast('⚠️ 登入已過期，請重新登入');
+                                currentUser = null; isAdmin = false; updateUserInfo(); renderSpots();
+                            }
+                        } else {
+                            // 確保 currentUser 是最新的
+                            currentUser = data.session.user;
+                        }
+                    } catch (e) { console.error('visibilitychange session check error:', e); }
+                }
             }
         });
-        // No manual focus handler needed — Supabase JS v2 auto-refreshes tokens
 
         // ==================== 長按 Logo 開啟管理面板（秘密入口） ====================
         let longPressTimer = null;
@@ -1157,31 +1236,39 @@
             return Object.entries(m).sort((a,b) => b[1]-a[1]);
         }
         let tagExpanded = false;
+        function isTagActive(t) {
+            // 相容多標籤模式
+            if (activeTagFilters && activeTagFilters.length > 0) return activeTagFilters.includes(t);
+            return currentTag === t;
+        }
+        function isAllTagActive() {
+            return currentTag === 'all' && (!activeTagFilters || activeTagFilters.length === 0);
+        }
         function renderTagFilters() {
             const allTags = getAllTags(), g = document.getElementById('tagFilterGroup'), c = document.getElementById('tagFilterPills');
             if (!allTags.length) { g.style.display = 'none'; return; }
             g.style.display = 'block';
 
-            // Filter tags by search query
             const filtered = tagSearchQuery
                 ? allTags.filter(([t]) => t.toLowerCase().includes(tagSearchQuery))
                 : allTags;
 
+            const activeCount = activeTagFilters ? activeTagFilters.length : 0;
+            const multiHint = activeCount > 1 ? `<span style="font-size:0.72rem;color:#7B1FA2;font-weight:600;margin-left:4px;">(${activeCount} 個標籤 AND)</span>` : '';
+
             if (tagSearchQuery) {
-                // When searching, show all matching tags (no fold)
-                let html = `<div class="tag-pill ${currentTag==='all'?'active':''}" onclick="setTagFilter('all')">全部</div>`;
-                html += filtered.map(([t,n]) => `<div class="tag-pill ${currentTag===t?'active':''}" onclick="setTagFilter('${escapeHtml(t)}')">#${escapeHtml(t)} (${n})</div>`).join('');
+                let html = `<div class="tag-pill ${isAllTagActive()?'active':''}" onclick="setTagFilter('all')">全部</div>${multiHint}`;
+                html += filtered.map(([t,n]) => `<div class="tag-pill ${isTagActive(t)?'active':''}" onclick="setTagFilter('${escapeHtml(t)}')">#${escapeHtml(t)} (${n})</div>`).join('');
                 if (!filtered.length) html += '<span style="font-size:0.78rem;color:#AAA;">找不到標籤</span>';
                 c.innerHTML = html;
             } else {
-                // Normal mode: top 3 + fold
                 const top3 = filtered.slice(0, 3);
                 const rest = filtered.slice(3);
-                let html = `<div class="tag-pill ${currentTag==='all'?'active':''}" onclick="setTagFilter('all')">全部</div>`;
-                html += top3.map(([t,n]) => `<div class="tag-pill ${currentTag===t?'active':''}" onclick="setTagFilter('${escapeHtml(t)}')">#${escapeHtml(t)} (${n})</div>`).join('');
+                let html = `<div class="tag-pill ${isAllTagActive()?'active':''}" onclick="setTagFilter('all')">全部</div>${multiHint}`;
+                html += top3.map(([t,n]) => `<div class="tag-pill ${isTagActive(t)?'active':''}" onclick="setTagFilter('${escapeHtml(t)}')">#${escapeHtml(t)} (${n})</div>`).join('');
                 if (rest.length > 0) {
                     if (tagExpanded) {
-                        html += rest.map(([t,n]) => `<div class="tag-pill ${currentTag===t?'active':''}" onclick="setTagFilter('${escapeHtml(t)}')">#${escapeHtml(t)} (${n})</div>`).join('');
+                        html += rest.map(([t,n]) => `<div class="tag-pill ${isTagActive(t)?'active':''}" onclick="setTagFilter('${escapeHtml(t)}')">#${escapeHtml(t)} (${n})</div>`).join('');
                         html += `<div class="tag-pill" onclick="toggleTagExpand()" style="background:#F5F5F5;border-color:#CCC;color:#888;">▲ 收合</div>`;
                     } else {
                         html += `<div class="tag-pill" onclick="toggleTagExpand()" style="background:#F5F5F5;border-color:#CCC;color:#888;">▼ 更多 (${rest.length})</div>`;
@@ -1191,7 +1278,7 @@
             }
         }
         function toggleTagExpand() { tagExpanded = !tagExpanded; renderTagFilters(); }
-        function setTagFilter(t) { currentTag = t; renderTagFilters(); loadSpots(); }
+        // setTagFilter 已移至底部（支援多標籤複合搜尋）
 
         // ==================== 登入 ====================
         const SITE_URL = 'https://keikyo.github.io/spot-manager';
@@ -1446,6 +1533,7 @@
 
         function clearAllFilters() {
             currentFilter = 'all'; currentCountry = 'all'; currentCity = 'all'; currentTag = 'all'; searchQuery = '';
+            activeTagFilters = [];
             document.getElementById('searchInput').value = '';
             document.querySelectorAll('.stat-card[data-filter]').forEach(c => c.classList.toggle('active', c.dataset.filter === 'all'));
             document.getElementById('countryInput').value = '🌍 全部國家';
@@ -1505,7 +1593,14 @@
         }
 
         function renderSpots(reset = true) {
-            const fs = spots; // Already filtered by server query
+            // 多標籤 AND 過濾（Server query 只篩第一個，其餘在 client 端過濾）
+            let fs = spots;
+            if (activeTagFilters && activeTagFilters.length > 1) {
+                fs = spots.filter(s => {
+                    if (!s.tags || !Array.isArray(s.tags)) return false;
+                    return activeTagFilters.every(t => s.tags.includes(t));
+                });
+            }
 
             // Update view mode info
             document.getElementById('viewModeInfo').textContent = `${fs.length}${hasMoreData ? '+' : ''} 筆`;
@@ -1966,12 +2061,19 @@
             if (selectMode) return;
             const s = spots.find(x => String(x.id) === String(spotId));
             if (!s) return;
-            const isFav = userFavorites.has(s.id);
+            renderDetailContent(s);
+        }
+
+        function renderDetailContent(s) {
+            const isFav = userFavorites.has(String(s.id));
             const showEdit = canEditSpot(s);
             const showDelete = canDeleteSpot(s);
+            const mapsUrl = `https://www.google.com/maps?q=${s.lat},${s.lng}`;
+            const createdDate = s.created_at ? new Date(s.created_at) : null;
+            const createdStr = createdDate ? `${createdDate.getFullYear()}/${String(createdDate.getMonth()+1).padStart(2,'0')}/${String(createdDate.getDate()).padStart(2,'0')}` : '';
             const container = document.getElementById('detailModalContent');
             container.innerHTML = `
-                ${s.image_url ? `<img class="detail-modal-img" src="${escapeHtml(s.image_url)}" onclick="openLightbox(this.src)" style="cursor:zoom-in;">` : ''}
+                ${s.image_url ? `<img class="detail-modal-img" src="${escapeHtml(s.image_url)}" onclick="openLightbox(this.src)" style="cursor:zoom-in;">` : '<div style="height:40px;"></div>'}
                 <div class="detail-modal-body">
                     <div class="detail-modal-name">${escapeHtml(s.name)}</div>
                     <div class="detail-modal-meta">
@@ -1979,13 +2081,20 @@
                         ${s.city ? `<span class="spot-city">🏙️ ${escapeHtml(s.city)}</span>` : ''}
                         <span class="spot-type-badge ${s.type}">${getTypeLabel(s.type)}</span>
                     </div>
-                    <div class="detail-modal-coords">${s.lat}, ${s.lng}</div>
+                    <div class="detail-modal-coords">
+                        <a href="${mapsUrl}" target="_blank" rel="noopener" style="color:#1565C0;text-decoration:none;">${s.lat}, ${s.lng} 📍</a>
+                    </div>
                     ${s.tags && s.tags.length ? `<div class="spot-tags">${s.tags.map(t => `<span class="spot-tag">#${escapeHtml(t)}</span>`).join('')}</div>` : ''}
                     ${s.note ? `<div class="detail-modal-note">${escapeHtml(s.note)}</div>` : ''}
-                    <div class="detail-modal-by">${buildByLine(s)}</div>
+                    <div class="detail-modal-by">
+                        ${buildByLine(s)}
+                        ${createdStr ? `<span style="font-size:0.72rem;color:#BBB;margin-left:6px;">建立於 ${createdStr}</span>` : ''}
+                    </div>
                     <div class="detail-modal-actions">
                         <button class="btn btn-copy" onclick="copyCoords('${s.lat}, ${s.lng}')">📋 複製座標</button>
-                        ${currentUser ? `<button class="btn btn-fav ${isFav ? 'active' : ''}" onclick="toggleFavorite('${s.id}');closeDetail();setTimeout(()=>openDetail('${s.id}'),300);">${isFav ? '⭐ 已收藏' : '☆ 收藏'}</button>` : ''}
+                        <button class="btn" onclick="window.open('${mapsUrl}','_blank')" style="background:linear-gradient(135deg,#E8F5E9,#C8E6C9);color:#2E7D32;">🗺️ Google Maps</button>
+                        ${currentUser ? `<button class="btn btn-fav ${isFav ? 'active' : ''}" onclick="toggleFavorite('${s.id}');closeDetail();setTimeout(()=>{const sp=spots.find(x=>String(x.id)==='${s.id}')||profileSpots.find(x=>String(x.id)==='${s.id}');if(sp)renderDetailContent(sp);document.getElementById('detailModal').classList.add('active');},300);">${isFav ? '⭐ 已收藏' : '☆ 收藏'}</button>` : ''}
+                        ${!showEdit && currentUser ? `<button class="btn" onclick="closeDetail();openSuggestionModal('${s.id}')" style="background:linear-gradient(135deg,#FFF8E1,#FFECB3);color:#F57F17;">💡 建議修改</button>` : ''}
                         ${showEdit ? `<button class="btn btn-edit" onclick="closeDetail();editSpot('${s.id}')">✏️ 編輯</button>` : ''}
                         ${showDelete ? `<button class="btn btn-delete" onclick="closeDetail();deleteSpot('${s.id}')">🗑️ 刪除</button>` : ''}
                     </div>
@@ -2092,36 +2201,10 @@
         // Open detail from profile - uses profileSpots data since spot may not be in main list
         function openDetailFromProfile(spotId) {
             closeProfile();
-            // First try main spots array, then profileSpots
             let s = spots.find(x => String(x.id) === String(spotId));
             if (!s) s = profileSpots.find(x => String(x.id) === String(spotId));
             if (!s) { showToast('找不到此純點'); return; }
-            // Render detail directly
-            const isFav = userFavorites.has(String(s.id));
-            const showEdit = canEditSpot(s);
-            const showDelete = canDeleteSpot(s);
-            const container = document.getElementById('detailModalContent');
-            container.innerHTML = `
-                ${s.image_url ? `<img class="detail-modal-img" src="${escapeHtml(s.image_url)}" onclick="openLightbox(this.src)" style="cursor:zoom-in;">` : ''}
-                <div class="detail-modal-body">
-                    <div class="detail-modal-name">${escapeHtml(s.name)}</div>
-                    <div class="detail-modal-meta">
-                        ${s.country ? `<span class="spot-region">🌍 ${escapeHtml(s.country)}</span>` : ''}
-                        ${s.city ? `<span class="spot-city">🏙️ ${escapeHtml(s.city)}</span>` : ''}
-                        <span class="spot-type-badge ${s.type}">${getTypeLabel(s.type)}</span>
-                    </div>
-                    <div class="detail-modal-coords">${s.lat}, ${s.lng}</div>
-                    ${s.tags && s.tags.length ? `<div class="spot-tags">${s.tags.map(t => `<span class="spot-tag">#${escapeHtml(t)}</span>`).join('')}</div>` : ''}
-                    ${s.note ? `<div class="detail-modal-note">${escapeHtml(s.note)}</div>` : ''}
-                    <div class="detail-modal-by">${buildByLine(s)}</div>
-                    <div class="detail-modal-actions">
-                        <button class="btn btn-copy" onclick="copyCoords('${s.lat}, ${s.lng}')">📋 複製座標</button>
-                        ${currentUser ? `<button class="btn btn-fav ${isFav ? 'active' : ''}" onclick="toggleFavorite('${s.id}');closeDetail();">${isFav ? '⭐ 已收藏' : '☆ 收藏'}</button>` : ''}
-                        ${showEdit ? `<button class="btn btn-edit" onclick="closeDetail();editSpot('${s.id}')">✏️ 編輯</button>` : ''}
-                        ${showDelete ? `<button class="btn btn-delete" onclick="closeDetail();deleteSpot('${s.id}')">🗑️ 刪除</button>` : ''}
-                    </div>
-                </div>`;
-            document.getElementById('detailModal').classList.add('active');
+            renderDetailContent(s);
         }
 
         // ==================== 標籤搜尋 ====================
@@ -2137,6 +2220,7 @@
             if (isAdmin) {
                 document.getElementById('btnMigrate').style.display = 'block';
                 document.getElementById('btnClaimData').style.display = 'block';
+                document.getElementById('btnViewSuggestions').style.display = 'block';
             }
         }
         function closeToolPanel() {
@@ -2208,6 +2292,170 @@
                 setSyncStatus('error');
                 showToast('❌ 遷移失敗：' + err.message);
             }
+        }
+
+        // ==================== 建議修改功能 (suggestions) ====================
+        function openSuggestionModal(spotId) {
+            document.getElementById('suggestionSpotId').value = spotId;
+            document.getElementById('suggestionText').value = '';
+            document.getElementById('suggestionModal').classList.add('active');
+        }
+        function closeSuggestionModal() {
+            document.getElementById('suggestionModal').classList.remove('active');
+        }
+
+        async function submitSuggestion() {
+            const spotId = document.getElementById('suggestionSpotId').value;
+            const text = document.getElementById('suggestionText').value.trim();
+            if (!text) { showToast('⚠️ 請輸入建議內容'); return; }
+            if (!currentUser) { showToast('👤 請先登入'); showLoginModal(); return; }
+
+            const btn = document.getElementById('btnSubmitSuggestion');
+            btn.disabled = true; btn.textContent = '⏳ 送出中...';
+
+            try {
+                // 嘗試寫入 suggestions 表；若表不存在則 fallback 提示
+                const { error } = await safeQuery(() => supabaseClient.from('suggestions').insert([{
+                    spot_id: spotId,
+                    user_id: currentUser.id,
+                    user_name: getUserDisplayName(currentUser),
+                    user_email: currentUser.email || '',
+                    content: text,
+                    status: 'pending'
+                }]));
+                if (error) throw error;
+                closeSuggestionModal();
+                showToast('📨 建議已送出，感謝你！');
+            } catch (e) {
+                console.error('Submit suggestion error:', e);
+                if (e.message && (e.message.includes('relation') || e.message.includes('does not exist') || e.code === '42P01')) {
+                    showToast('⚠️ suggestions 表尚未建立，請管理員在 Supabase 執行建表 SQL');
+                } else {
+                    showToast('❌ 送出失敗：' + (e.message || ''));
+                }
+            } finally {
+                btn.disabled = false; btn.textContent = '📨 送出建議';
+            }
+        }
+
+        // 管理員：查看建議列表
+        async function openSuggestionsList() {
+            const container = document.getElementById('suggestionsListContent');
+            container.innerHTML = '<div style="text-align:center;padding:20px;color:#AAA;">載入中...</div>';
+            document.getElementById('suggestionsListModal').classList.add('active');
+
+            try {
+                const { data, error } = await safeQuery(() => supabaseClient.from('suggestions')
+                    .select('*')
+                    .order('created_at', { ascending: false })
+                    .limit(50));
+                if (error) throw error;
+
+                if (!data || !data.length) {
+                    container.innerHTML = '<div style="text-align:center;padding:30px;color:#CCC;">🎉 目前沒有待處理的建議</div>';
+                    return;
+                }
+
+                container.innerHTML = data.map(sg => {
+                    const date = sg.created_at ? new Date(sg.created_at).toLocaleString('zh-TW') : '';
+                    const statusColors = { pending: '#FFF8E1', approved: '#E8F5E9', rejected: '#FFEBEE' };
+                    const statusLabels = { pending: '⏳ 待處理', approved: '✅ 已採納', rejected: '❌ 已拒絕' };
+                    const bgColor = statusColors[sg.status] || '#F5F5F5';
+                    return `<div style="background:${bgColor};border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid #E8E8E8;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                            <div style="font-weight:700;font-size:0.88rem;color:var(--dark-green);">
+                                ${escapeHtml(sg.user_name || sg.user_email || '匿名')}
+                            </div>
+                            <div style="font-size:0.72rem;color:#999;">${date}</div>
+                        </div>
+                        <div style="font-size:0.85rem;color:#555;margin-bottom:8px;padding:8px;background:white;border-radius:8px;">${escapeHtml(sg.content)}</div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <span style="font-size:0.78rem;color:#888;">Spot ID: ${sg.spot_id ? sg.spot_id.slice(0,8) + '...' : 'N/A'}</span>
+                            <div style="display:flex;gap:6px;">
+                                <span style="font-size:0.78rem;font-weight:600;">${statusLabels[sg.status] || sg.status}</span>
+                                ${sg.status === 'pending' ? `
+                                    <button onclick="updateSuggestionStatus('${sg.id}','approved')" style="padding:4px 10px;border:none;border-radius:8px;font-size:0.75rem;font-weight:700;cursor:pointer;background:#C8E6C9;color:#2E7D32;">採納</button>
+                                    <button onclick="updateSuggestionStatus('${sg.id}','rejected')" style="padding:4px 10px;border:none;border-radius:8px;font-size:0.75rem;font-weight:700;cursor:pointer;background:#FFCDD2;color:#C62828;">拒絕</button>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>`;
+                }).join('');
+            } catch (e) {
+                console.error('Load suggestions error:', e);
+                if (e.message && (e.message.includes('relation') || e.message.includes('does not exist'))) {
+                    container.innerHTML = `<div style="text-align:center;padding:20px;">
+                        <p style="color:#E65100;font-weight:700;margin-bottom:12px;">⚠️ suggestions 表尚未建立</p>
+                        <p style="font-size:0.82rem;color:#888;line-height:1.6;">請在 Supabase SQL Editor 執行以下指令：</p>
+                        <pre style="text-align:left;background:#F5F5F5;padding:12px;border-radius:10px;font-size:0.75rem;overflow-x:auto;margin-top:8px;">CREATE TABLE suggestions (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  spot_id UUID REFERENCES spots(id) ON DELETE CASCADE,
+  user_id UUID,
+  user_name TEXT,
+  user_email TEXT,
+  content TEXT NOT NULL,
+  status TEXT DEFAULT 'pending',
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+ALTER TABLE suggestions ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Anyone can insert suggestions"
+  ON suggestions FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "Admin can read all suggestions"
+  ON suggestions FOR SELECT USING (true);
+
+CREATE POLICY "Admin can update suggestions"
+  ON suggestions FOR UPDATE USING (true);</pre>
+                    </div>`;
+                } else {
+                    container.innerHTML = `<div style="text-align:center;padding:20px;color:#C62828;">❌ 載入失敗：${escapeHtml(e.message || '')}</div>`;
+                }
+            }
+        }
+        function closeSuggestionsList() {
+            document.getElementById('suggestionsListModal').classList.remove('active');
+        }
+
+        async function updateSuggestionStatus(id, status) {
+            try {
+                await safeQuery(() => supabaseClient.from('suggestions').update({ status }).eq('id', id));
+                showToast(status === 'approved' ? '✅ 已採納' : '❌ 已拒絕');
+                await openSuggestionsList(); // Refresh list
+            } catch (e) {
+                console.error('Update suggestion error:', e);
+                showToast('❌ 更新失敗：' + (e.message || ''));
+            }
+        }
+
+        // ==================== 標籤複合搜尋強化 ====================
+        // 支援多標籤篩選（AND 邏輯）
+        let activeTagFilters = []; // 多選標籤
+
+        function setTagFilter(t) {
+            if (t === 'all') {
+                currentTag = 'all';
+                activeTagFilters = [];
+            } else {
+                // Toggle: 點擊已選的標籤取消，點擊新的加入
+                const idx = activeTagFilters.indexOf(t);
+                if (idx > -1) {
+                    activeTagFilters.splice(idx, 1);
+                } else {
+                    activeTagFilters.push(t);
+                }
+                // 向下相容：單一標籤時設 currentTag，多標籤時設 'multi'
+                if (activeTagFilters.length === 0) {
+                    currentTag = 'all';
+                } else if (activeTagFilters.length === 1) {
+                    currentTag = activeTagFilters[0];
+                } else {
+                    currentTag = activeTagFilters[0]; // Server query 用第一個，其餘在 client 過濾
+                }
+            }
+            renderTagFilters();
+            loadSpots();
         }
 
         init();
