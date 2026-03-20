@@ -74,9 +74,10 @@
         .sync-status.synced { background: rgba(232,245,233,0.9); color: #2E7D32; }
         .sync-status.error { background: #FFEBEE; color: #C62828; }
         .container { max-width: 600px; margin: 0 auto; padding: 20px 16px; }
-        .stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 20px; }
-        .stat-card { background: var(--card-bg); border-radius: 16px; padding: 14px 8px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-bottom: 4px solid var(--light-green); transition: transform 0.2s, box-shadow 0.2s; }
+        .stats { display: grid; grid-template-columns: repeat(5,1fr); gap: 8px; margin-bottom: 16px; }
+        .stat-card { background: var(--card-bg); border-radius: 16px; padding: 10px 4px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-bottom: 4px solid var(--light-green); transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; }
         .stat-card:hover { transform: translateY(-3px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .stat-card.active { box-shadow: 0 4px 15px rgba(95,168,95,0.3); transform: translateY(-2px); border-bottom-width: 5px; background: #F0FFF0; }
         .stat-card.flower-card { border-bottom-color: var(--flower-color); }
         .stat-card.pikmin-card { border-bottom-color: var(--pikmin-color); }
         .stat-card.mushroom-card { border-bottom-color: var(--mushroom-color); }
@@ -321,7 +322,7 @@
         .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(20px); background: rgba(45,80,22,0.95); color: white; padding: 14px 24px; border-radius: 14px; font-size: 0.92rem; font-weight: 600; opacity: 0; visibility: hidden; transition: all 0.3s ease; z-index: 2000; box-shadow: 0 6px 20px rgba(0,0,0,0.2); backdrop-filter: blur(8px); }
         .toast.show { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
         @media (max-width: 400px) {
-            .stats { grid-template-columns: repeat(2,1fr); }
+            .stats { grid-template-columns: repeat(3,1fr); }
             .dropdown-filters { grid-template-columns: 1fr; }
             .type-pills { justify-content: center; }
         }
@@ -384,7 +385,7 @@
             </div>
         </div>
         <div class="header-content">
-            <div class="seedling-icon">🌱</div>
+            <div class="seedling-icon" id="seedlingIcon">🌱</div>
             <h1>皮克敏純點管理器</h1>
             <p>收藏你的純點足跡</p>
             <div id="syncStatus" class="sync-status synced">✨ 已同步</div>
@@ -392,25 +393,16 @@
     </div>
     <div class="container">
         <div class="stats">
-            <div class="stat-card flower-card"><div class="stat-icon">🌸</div><div class="stat-label">大花</div><div class="stat-number" id="stat-flower">0</div></div>
-            <div class="stat-card pikmin-card"><div class="stat-icon">🌱</div><div class="stat-label">皮克敏</div><div class="stat-number" id="stat-pikmin">0</div></div>
-            <div class="stat-card mushroom-card"><div class="stat-icon">🍄</div><div class="stat-label">蘑菇</div><div class="stat-number" id="stat-mushroom">0</div></div>
-            <div class="stat-card postcard-card"><div class="stat-icon">🏠</div><div class="stat-label">明信片</div><div class="stat-number" id="stat-postcard">0</div></div>
+            <div class="stat-card active" data-filter="all" onclick="setFilter('all')"><div class="stat-icon">🌈</div><div class="stat-label">全部</div><div class="stat-number" id="stat-all">0</div></div>
+            <div class="stat-card flower-card" data-filter="flower" onclick="setFilter('flower')"><div class="stat-icon">🌸</div><div class="stat-label">大花</div><div class="stat-number" id="stat-flower">0</div></div>
+            <div class="stat-card pikmin-card" data-filter="pikmin" onclick="setFilter('pikmin')"><div class="stat-icon">🌱</div><div class="stat-label">皮克敏</div><div class="stat-number" id="stat-pikmin">0</div></div>
+            <div class="stat-card mushroom-card" data-filter="mushroom" onclick="setFilter('mushroom')"><div class="stat-icon">🍄</div><div class="stat-label">蘑菇</div><div class="stat-number" id="stat-mushroom">0</div></div>
+            <div class="stat-card postcard-card" data-filter="postcard" onclick="setFilter('postcard')"><div class="stat-icon">🏠</div><div class="stat-label">明信片</div><div class="stat-number" id="stat-postcard">0</div></div>
         </div>
         <div class="filters-section">
             <div class="search-box">
                 <span class="search-icon">🔍</span>
                 <input type="text" class="search-input" id="searchInput" placeholder="搜尋名稱、備註、地點、標籤...">
-            </div>
-            <div class="filter-group">
-                <div class="filter-label">🏷️ 純點類型</div>
-                <div class="type-pills">
-                    <div class="type-pill active" data-filter="all" onclick="setFilter('all')">🌈 全部</div>
-                    <div class="type-pill flower" data-filter="flower" onclick="setFilter('flower')">🌸 大花</div>
-                    <div class="type-pill pikmin" data-filter="pikmin" onclick="setFilter('pikmin')">🌱 皮克敏</div>
-                    <div class="type-pill mushroom" data-filter="mushroom" onclick="setFilter('mushroom')">🍄 蘑菇</div>
-                    <div class="type-pill postcard" data-filter="postcard" onclick="setFilter('postcard')">🏠 明信片</div>
-                </div>
             </div>
             <div class="filter-group" id="tagFilterGroup" style="display:none;">
                 <div class="filter-label">🏷️ 熱門標籤</div>
@@ -465,7 +457,7 @@
         <div id="paginationEnd" class="pagination-end" style="display:none;">🌱 已顯示全部</div>
     </div>
     <!-- FAB buttons -->
-    <button class="fab fab-gear" onclick="toggleToolPanel()" style="bottom:100px;">⚙️</button>
+    <button class="fab fab-gear" id="fabGear" onclick="toggleToolPanel()" style="bottom:100px;display:none;">⚙️</button>
     <button class="fab" onclick="openAddModal()">+</button>
 
     <!-- Tools Side Panel -->
@@ -656,32 +648,97 @@
         const syncStatus = document.getElementById('syncStatus');
         const selectBar = document.getElementById('selectBar');
 
-        // ==================== BUG FIX: visibilitychange + focus 刷新 session + 滾動位置記憶 ====================
+        // ==================== 安全查詢 wrapper（自動重試） ====================
+        // All DB operations should go through this to handle token expiry gracefully
+        async function safeQuery(queryFn, retried = false) {
+            try {
+                const result = await queryFn();
+                if (result.error) {
+                    // Check if it's an auth error
+                    const msg = result.error.message || '';
+                    const code = result.error.code || '';
+                    if (!retried && (msg.includes('JWT') || msg.includes('token') || msg.includes('expired') || code === 'PGRST301' || code === '401')) {
+                        console.log('🔄 Token 可能過期，等待自動刷新後重試...');
+                        // Wait for Supabase client to auto-refresh
+                        await new Promise(r => setTimeout(r, 1000));
+                        return safeQuery(queryFn, true);
+                    }
+                    throw result.error;
+                }
+                return result;
+            } catch (err) {
+                if (!retried && err.message && (err.message.includes('JWT') || err.message.includes('fetch'))) {
+                    console.log('🔄 請求失敗，重試中...');
+                    await new Promise(r => setTimeout(r, 1000));
+                    return safeQuery(queryFn, true);
+                }
+                throw err;
+            }
+        }
+
+        // ==================== 表單草稿暫存（防止資料丟失） ====================
+        function saveDraftToSession() {
+            try {
+                const draft = {
+                    name: document.getElementById('inputName')?.value || '',
+                    country: document.getElementById('inputCountry')?.value || '',
+                    city: document.getElementById('inputCity')?.value || '',
+                    lat: document.getElementById('inputLat')?.value || '',
+                    lng: document.getElementById('inputLng')?.value || '',
+                    coords: document.getElementById('inputCoords')?.value || '',
+                    note: document.getElementById('inputNote')?.value || '',
+                    type: selectedType,
+                    tags: currentTags,
+                    editingId: editingId
+                };
+                sessionStorage.setItem('pikmin_draft', JSON.stringify(draft));
+            } catch {}
+        }
+        function restoreDraftFromSession() {
+            try {
+                const raw = sessionStorage.getItem('pikmin_draft');
+                if (!raw) return false;
+                const d = JSON.parse(raw);
+                if (d.name) document.getElementById('inputName').value = d.name;
+                if (d.country) document.getElementById('inputCountry').value = d.country;
+                if (d.city) document.getElementById('inputCity').value = d.city;
+                if (d.lat) document.getElementById('inputLat').value = d.lat;
+                if (d.lng) document.getElementById('inputLng').value = d.lng;
+                if (d.coords) document.getElementById('inputCoords').value = d.coords;
+                if (d.note) document.getElementById('inputNote').value = d.note;
+                if (d.type) selectType(d.type);
+                if (d.tags) { currentTags = d.tags; renderFormTags(); }
+                if (d.editingId) editingId = d.editingId;
+                sessionStorage.removeItem('pikmin_draft');
+                return true;
+            } catch { return false; }
+        }
+        function clearDraft() { try { sessionStorage.removeItem('pikmin_draft'); } catch {} }
+
+        // ==================== 滾動位置記憶 + 簡化的 visibilitychange ====================
         document.addEventListener('visibilitychange', () => {
             if (document.visibilityState === 'hidden') {
-                // Save scroll position when leaving
                 try { sessionStorage.setItem('pikmin_scroll', String(window.scrollY)); } catch {}
             } else if (document.visibilityState === 'visible') {
-                // Refresh session when coming back
-                (async () => {
-                    try {
-                        const { data: { session }, error } = await supabaseClient.auth.getSession();
-                        if (error) await supabaseClient.auth.refreshSession();
-                        if (session) { currentUser = session.user; await checkAdminStatus(); updateUserInfo(); }
-                    } catch (err) { console.error('visibilitychange error:', err); }
-                    // Restore scroll position
-                    try {
-                        const saved = sessionStorage.getItem('pikmin_scroll');
-                        if (saved) { requestAnimationFrame(() => window.scrollTo(0, parseInt(saved))); }
-                    } catch {}
-                })();
+                // Restore scroll position — Supabase client handles token refresh automatically
+                try {
+                    const saved = sessionStorage.getItem('pikmin_scroll');
+                    if (saved) { requestAnimationFrame(() => window.scrollTo(0, parseInt(saved))); }
+                } catch {}
             }
         });
-        window.addEventListener('focus', async () => {
-            try {
-                const { data: { session }, error } = await supabaseClient.auth.getSession();
-                if (error) await supabaseClient.auth.refreshSession();
-            } catch (err) {}
+        // No manual focus handler needed — Supabase JS v2 auto-refreshes tokens
+
+        // ==================== 長按 Logo 開啟管理面板（秘密入口） ====================
+        let longPressTimer = null;
+        document.addEventListener('DOMContentLoaded', () => {
+            const icon = document.getElementById('seedlingIcon');
+            if (!icon) return;
+            icon.addEventListener('touchstart', (e) => { longPressTimer = setTimeout(() => { toggleToolPanel(); }, 1500); }, { passive: true });
+            icon.addEventListener('touchend', () => { clearTimeout(longPressTimer); });
+            icon.addEventListener('touchmove', () => { clearTimeout(longPressTimer); });
+            // Desktop: double-click
+            icon.addEventListener('dblclick', () => { toggleToolPanel(); });
         });
 
         // ==================== 初始化 ====================
@@ -729,8 +786,6 @@
         const STORAGE_BUCKET = 'spot-images';
 
         async function uploadImageToStorage(file) {
-            // Refresh session before upload to avoid expired token
-            await supabaseClient.auth.getSession();
             const ext = file.name.split('.').pop() || 'jpg';
             const fileName = `${Date.now()}_${Math.random().toString(36).slice(2,8)}.${ext}`;
             const { data, error } = await supabaseClient.storage
@@ -1237,6 +1292,8 @@
                 r.textContent = isAdmin ? '管理員' : '';
                 r.style.display = isAdmin ? 'inline-block' : 'none';
             } else { ui.style.display = 'none'; gi.style.display = 'inline-block'; }
+            // Show gear button only for admin
+            document.getElementById('fabGear').style.display = isAdmin ? 'flex' : 'none';
         }
 
         function showLoginModal() { loginModal.classList.add('active'); }
@@ -1349,7 +1406,7 @@
                 if (saved.searchQuery) { searchQuery = saved.searchQuery; document.getElementById('searchInput').value = saved.searchQuery; }
                 if (saved.currentViewMode) currentViewMode = saved.currentViewMode;
                 // Update UI to reflect restored state
-                document.querySelectorAll('.type-pill').forEach(p => p.classList.toggle('active', p.dataset.filter === currentFilter));
+                document.querySelectorAll('.stat-card[data-filter]').forEach(c => c.classList.toggle('active', c.dataset.filter === currentFilter));
                 document.querySelectorAll('.view-mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === currentViewMode));
                 document.getElementById('countryInput').value = currentCountry === 'all' ? '🌍 全部國家' : currentCountry;
                 document.getElementById('cityInput').value = currentCity === 'all' ? '🏙️ 全部縣市' : currentCity;
@@ -1376,8 +1433,8 @@
         // ==================== 篩選（全部走伺服器端查詢）====================
         function setFilter(type) {
             currentFilter = type;
-            document.querySelectorAll('.type-pill').forEach(p => p.classList.toggle('active', p.dataset.filter === type));
-            loadSpots(); // Reload from server with new filter
+            document.querySelectorAll('.stat-card[data-filter]').forEach(c => c.classList.toggle('active', c.dataset.filter === type));
+            loadSpots();
         }
 
         document.getElementById('searchInput').addEventListener('input', (e) => {
@@ -1390,7 +1447,7 @@
         function clearAllFilters() {
             currentFilter = 'all'; currentCountry = 'all'; currentCity = 'all'; currentTag = 'all'; searchQuery = '';
             document.getElementById('searchInput').value = '';
-            document.querySelectorAll('.type-pill').forEach(p => p.classList.toggle('active', p.dataset.filter === 'all'));
+            document.querySelectorAll('.stat-card[data-filter]').forEach(c => c.classList.toggle('active', c.dataset.filter === 'all'));
             document.getElementById('countryInput').value = '🌍 全部國家';
             document.getElementById('cityInput').value = '🏙️ 全部縣市';
             tagExpanded = false;
@@ -1498,14 +1555,10 @@
                 if (btn) { btn.classList.add('uploading'); btn.textContent = '⏳'; }
 
                 try {
-                    await supabaseClient.auth.getSession();
                     const imageUrl = await uploadImageToStorage(file);
-                    const { error } = await supabaseClient.from('spots')
-                        .update({ image_url: imageUrl })
-                        .eq('id', spotId);
-                    if (error) throw error;
+                    await safeQuery(() => supabaseClient.from('spots').update({ image_url: imageUrl }).eq('id', spotId));
 
-                    const spot = spots.find(s => s.id === spotId);
+                    const spot = spots.find(s => String(s.id) === String(spotId));
                     if (spot) spot.image_url = imageUrl;
                     if (card) card.outerHTML = renderSpotCard(spot);
                     showToast('📷 圖片已上傳！');
@@ -1632,17 +1685,13 @@
             const progress = document.getElementById('batchProgress');
             progress.style.display = 'block';
 
-            await supabaseClient.auth.getSession();
             let ok = 0, fail = 0;
             for (let i = 0; i < validItems.length; i++) {
                 const item = validItems[i];
                 progress.textContent = `上傳中 ${i + 1} / ${validItems.length}...`;
                 try {
                     const imageUrl = await uploadImageToStorage(item.file);
-                    const { error } = await supabaseClient.from('spots')
-                        .update({ image_url: imageUrl })
-                        .eq('id', item.spotId);
-                    if (error) throw error;
+                    await safeQuery(() => supabaseClient.from('spots').update({ image_url: imageUrl }).eq('id', item.spotId));
                     ok++;
                 } catch { fail++; }
             }
@@ -1683,21 +1732,28 @@
         function escapeHtml(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
         async function updateStats() {
             try {
-                // Query counts directly from DB for accuracy regardless of pagination
                 const types = ['flower', 'pikmin', 'mushroom', 'postcard'];
+                let total = 0;
                 for (const type of types) {
                     const { count, error } = await supabaseClient
                         .from('spots')
                         .select('*', { count: 'exact', head: true })
                         .eq('type', type);
-                    if (!error) document.getElementById(`stat-${type}`).textContent = count || 0;
+                    const n = (!error && count) ? count : 0;
+                    document.getElementById(`stat-${type}`).textContent = n;
+                    total += n;
                 }
+                document.getElementById('stat-all').textContent = total;
             } catch (e) {
-                // Fallback to local data
-                document.getElementById('stat-flower').textContent = spots.filter(s => s.type === 'flower').length;
-                document.getElementById('stat-pikmin').textContent = spots.filter(s => s.type === 'pikmin').length;
-                document.getElementById('stat-mushroom').textContent = spots.filter(s => s.type === 'mushroom').length;
-                document.getElementById('stat-postcard').textContent = spots.filter(s => s.type === 'postcard').length;
+                const fl = spots.filter(s => s.type === 'flower').length;
+                const pk = spots.filter(s => s.type === 'pikmin').length;
+                const ms = spots.filter(s => s.type === 'mushroom').length;
+                const pc = spots.filter(s => s.type === 'postcard').length;
+                document.getElementById('stat-flower').textContent = fl;
+                document.getElementById('stat-pikmin').textContent = pk;
+                document.getElementById('stat-mushroom').textContent = ms;
+                document.getElementById('stat-postcard').textContent = pc;
+                document.getElementById('stat-all').textContent = fl + pk + ms + pc;
             }
         }
 
@@ -1715,6 +1771,10 @@
             document.getElementById('imagePreviewContainer').style.display = 'none';
             document.getElementById('imageUploadArea').classList.remove('has-image');
             currentTags = []; renderFormTags();
+            // Try to restore draft from previous failed save
+            if (restoreDraftFromSession()) {
+                showToast('📝 已恢復上次未儲存的草稿');
+            }
             modalOverlay.classList.add('active');
         }
         function closeModal() { modalOverlay.classList.remove('active'); }
@@ -1757,15 +1817,12 @@
 
             try {
                 setSyncStatus('syncing');
-                await supabaseClient.auth.getSession();
 
                 let name, country, city, lat, lng, type, note, tags, imgFile, eid;
 
                 if (savedData) {
-                    // Submitting from pending data after login
                     ({ name, country, city, lat, lng, type, note, tags, imageFile: imgFile, editingId: eid } = savedData);
                 } else {
-                    // Normal submit from form
                     name = document.getElementById('inputName').value.trim();
                     country = document.getElementById('inputCountry').value.trim();
                     city = document.getElementById('inputCity').value.trim() || null;
@@ -1778,43 +1835,43 @@
                     eid = editingId;
                 }
 
-                // Upload image to Storage if file exists
+                // Upload image
                 let imageUrl = null;
                 if (imgFile) {
                     showToast('⏳ 上傳圖片中...');
                     imageUrl = await uploadImageToStorage(imgFile);
                 } else if (eid) {
-                    const existing = spots.find(s => s.id === eid);
+                    const existing = spots.find(s => String(s.id) === String(eid));
                     imageUrl = existing?.image_url || null;
                 }
 
                 const spotData = { name, country, city, lat, lng, type, note, tags, image_url: imageUrl };
 
                 if (eid) {
-                    // Record who edited and when
                     spotData.updated_at = new Date().toISOString();
-                    // Check if editor is different from creator
                     const originalSpot = spots.find(s => String(s.id) === String(eid)) || profileSpots.find(s => String(s.id) === String(eid));
                     if (originalSpot && currentUser && originalSpot.created_by !== currentUser.id) {
                         spotData.updated_by_name = getUserDisplayName(currentUser);
                     } else {
-                        // Self-edit: clear updated_by_name (just show date)
                         spotData.updated_by_name = null;
                     }
-                    const { error } = await supabaseClient.from('spots').update(spotData).eq('id', eid);
-                    if (error) throw error;
+                    // Use safeQuery for auto-retry on token expiry
+                    await safeQuery(() => supabaseClient.from('spots').update(spotData).eq('id', eid));
                     showToast('✏️ 純點已更新！');
                 } else {
                     spotData.created_by = currentUser.id;
                     spotData.created_by_name = getUserDisplayName(currentUser);
-                    const { error } = await supabaseClient.from('spots').insert([spotData]);
-                    if (error) throw error;
+                    await safeQuery(() => supabaseClient.from('spots').insert([spotData]));
                     showToast('🌱 新純點已加入！');
                 }
+                clearDraft();
                 closeModal(); await loadFilterMetadata(); await loadSpots();
             } catch (error) {
                 console.error('Save error:', error);
-                setSyncStatus('error'); showToast('❌ 儲存失敗：' + error.message);
+                setSyncStatus('error');
+                // Save draft so user doesn't lose their work
+                saveDraftToSession();
+                showToast('❌ 儲存失敗，表單內容已暫存。請重新整理後再試。');
             } finally { if (btn) { btn.disabled = false; btn.textContent = editingId ? '✨ 更新純點' : '✨ 新增純點'; } }
         }
 
@@ -1843,13 +1900,12 @@
             selectType(s.type); modalOverlay.classList.add('active');
         };
         window.deleteSpot = async function(id) {
-            const spot = spots.find(s => s.id === id);
+            const spot = spots.find(s => String(s.id) === String(id));
             if (!spot || !canDeleteSpot(spot)) { showToast('❌ 你沒有權限刪除此純點'); return; }
             if (!confirm('確定要刪除這個純點嗎？')) return;
             try {
-                setSyncStatus('syncing'); await supabaseClient.auth.getSession();
-                const { error } = await supabaseClient.from('spots').delete().eq('id', id);
-                if (error) throw error;
+                setSyncStatus('syncing');
+                await safeQuery(() => supabaseClient.from('spots').delete().eq('id', id));
                 await loadSpots(); showToast('🗑️ 純點已刪除');
             } catch (e) { console.error(e); setSyncStatus('error'); showToast('❌ 刪除失敗：' + e.message); }
         };
@@ -1953,22 +2009,15 @@
 
         async function toggleFavorite(spotId) {
             if (!currentUser) { showToast('👤 請先登入才能收藏'); showLoginModal(); return; }
-            spotId = String(spotId); // Ensure string
+            spotId = String(spotId);
             const isFav = userFavorites.has(spotId);
             try {
-                await supabaseClient.auth.getSession(); // Refresh session
                 if (isFav) {
-                    const { error } = await supabaseClient.from('favorites')
-                        .delete()
-                        .eq('user_id', currentUser.id)
-                        .eq('spot_id', spotId);
-                    if (error) { console.error('Delete fav error:', error); throw error; }
+                    await safeQuery(() => supabaseClient.from('favorites').delete().eq('user_id', currentUser.id).eq('spot_id', spotId));
                     userFavorites.delete(spotId);
                     showToast('已取消收藏');
                 } else {
-                    const { error } = await supabaseClient.from('favorites')
-                        .insert([{ user_id: currentUser.id, spot_id: spotId }]);
-                    if (error) { console.error('Insert fav error:', error); throw error; }
+                    await safeQuery(() => supabaseClient.from('favorites').insert([{ user_id: currentUser.id, spot_id: spotId }]));
                     userFavorites.add(spotId);
                     showToast('⭐ 已加入收藏');
                 }
