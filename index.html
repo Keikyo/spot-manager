@@ -729,6 +729,8 @@
         const STORAGE_BUCKET = 'spot-images';
 
         async function uploadImageToStorage(file) {
+            // Refresh session before upload to avoid expired token
+            await supabaseClient.auth.getSession();
             const ext = file.name.split('.').pop() || 'jpg';
             const fileName = `${Date.now()}_${Math.random().toString(36).slice(2,8)}.${ext}`;
             const { data, error } = await supabaseClient.storage
@@ -1279,8 +1281,11 @@
                 if (reset) {
                     currentPage = 0;
                     hasMoreData = true;
+                    isLoadingMore = false;
                     spots = [];
                     spotList.innerHTML = '';
+                    document.getElementById('paginationEnd').style.display = 'none';
+                    document.getElementById('paginationLoader').style.display = 'none';
                 }
                 const from = currentPage * PAGE_SIZE;
                 const to = from + PAGE_SIZE - 1;
@@ -1876,8 +1881,8 @@
 
         // ==================== 詳細資料彈窗 ====================
         function openDetail(spotId) {
-            if (selectMode) return; // Don't open detail in select mode
-            const s = spots.find(x => x.id === spotId);
+            if (selectMode) return;
+            const s = spots.find(x => String(x.id) === String(spotId));
             if (!s) return;
             const isFav = userFavorites.has(s.id);
             const showEdit = canEditSpot(s);
@@ -1922,28 +1927,35 @@
 
         async function toggleFavorite(spotId) {
             if (!currentUser) { showToast('👤 請先登入才能收藏'); showLoginModal(); return; }
+            spotId = String(spotId); // Ensure string
             const isFav = userFavorites.has(spotId);
             try {
+                await supabaseClient.auth.getSession(); // Refresh session
                 if (isFav) {
                     const { error } = await supabaseClient.from('favorites')
                         .delete()
                         .eq('user_id', currentUser.id)
                         .eq('spot_id', spotId);
-                    if (error) throw error;
+                    if (error) { console.error('Delete fav error:', error); throw error; }
                     userFavorites.delete(spotId);
                     showToast('已取消收藏');
                 } else {
                     const { error } = await supabaseClient.from('favorites')
                         .insert([{ user_id: currentUser.id, spot_id: spotId }]);
-                    if (error) throw error;
+                    if (error) { console.error('Insert fav error:', error); throw error; }
                     userFavorites.add(spotId);
                     showToast('⭐ 已加入收藏');
                 }
-                renderSpots(true); // Re-render to update favorite buttons
-            } catch (e) { console.error('Toggle favorite error:', e); showToast('❌ 操作失敗'); }
+                renderSpots(true);
+            } catch (e) {
+                console.error('Toggle favorite error:', e);
+                showToast('❌ 收藏操作失敗：' + (e.message || '請確認 favorites 表已建立'));
+            }
         }
 
         // ==================== 個人頁面 ====================
+        let profileSpots = []; // Store profile data separately
+
         async function openProfile() {
             if (!currentUser) { showLoginModal(); return; }
             document.getElementById('profileAvatar').src = getUserAvatar(currentUser) || '';
@@ -1971,27 +1983,27 @@
                 let items = [];
                 if (profileTab === 'my') {
                     const { data, error } = await supabaseClient.from('spots')
-                        .select('id,name,country,city,type,image_url')
+                        .select('id,name,country,city,type,image_url,lat,lng,note,tags,created_by,created_by_name,created_at')
                         .eq('created_by', currentUser.id)
                         .order('created_at', { ascending: false })
                         .limit(50);
                     if (!error) items = data || [];
                 } else {
-                    // Load favorites
                     const favIds = [...userFavorites];
                     if (favIds.length > 0) {
                         const { data, error } = await supabaseClient.from('spots')
-                            .select('id,name,country,city,type,image_url')
+                            .select('id,name,country,city,type,image_url,lat,lng,note,tags,created_by,created_by_name,created_at')
                             .in('id', favIds);
                         if (!error) items = data || [];
                     }
                 }
+                profileSpots = items;
                 if (!items.length) {
                     list.innerHTML = `<div class="profile-empty">${profileTab === 'my' ? '你還沒有新增純點' : '你還沒有收藏任何純點'}</div>`;
                     return;
                 }
                 list.innerHTML = items.map(s => `
-                    <div class="profile-spot-item" onclick="closeProfile();openDetail('${s.id}')">
+                    <div class="profile-spot-item" onclick="openDetailFromProfile('${s.id}')">
                         ${s.image_url ? `<img class="profile-spot-img" src="${escapeHtml(s.image_url)}">` : `<div class="profile-spot-img" style="background:#F0F0F0;display:flex;align-items:center;justify-content:center;font-size:1.2rem;">${getTypeLabel(s.type).split(' ')[0]}</div>`}
                         <div class="profile-spot-info">
                             <div class="profile-spot-name">${escapeHtml(s.name)}</div>
@@ -2000,6 +2012,41 @@
                     </div>
                 `).join('');
             } catch (e) { console.error('Profile list error:', e); list.innerHTML = '<div class="profile-empty">載入失敗</div>'; }
+        }
+
+        // Open detail from profile - uses profileSpots data since spot may not be in main list
+        function openDetailFromProfile(spotId) {
+            closeProfile();
+            // First try main spots array, then profileSpots
+            let s = spots.find(x => String(x.id) === String(spotId));
+            if (!s) s = profileSpots.find(x => String(x.id) === String(spotId));
+            if (!s) { showToast('找不到此純點'); return; }
+            // Render detail directly
+            const isFav = userFavorites.has(String(s.id));
+            const showEdit = canEditSpot(s);
+            const showDelete = canDeleteSpot(s);
+            const container = document.getElementById('detailModalContent');
+            container.innerHTML = `
+                ${s.image_url ? `<img class="detail-modal-img" src="${escapeHtml(s.image_url)}" onclick="openLightbox(this.src)" style="cursor:zoom-in;">` : ''}
+                <div class="detail-modal-body">
+                    <div class="detail-modal-name">${escapeHtml(s.name)}</div>
+                    <div class="detail-modal-meta">
+                        ${s.country ? `<span class="spot-region">🌍 ${escapeHtml(s.country)}</span>` : ''}
+                        ${s.city ? `<span class="spot-city">🏙️ ${escapeHtml(s.city)}</span>` : ''}
+                        <span class="spot-type-badge ${s.type}">${getTypeLabel(s.type)}</span>
+                    </div>
+                    <div class="detail-modal-coords">${s.lat}, ${s.lng}</div>
+                    ${s.tags && s.tags.length ? `<div class="spot-tags">${s.tags.map(t => `<span class="spot-tag">#${escapeHtml(t)}</span>`).join('')}</div>` : ''}
+                    ${s.note ? `<div class="detail-modal-note">${escapeHtml(s.note)}</div>` : ''}
+                    ${s.created_by_name ? `<div class="detail-modal-by">By ${escapeHtml(s.created_by_name)}</div>` : ''}
+                    <div class="detail-modal-actions">
+                        <button class="btn btn-copy" onclick="copyCoords('${s.lat}, ${s.lng}')">📋 複製座標</button>
+                        ${currentUser ? `<button class="btn btn-fav ${isFav ? 'active' : ''}" onclick="toggleFavorite('${s.id}');closeDetail();">${isFav ? '⭐ 已收藏' : '☆ 收藏'}</button>` : ''}
+                        ${showEdit ? `<button class="btn btn-edit" onclick="closeDetail();editSpot('${s.id}')">✏️ 編輯</button>` : ''}
+                        ${showDelete ? `<button class="btn btn-delete" onclick="closeDetail();deleteSpot('${s.id}')">🗑️ 刪除</button>` : ''}
+                    </div>
+                </div>`;
+            document.getElementById('detailModal').classList.add('active');
         }
 
         // ==================== 標籤搜尋 ====================
