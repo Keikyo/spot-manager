@@ -407,6 +407,10 @@
                     </div>
                 </div>
             </div>
+            <!-- Clear filters button - only shown when filters are active -->
+            <div id="clearFilterBar" style="display:none;margin-top:10px;text-align:right;">
+                <button onclick="clearAllFilters()" style="padding:6px 14px;background:#FFEBEE;border:2px solid #EF9A9A;border-radius:10px;font-size:0.78rem;font-weight:600;cursor:pointer;color:#C62828;font-family:inherit;">✕ 清除所有篩選</button>
+            </div>
         </div>
         <!-- View Mode Bar -->
         <div class="view-mode-bar">
@@ -446,6 +450,7 @@
             <button class="btn-utility" onclick="openBatchUpload();closeToolPanel();" style="background:#F3E5F5;border-color:#CE93D8;color:#7B1FA2;">📷 批次上傳圖片</button>
             <button class="btn-utility" id="btnMigrate" onclick="migrateBase64ToStorage()" style="display:none;background:#FFF3E0;border-color:#FF9800;color:#E65100;">🔄 遷移舊圖片到 Storage</button>
             <button class="btn-utility" id="btnClaimData" onclick="claimLegacyData()" style="display:none;background:#E8F5E9;border-color:#66BB6A;color:#2E7D32;">👤 認領舊資料為我的</button>
+            <button class="btn-utility" id="btnAdminLogin" onclick="loginAsAdmin();closeToolPanel();" style="background:#F5F5F5;border-color:#CCC;color:#888;font-size:0.75rem;">🔑 管理員密碼登入</button>
         </div>
     </div>
     <div class="select-bar" id="selectBar">
@@ -537,10 +542,6 @@
                 <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
                 使用 Google 帳號登入
             </button>
-            <div style="display:flex;align-items:center;gap:12px;margin:16px 0;color:#CCC;font-size:0.8rem;">
-                <div style="flex:1;height:1px;background:#E0E0E0;"></div>或<div style="flex:1;height:1px;background:#E0E0E0;"></div>
-            </div>
-            <button class="btn-admin" onclick="loginAsAdmin()" style="font-size:0.88rem;padding:12px;">🔑 管理員密碼登入</button>
             <button class="btn-cancel" onclick="closeLoginModal()" style="margin-top: 12px; width: 100%;">以訪客身分繼續</button>
         </div>
     </div>
@@ -628,7 +629,8 @@
         }
 
         async function init() {
-            await loadFilterMetadata(); // Load lightweight metadata for filters
+            restoreFiltersFromSession(); // Restore filters before loading
+            await loadFilterMetadata();
             await loadSpots();
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (session) { currentUser = session.user; await checkAdminStatus(); updateUserInfo(); renderSpots(); }
@@ -640,7 +642,6 @@
                     updateUserInfo();
                     renderSpots();
                     showToast('✅ 登入成功！');
-                    // Auto-submit pending spot if guest had filled form before login
                     if (pendingSpotSubmit) {
                         const saved = pendingSpotSubmit;
                         pendingSpotSubmit = null;
@@ -648,10 +649,11 @@
                         await doSubmitSpot(saved);
                     }
                 }
-                else if (event === 'SIGNED_OUT') { currentUser = null; isAdmin = false; updateUserInfo(); renderSpots(); }
+                else if (event === 'SIGNED_OUT') { currentUser = null; isAdmin = false; updateUserInfo(); loadSpots(); }
                 else if (event === 'TOKEN_REFRESHED' && session) { currentUser = session.user; }
             });
             initSearchableSelects(); initImageUpload(); initTagsInput(); initCoordsInput(); initPagination();
+            updateClearFilterBar();
         }
 
         // ==================== 圖片上傳 (Supabase Storage) ====================
@@ -1018,8 +1020,8 @@
             if (!filtered.length) { container.innerHTML = '<div class="select-option no-results">找不到結果</div>'; return; }
             container.innerHTML = filtered.map(c => `<div class="select-option ${c === currentCity ? 'active' : ''}" onclick="selectCity('${c}')">${c === 'all' ? '🏙️ 全部縣市' : c}</div>`).join('');
         }
-        function selectCountry(c) { currentCountry = c; currentCity = 'all'; document.getElementById('countryInput').value = c === 'all' ? '🌍 全部國家' : c; document.getElementById('cityInput').value = '🏙️ 全部縣市'; closeAllDropdowns(); renderSpots(); }
-        function selectCity(c) { currentCity = c; document.getElementById('cityInput').value = c === 'all' ? '🏙️ 全部縣市' : c; closeAllDropdowns(); renderSpots(); }
+        function selectCountry(c) { currentCountry = c; currentCity = 'all'; document.getElementById('countryInput').value = c === 'all' ? '🌍 全部國家' : c; document.getElementById('cityInput').value = '🏙️ 全部縣市'; closeAllDropdowns(); loadSpots(); }
+        function selectCity(c) { currentCity = c; document.getElementById('cityInput').value = c === 'all' ? '🏙️ 全部縣市' : c; closeAllDropdowns(); loadSpots(); }
 
         // ==================== 標籤篩選 ====================
         function getAllTags() {
@@ -1048,7 +1050,7 @@
             c.innerHTML = html;
         }
         function toggleTagExpand() { tagExpanded = !tagExpanded; renderTagFilters(); }
-        function setTagFilter(t) { currentTag = t; renderTagFilters(); renderSpots(); }
+        function setTagFilter(t) { currentTag = t; renderTagFilters(); loadSpots(); }
 
         // ==================== 登入 ====================
         const SITE_URL = 'https://keikyo.github.io/spot-manager';
@@ -1064,21 +1066,48 @@
         }
 
         async function loginAsAdmin() {
-            const pw = prompt('請輸入管理員密碼：'); if (!pw) return;
-            try {
-                setSyncStatus('syncing');
-                const { data, error } = await supabaseClient.auth.signInWithPassword({ email: ADMIN_EMAIL, password: pw });
-                if (error) {
-                    if (error.message.includes('Invalid login credentials')) {
-                        if (!confirm('帳號尚未建立，是否使用此密碼建立管理員帳號？')) { setSyncStatus('synced'); return; }
-                        const { data: sd, error: se } = await supabaseClient.auth.signUp({ email: ADMIN_EMAIL, password: pw });
-                        if (se) throw se;
-                        if (sd.user) await supabaseClient.from('users').upsert({ id: sd.user.id, email: ADMIN_EMAIL, role: 'admin' }, { onConflict: 'id' });
-                        showToast('✅ 管理員帳號已建立！');
-                    } else throw error;
-                }
-                setSyncStatus('synced');
-            } catch (e) { console.error(e); setSyncStatus('error'); showToast('❌ 登入失敗：' + e.message); }
+            // Create a temporary password input overlay
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:2000;display:flex;align-items:center;justify-content:center;padding:16px;';
+            overlay.innerHTML = `
+                <div style="background:white;border-radius:16px;padding:24px;max-width:340px;width:100%;text-align:center;">
+                    <div style="font-size:1.1rem;font-weight:800;color:var(--dark-green);margin-bottom:12px;">🔑 管理員登入</div>
+                    <input type="password" id="adminPwInput" placeholder="輸入管理員密碼" style="width:100%;padding:12px;border:2px solid #E8E8E8;border-radius:12px;font-size:0.95rem;font-family:inherit;margin-bottom:12px;">
+                    <div style="display:flex;gap:10px;">
+                        <button id="adminPwCancel" style="flex:1;padding:10px;background:#F5F5F5;border:none;border-radius:10px;font-weight:700;cursor:pointer;font-family:inherit;color:#666;">取消</button>
+                        <button id="adminPwSubmit" style="flex:2;padding:10px;background:linear-gradient(135deg,#FF6B35,#F7931A);border:none;border-radius:10px;font-weight:700;cursor:pointer;font-family:inherit;color:white;">登入</button>
+                    </div>
+                </div>`;
+            document.body.appendChild(overlay);
+            const pwInput = document.getElementById('adminPwInput');
+            pwInput.focus();
+
+            return new Promise((resolve) => {
+                const cleanup = () => { document.body.removeChild(overlay); resolve(); };
+                document.getElementById('adminPwCancel').onclick = cleanup;
+                overlay.onclick = (e) => { if (e.target === overlay) cleanup(); };
+
+                const doLogin = async () => {
+                    const pw = pwInput.value; if (!pw) return;
+                    try {
+                        setSyncStatus('syncing');
+                        const { data, error } = await supabaseClient.auth.signInWithPassword({ email: ADMIN_EMAIL, password: pw });
+                        if (error) {
+                            if (error.message.includes('Invalid login credentials')) {
+                                if (!confirm('帳號尚未建立，是否使用此密碼建立管理員帳號？')) { setSyncStatus('synced'); cleanup(); return; }
+                                const { data: sd, error: se } = await supabaseClient.auth.signUp({ email: ADMIN_EMAIL, password: pw });
+                                if (se) throw se;
+                                if (sd.user) await supabaseClient.from('users').upsert({ id: sd.user.id, email: ADMIN_EMAIL, role: 'admin' }, { onConflict: 'id' });
+                                showToast('✅ 管理員帳號已建立！');
+                            } else throw error;
+                        }
+                        setSyncStatus('synced');
+                    } catch (e) { console.error(e); setSyncStatus('error'); showToast('❌ 登入失敗：' + e.message); }
+                    cleanup();
+                };
+                document.getElementById('adminPwSubmit').onclick = doLogin;
+                pwInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') doLogin(); });
+            });
         }
 
         async function logout() {
@@ -1142,7 +1171,24 @@
             return false;
         }
 
-        // ==================== 資料載入 (分頁) ====================
+        // ==================== 資料載入 (伺服器端篩選 + 分頁) ====================
+        let searchDebounceTimer = null;
+
+        function buildQuery(fromIdx, toIdx) {
+            let q = supabaseClient.from('spots')
+                .select('id,name,lat,lng,type,country,city,note,tags,image_url,created_at,created_by,created_by_name')
+                .order('created_at', { ascending: false });
+
+            // Server-side filters
+            if (currentFilter !== 'all') q = q.eq('type', currentFilter);
+            if (currentCountry !== 'all') q = q.eq('country', currentCountry);
+            if (currentCity !== 'all') q = q.eq('city', currentCity);
+            if (currentTag !== 'all') q = q.contains('tags', [currentTag]);
+            if (searchQuery) q = q.or(`name.ilike.%${searchQuery}%,note.ilike.%${searchQuery}%,country.ilike.%${searchQuery}%,city.ilike.%${searchQuery}%`);
+
+            return q.range(fromIdx, toIdx);
+        }
+
         async function loadSpots(reset = true) {
             try {
                 setSyncStatus('syncing');
@@ -1154,20 +1200,16 @@
                 }
                 const from = currentPage * PAGE_SIZE;
                 const to = from + PAGE_SIZE - 1;
-                const { data, error } = await supabaseClient.from('spots')
-                    .select('id,name,lat,lng,type,country,city,note,tags,image_url,created_at,created_by,created_by_name')
-                    .order('created_at', { ascending: false })
-                    .range(from, to);
+                const { data, error } = await buildQuery(from, to);
                 if (error) throw error;
                 const newData = data || [];
                 if (newData.length < PAGE_SIZE) hasMoreData = false;
                 spots = reset ? newData : [...spots, ...newData];
                 currentPage++;
-                document.getElementById('countryInput').value = currentCountry === 'all' ? '🌍 全部國家' : currentCountry;
-                document.getElementById('cityInput').value = currentCity === 'all' ? '🏙️ 全部縣市' : currentCity;
                 renderSpots(reset);
                 updateStats(); renderTagFilters(); setSyncStatus('synced');
                 updatePaginationUI();
+                saveFiltersToSession();
             } catch (e) { console.error(e); setSyncStatus('error'); showToast('❌ 載入失敗'); }
         }
 
@@ -1185,20 +1227,50 @@
             document.getElementById('paginationEnd').style.display = hasMoreData ? 'none' : 'block';
         }
 
-        // Infinite scroll with IntersectionObserver
         const paginationObserver = new IntersectionObserver((entries) => {
             if (entries[0].isIntersecting && hasMoreData && !isLoadingMore) {
                 loadMoreSpots();
             }
         }, { rootMargin: '200px' });
 
-        // Will observe after init
         function initPagination() {
             const sentinel = document.getElementById('paginationSentinel');
             if (sentinel) paginationObserver.observe(sentinel);
         }
 
         function setSyncStatus(s) { syncStatus.className = `sync-status ${s}`; syncStatus.textContent = { syncing: '⏳ 同步中...', synced: '✨ 已同步', error: '❌ 同步失敗' }[s] || ''; }
+
+        // ==================== 篩選條件記憶 (sessionStorage) ====================
+        function saveFiltersToSession() {
+            try {
+                sessionStorage.setItem('pikmin_filters', JSON.stringify({
+                    currentFilter, currentCountry, currentCity, currentTag, searchQuery, currentViewMode
+                }));
+            } catch {}
+            updateClearFilterBar();
+        }
+        function restoreFiltersFromSession() {
+            try {
+                const saved = JSON.parse(sessionStorage.getItem('pikmin_filters'));
+                if (!saved) return;
+                if (saved.currentFilter) currentFilter = saved.currentFilter;
+                if (saved.currentCountry) currentCountry = saved.currentCountry;
+                if (saved.currentCity) currentCity = saved.currentCity;
+                if (saved.currentTag) currentTag = saved.currentTag;
+                if (saved.searchQuery) { searchQuery = saved.searchQuery; document.getElementById('searchInput').value = saved.searchQuery; }
+                if (saved.currentViewMode) currentViewMode = saved.currentViewMode;
+                // Update UI to reflect restored state
+                document.querySelectorAll('.type-pill').forEach(p => p.classList.toggle('active', p.dataset.filter === currentFilter));
+                document.querySelectorAll('.view-mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === currentViewMode));
+                document.getElementById('countryInput').value = currentCountry === 'all' ? '🌍 全部國家' : currentCountry;
+                document.getElementById('cityInput').value = currentCity === 'all' ? '🏙️ 全部縣市' : currentCity;
+                // Apply view mode class
+                spotList.classList.remove('grid-view', 'list-view', 'large-view');
+                if (currentViewMode === 'grid') spotList.classList.add('grid-view');
+                else if (currentViewMode === 'list') spotList.classList.add('list-view');
+                else spotList.classList.add('large-view');
+            } catch {}
+        }
 
         // ==================== 檢視模式 ====================
         function setViewMode(mode) {
@@ -1209,22 +1281,38 @@
             else if (mode === 'list') spotList.classList.add('list-view');
             else spotList.classList.add('large-view');
             renderSpots(true);
+            saveFiltersToSession();
         }
 
-        // ==================== 篩選 & 渲染 ====================
-        function setFilter(type) { currentFilter = type; document.querySelectorAll('.type-pill').forEach(p => p.classList.toggle('active', p.dataset.filter === type)); renderSpots(true); }
-        document.getElementById('searchInput').addEventListener('input', (e) => { searchQuery = e.target.value.toLowerCase(); renderSpots(true); });
+        // ==================== 篩選（全部走伺服器端查詢）====================
+        function setFilter(type) {
+            currentFilter = type;
+            document.querySelectorAll('.type-pill').forEach(p => p.classList.toggle('active', p.dataset.filter === type));
+            loadSpots(); // Reload from server with new filter
+        }
 
-        function getFilteredSpots() {
-            return spots.filter(s => {
-                const mt = currentFilter === 'all' || s.type === currentFilter;
-                const mc = currentCountry === 'all' || s.country === currentCountry;
-                const mci = currentCity === 'all' || s.city === currentCity;
-                const mtag = currentTag === 'all' || (s.tags && s.tags.includes(currentTag));
-                const ts = (s.tags || []).join(' ').toLowerCase();
-                const ms = s.name.toLowerCase().includes(searchQuery) || (s.note && s.note.toLowerCase().includes(searchQuery)) || (s.country && s.country.toLowerCase().includes(searchQuery)) || (s.city && s.city.toLowerCase().includes(searchQuery)) || ts.includes(searchQuery);
-                return mt && mc && mci && mtag && ms;
-            });
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            searchQuery = e.target.value.trim();
+            // Debounce: wait 400ms after user stops typing
+            clearTimeout(searchDebounceTimer);
+            searchDebounceTimer = setTimeout(() => loadSpots(), 400);
+        });
+
+        function clearAllFilters() {
+            currentFilter = 'all'; currentCountry = 'all'; currentCity = 'all'; currentTag = 'all'; searchQuery = '';
+            document.getElementById('searchInput').value = '';
+            document.querySelectorAll('.type-pill').forEach(p => p.classList.toggle('active', p.dataset.filter === 'all'));
+            document.getElementById('countryInput').value = '🌍 全部國家';
+            document.getElementById('cityInput').value = '🏙️ 全部縣市';
+            tagExpanded = false;
+            updateClearFilterBar();
+            loadSpots();
+        }
+
+        function updateClearFilterBar() {
+            const hasFilters = currentFilter !== 'all' || currentCountry !== 'all' || currentCity !== 'all' || currentTag !== 'all' || searchQuery;
+            const bar = document.getElementById('clearFilterBar');
+            if (bar) bar.style.display = hasFilters ? 'block' : 'none';
         }
 
         function renderSpotCard(s) {
@@ -1268,15 +1356,13 @@
         }
 
         function renderSpots(reset = true) {
-            const fs = getFilteredSpots();
+            const fs = spots; // Already filtered by server query
 
             // Update view mode info
-            const totalCount = fs.length;
-            const noImageCount = fs.filter(s => !s.image_url).length;
-            document.getElementById('viewModeInfo').textContent = `${totalCount} 筆${noImageCount > 0 ? ` (${noImageCount} 無圖)` : ''}`;
+            document.getElementById('viewModeInfo').textContent = `${fs.length}${hasMoreData ? '+' : ''} 筆`;
 
             if (!fs.length) {
-                spotList.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🌱</div><div class="empty-state-text">${spots.length === 0 ? '還沒有純點呢！<br>點擊 + 開始收藏吧' : '找不到符合的純點 🔍'}</div></div>`;
+                spotList.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🌱</div><div class="empty-state-text">${'找不到符合的純點 🔍<br><button onclick=\"clearAllFilters()\" style=\"margin-top:10px;padding:8px 20px;background:var(--light-green);color:white;border:none;border-radius:10px;font-weight:700;cursor:pointer;font-family:inherit;\">清除篩選</button>'}</div></div>`;
                 return;
             }
 
