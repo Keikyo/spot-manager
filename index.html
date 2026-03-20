@@ -690,7 +690,7 @@
         async function loadFilterMetadata() {
             try {
                 const { data, error } = await supabaseClient.from('spots')
-                    .select('id,name,type,country,city,tags')
+                    .select('id,name,type,country,city,tags,created_by')
                     .order('created_at', { ascending: false });
                 if (!error) allSpotsMeta = data || [];
             } catch (e) { console.error('Metadata load error:', e); }
@@ -1262,7 +1262,7 @@
 
         function buildQuery(fromIdx, toIdx) {
             let q = supabaseClient.from('spots')
-                .select('id,name,lat,lng,type,country,city,note,tags,image_url,created_at,created_by,created_by_name')
+                .select('id,name,lat,lng,type,country,city,note,tags,image_url,created_at,created_by,created_by_name,updated_by_name,updated_at')
                 .order('created_at', { ascending: false });
 
             // Server-side filters
@@ -1409,7 +1409,7 @@
             const isList = currentViewMode === 'list';
             const short = isGrid || isList;
             const tagsHtml = s.tags && s.tags.length ? `<div class="spot-tags">${s.tags.map(t => `<span class="spot-tag">#${escapeHtml(t)}</span>`).join('')}</div>` : '';
-            const byLine = s.created_by_name ? `<span style="font-size:0.7rem;color:#999;font-weight:600;">By ${escapeHtml(s.created_by_name)}</span>` : '';
+            const byLine = buildByLine(s);
             const badgesHtml = `<div class="spot-badges">
                 ${s.country ? `<span class="spot-region">🌍 ${escapeHtml(s.country)}</span>` : ''}
                 ${s.city ? `<span class="spot-city">🏙️ ${escapeHtml(s.city)}</span>` : ''}
@@ -1550,7 +1550,7 @@
         }
 
         function renderBatchList() {
-            const spotsWithoutImage = (allSpotsMeta.length ? allSpotsMeta : spots).filter(s => !s.image_url);
+            const spotsWithoutImage = (allSpotsMeta.length ? allSpotsMeta : spots).filter(s => !s.image_url && canEditSpot(s));
             const list = document.getElementById('batchList');
             list.innerHTML = batchItems.map((item, i) => {
                 const selectedSpot = spotsWithoutImage.find(s => s.id === item.spotId);
@@ -1663,6 +1663,22 @@
 
         function openLightbox(src) { document.getElementById('lightboxImage').src = src; document.getElementById('lightboxOverlay').classList.add('active'); }
         function closeLightbox() { document.getElementById('lightboxOverlay').classList.remove('active'); }
+        function buildByLine(s) {
+            let parts = [];
+            if (s.created_by_name) parts.push(`By ${escapeHtml(s.created_by_name)}`);
+            if (s.updated_by_name) {
+                // Different person edited
+                parts.push(`Updated by ${escapeHtml(s.updated_by_name)}`);
+            } else if (s.updated_at) {
+                // Self-edit: just show date
+                const d = new Date(s.updated_at);
+                const dateStr = `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
+                parts.push(`更新於 ${dateStr}`);
+            }
+            if (!parts.length) return '';
+            return `<span style="font-size:0.7rem;color:#999;font-weight:600;">${parts.join(' · ')}</span>`;
+        }
+
         function getTypeLabel(t) { return { flower: '🌸 大花', pikmin: '🌱 皮克敏', mushroom: '🍄 蘑菇', postcard: '🏠 明信片' }[t] || t; }
         function escapeHtml(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
         async function updateStats() {
@@ -1775,6 +1791,16 @@
                 const spotData = { name, country, city, lat, lng, type, note, tags, image_url: imageUrl };
 
                 if (eid) {
+                    // Record who edited and when
+                    spotData.updated_at = new Date().toISOString();
+                    // Check if editor is different from creator
+                    const originalSpot = spots.find(s => String(s.id) === String(eid)) || profileSpots.find(s => String(s.id) === String(eid));
+                    if (originalSpot && currentUser && originalSpot.created_by !== currentUser.id) {
+                        spotData.updated_by_name = getUserDisplayName(currentUser);
+                    } else {
+                        // Self-edit: clear updated_by_name (just show date)
+                        spotData.updated_by_name = null;
+                    }
                     const { error } = await supabaseClient.from('spots').update(spotData).eq('id', eid);
                     if (error) throw error;
                     showToast('✏️ 純點已更新！');
@@ -1900,7 +1926,7 @@
                     <div class="detail-modal-coords">${s.lat}, ${s.lng}</div>
                     ${s.tags && s.tags.length ? `<div class="spot-tags">${s.tags.map(t => `<span class="spot-tag">#${escapeHtml(t)}</span>`).join('')}</div>` : ''}
                     ${s.note ? `<div class="detail-modal-note">${escapeHtml(s.note)}</div>` : ''}
-                    ${s.created_by_name ? `<div class="detail-modal-by">By ${escapeHtml(s.created_by_name)}</div>` : ''}
+                    <div class="detail-modal-by">${buildByLine(s)}</div>
                     <div class="detail-modal-actions">
                         <button class="btn btn-copy" onclick="copyCoords('${s.lat}, ${s.lng}')">📋 複製座標</button>
                         ${currentUser ? `<button class="btn btn-fav ${isFav ? 'active' : ''}" onclick="toggleFavorite('${s.id}');closeDetail();setTimeout(()=>openDetail('${s.id}'),300);">${isFav ? '⭐ 已收藏' : '☆ 收藏'}</button>` : ''}
@@ -1983,7 +2009,7 @@
                 let items = [];
                 if (profileTab === 'my') {
                     const { data, error } = await supabaseClient.from('spots')
-                        .select('id,name,country,city,type,image_url,lat,lng,note,tags,created_by,created_by_name,created_at')
+                        .select('id,name,country,city,type,image_url,lat,lng,note,tags,created_by,created_by_name,created_at,updated_by_name,updated_at')
                         .eq('created_by', currentUser.id)
                         .order('created_at', { ascending: false })
                         .limit(50);
@@ -1992,7 +2018,7 @@
                     const favIds = [...userFavorites];
                     if (favIds.length > 0) {
                         const { data, error } = await supabaseClient.from('spots')
-                            .select('id,name,country,city,type,image_url,lat,lng,note,tags,created_by,created_by_name,created_at')
+                            .select('id,name,country,city,type,image_url,lat,lng,note,tags,created_by,created_by_name,created_at,updated_by_name,updated_at')
                             .in('id', favIds);
                         if (!error) items = data || [];
                     }
@@ -2038,7 +2064,7 @@
                     <div class="detail-modal-coords">${s.lat}, ${s.lng}</div>
                     ${s.tags && s.tags.length ? `<div class="spot-tags">${s.tags.map(t => `<span class="spot-tag">#${escapeHtml(t)}</span>`).join('')}</div>` : ''}
                     ${s.note ? `<div class="detail-modal-note">${escapeHtml(s.note)}</div>` : ''}
-                    ${s.created_by_name ? `<div class="detail-modal-by">By ${escapeHtml(s.created_by_name)}</div>` : ''}
+                    <div class="detail-modal-by">${buildByLine(s)}</div>
                     <div class="detail-modal-actions">
                         <button class="btn btn-copy" onclick="copyCoords('${s.lat}, ${s.lng}')">📋 複製座標</button>
                         ${currentUser ? `<button class="btn btn-fav ${isFav ? 'active' : ''}" onclick="toggleFavorite('${s.id}');closeDetail();">${isFav ? '⭐ 已收藏' : '☆ 收藏'}</button>` : ''}
