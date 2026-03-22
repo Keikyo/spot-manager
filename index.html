@@ -605,12 +605,32 @@
             <img id="profileAvatar" class="profile-avatar" src="">
             <div id="profileName" class="profile-name"></div>
             <div id="profileEmail" class="profile-email"></div>
+            <button onclick="showNicknameModal(false)" style="margin-top:8px;padding:6px 16px;background:white;border:2px solid #C8E6C9;border-radius:12px;font-size:0.78rem;font-weight:700;cursor:pointer;color:var(--primary-green);font-family:inherit;transition:all 0.2s;">✏️ 修改暱稱</button>
         </div>
         <div class="profile-tabs">
             <div class="profile-tab active" data-tab="my" onclick="setProfileTab('my')">我的純點</div>
             <div class="profile-tab" data-tab="fav" onclick="setProfileTab('fav')">我的最愛</div>
         </div>
         <div class="profile-list" id="profileList"></div>
+    </div>
+    <!-- Nickname Modal -->
+    <div class="modal-overlay" id="nicknameModal">
+        <div class="modal" style="max-width:400px;text-align:center;">
+            <div style="font-size:3rem;margin-bottom:8px;">🌱</div>
+            <h2 style="justify-content:center;">設定你的暱稱</h2>
+            <p style="font-size:0.85rem;color:#888;margin-bottom:20px;line-height:1.6;">
+                這個暱稱會顯示在你新增的純點上。<br>
+                你可以隨時在個人頁面修改。
+            </p>
+            <div class="form-group">
+                <input type="text" class="form-input" id="nicknameInput" placeholder="輸入你想要的暱稱" maxlength="20" style="text-align:center;font-size:1.1rem;">
+                <div style="font-size:0.72rem;color:#AAA;margin-top:4px;">2-20 個字元</div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" id="nicknameSkipBtn" onclick="closeNicknameModal()">稍後再說</button>
+                <button type="button" class="btn-submit" onclick="saveNickname()">✨ 設定暱稱</button>
+            </div>
+        </div>
     </div>
     <!-- Suggestion Modal -->
     <div class="modal-overlay" id="suggestionModal" onclick="if(event.target===this)closeSuggestionModal()">
@@ -663,6 +683,7 @@
         let searchQuery = '', editingId = null, selectedType = 'pikmin';
         let selectMode = false, selectedSpots = new Set(), currentUser = null, isAdmin = false;
         let currentTags = [];
+        let userDisplayNameCached = ''; // 自訂暱稱（從 users 表讀取）
         // Pagination
         const PAGE_SIZE = 20;
         let currentPage = 0;
@@ -837,7 +858,17 @@
             await loadFilterMetadata();
             await loadSpots();
             const { data: { session } } = await supabaseClient.auth.getSession();
-            if (session) { currentUser = session.user; await checkAdminStatus(); await loadFavorites(); updateUserInfo(); renderSpots(); }
+            if (session) {
+                currentUser = session.user;
+                await checkAdminStatus();
+                await loadFavorites();
+                updateUserInfo();
+                renderSpots();
+                // 已登入但還沒設暱稱 → 提示
+                if (!userDisplayNameCached) {
+                    setTimeout(() => showNicknameModal(true), 800);
+                }
+            }
             supabaseClient.auth.onAuthStateChange(async (event, session) => {
                 if (event === 'SIGNED_IN') {
                     currentUser = session.user;
@@ -847,6 +878,10 @@
                     updateUserInfo();
                     renderSpots();
                     showToast('✅ 登入成功！');
+                    // 首次登入 → 提示設定暱稱
+                    if (!userDisplayNameCached) {
+                        setTimeout(() => showNicknameModal(true), 600);
+                    }
                     if (pendingSpotSubmit) {
                         const saved = pendingSpotSubmit;
                         pendingSpotSubmit = null;
@@ -1339,25 +1374,66 @@
         }
 
         async function logout() {
-            try { await supabaseClient.auth.signOut(); currentUser = null; isAdmin = false; updateUserInfo(); renderSpots(); showToast('👋 已登出'); } catch (e) { console.error(e); }
+            try { await supabaseClient.auth.signOut(); currentUser = null; isAdmin = false; userDisplayNameCached = ''; updateUserInfo(); renderSpots(); showToast('👋 已登出'); } catch (e) { console.error(e); }
         }
 
         async function checkAdminStatus() {
-            if (!currentUser) { isAdmin = false; return; }
-            if (currentUser.email === ADMIN_EMAIL) {
-                try {
-                    const { data, error } = await supabaseClient.from('users').select('role').eq('id', currentUser.id).single();
-                    if (!error && data && data.role === 'admin') { isAdmin = true; }
-                    else { await supabaseClient.from('users').upsert({ id: currentUser.id, email: ADMIN_EMAIL, role: 'admin' }, { onConflict: 'id' }); isAdmin = true; }
-                } catch { isAdmin = true; }
-            } else { isAdmin = false; }
+            if (!currentUser) { isAdmin = false; userDisplayNameCached = ''; return; }
+            try {
+                // 從 users 表讀取 role 和 display_name
+                const { data, error } = await supabaseClient.from('users')
+                    .select('role, display_name')
+                    .eq('id', currentUser.id)
+                    .single();
+
+                if (!error && data) {
+                    isAdmin = (data.role === 'admin');
+                    userDisplayNameCached = data.display_name || '';
+                } else {
+                    // users 表中還沒有此人 → 新增一筆
+                    const newRow = {
+                        id: currentUser.id,
+                        email: currentUser.email,
+                        role: currentUser.email === ADMIN_EMAIL ? 'admin' : 'user'
+                    };
+                    await supabaseClient.from('users').upsert(newRow, { onConflict: 'id' });
+                    isAdmin = (currentUser.email === ADMIN_EMAIL);
+                    userDisplayNameCached = '';
+                }
+            } catch (e) {
+                console.error('checkAdminStatus error:', e);
+                isAdmin = (currentUser.email === ADMIN_EMAIL);
+                userDisplayNameCached = '';
+            }
         }
 
-        // Get display name from user metadata (Google provides full_name, name, etc.)
+        // 取得顯示名稱：自訂暱稱 > Google 名字的第一個字+匿名化 > email 前綴
         function getUserDisplayName(user) {
             if (!user) return '訪客';
+            // 最優先：使用者自訂的暱稱
+            if (userDisplayNameCached) return userDisplayNameCached;
+            // 次優先：Google 全名的匿名化版本（只取第一個字 + *）
             const meta = user.user_metadata || {};
-            return meta.full_name || meta.name || meta.preferred_username || user.email?.split('@')[0] || '使用者';
+            const fullName = meta.full_name || meta.name || '';
+            if (fullName) {
+                // 匿名化：只顯示第一個字元 + 星號
+                const firstChar = [...fullName][0] || '';
+                return firstChar + '***';
+            }
+            // 最後：email 前綴匿名化
+            const emailPrefix = (user.email || '').split('@')[0] || '';
+            if (emailPrefix.length > 2) {
+                return emailPrefix.slice(0, 2) + '***';
+            }
+            return '使用者';
+        }
+
+        // 取得「完整」顯示名稱（僅用於個人頁面中顯示給自己看）
+        function getUserFullDisplayName(user) {
+            if (!user) return '訪客';
+            if (userDisplayNameCached) return userDisplayNameCached;
+            const meta = user.user_metadata || {};
+            return meta.full_name || meta.name || user.email?.split('@')[0] || '使用者';
         }
 
         function getUserAvatar(user) {
@@ -2143,7 +2219,9 @@
         async function openProfile() {
             if (!currentUser) { showLoginModal(); return; }
             document.getElementById('profileAvatar').src = getUserAvatar(currentUser) || '';
-            document.getElementById('profileName').textContent = getUserDisplayName(currentUser);
+            // 個人頁面：顯示公開暱稱 + 下方顯示 Google 帳號
+            const displayName = getUserDisplayName(currentUser);
+            document.getElementById('profileName').textContent = displayName;
             document.getElementById('profileEmail').textContent = currentUser.email || '';
             document.getElementById('profilePanel').classList.add('active');
             document.getElementById('profileOverlay').classList.add('active');
@@ -2291,6 +2369,52 @@
                 console.error('Migration error:', err);
                 setSyncStatus('error');
                 showToast('❌ 遷移失敗：' + err.message);
+            }
+        }
+
+        // ==================== 暱稱設定 ====================
+        function showNicknameModal(isFirstTime) {
+            const input = document.getElementById('nicknameInput');
+            input.value = userDisplayNameCached || '';
+            // 首次登入時不顯示「稍後再說」，強制設定（但仍可跳過）
+            const skipBtn = document.getElementById('nicknameSkipBtn');
+            skipBtn.style.display = isFirstTime ? 'block' : 'block'; // 都顯示，讓使用者有選擇
+            document.getElementById('nicknameModal').classList.add('active');
+            setTimeout(() => input.focus(), 300);
+        }
+        function closeNicknameModal() {
+            document.getElementById('nicknameModal').classList.remove('active');
+        }
+
+        async function saveNickname() {
+            const name = document.getElementById('nicknameInput').value.trim();
+            if (!name || name.length < 2) { showToast('⚠️ 暱稱至少需要 2 個字元'); return; }
+            if (name.length > 20) { showToast('⚠️ 暱稱最多 20 個字元'); return; }
+            if (!currentUser) { showToast('❌ 請先登入'); return; }
+
+            try {
+                const { error } = await safeQuery(() =>
+                    supabaseClient.from('users')
+                        .update({ display_name: name })
+                        .eq('id', currentUser.id)
+                );
+                if (error) throw error;
+
+                userDisplayNameCached = name;
+                closeNicknameModal();
+                updateUserInfo();
+                // 也更新 profile panel（如果開著的話）
+                const profileNameEl = document.getElementById('profileName');
+                if (profileNameEl) profileNameEl.textContent = name;
+                showToast('✅ 暱稱已更新！');
+            } catch (e) {
+                console.error('Save nickname error:', e);
+                // 可能是 display_name 欄位不存在
+                if (e.message && (e.message.includes('column') || e.message.includes('display_name') || e.message.includes('schema cache'))) {
+                    showToast('⚠️ 請先在 Supabase 執行 ALTER TABLE 新增 display_name 欄位');
+                } else {
+                    showToast('❌ 儲存失敗：' + (e.message || ''));
+                }
             }
         }
 
