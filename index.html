@@ -854,23 +854,37 @@
         }
 
         async function init() {
-            restoreFiltersFromSession(); // Restore filters before loading
+            restoreFiltersFromSession();
             await loadFilterMetadata();
             await loadSpots();
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            if (session) {
-                currentUser = session.user;
-                await checkAdminStatus();
-                await loadFavorites();
-                updateUserInfo();
-                renderSpots();
-                // 已登入但還沒設暱稱 → 提示
-                if (!userDisplayNameCached) {
-                    setTimeout(() => showNicknameModal(true), 800);
-                }
-            }
+
+            let initialSessionHandled = false;
+
             supabaseClient.auth.onAuthStateChange(async (event, session) => {
-                if (event === 'SIGNED_IN') {
+                console.log('Auth event:', event);
+
+                if (event === 'INITIAL_SESSION') {
+                    // 頁面載入時自動恢復的舊 session（不是新登入）
+                    initialSessionHandled = true;
+                    if (session) {
+                        currentUser = session.user;
+                        await checkAdminStatus();
+                        await loadFavorites();
+                        updateUserInfo();
+                        renderSpots();
+                        // 已登入 + 沒暱稱 → 溫和提示（不用每次都跳 modal）
+                        // 只在 sessionStorage 沒有 "已跳過暱稱" 記錄時才提示
+                        if (!userDisplayNameCached && !sessionStorage.getItem('pikmin_nickname_skipped')) {
+                            setTimeout(() => showNicknameModal(true), 800);
+                        }
+                    }
+                }
+                else if (event === 'SIGNED_IN') {
+                    // 真正的新登入（OAuth redirect 回來）
+                    // 如果 INITIAL_SESSION 已經處理過同一個 session，就跳過
+                    if (initialSessionHandled && currentUser && session && currentUser.id === session.user.id) {
+                        return; // 已經由 INITIAL_SESSION 處理了
+                    }
                     currentUser = session.user;
                     await checkAdminStatus();
                     await loadFavorites();
@@ -878,8 +892,9 @@
                     updateUserInfo();
                     renderSpots();
                     showToast('✅ 登入成功！');
-                    // 首次登入 → 提示設定暱稱
+                    // 新登入且沒暱稱 → 才彈 modal
                     if (!userDisplayNameCached) {
+                        sessionStorage.removeItem('pikmin_nickname_skipped'); // 重置跳過記錄
                         setTimeout(() => showNicknameModal(true), 600);
                     }
                     if (pendingSpotSubmit) {
@@ -889,9 +904,32 @@
                         await doSubmitSpot(saved);
                     }
                 }
-                else if (event === 'SIGNED_OUT') { currentUser = null; isAdmin = false; userFavorites.clear(); updateUserInfo(); loadSpots(); }
-                else if (event === 'TOKEN_REFRESHED' && session) { currentUser = session.user; }
+                else if (event === 'SIGNED_OUT') {
+                    currentUser = null; isAdmin = false; userDisplayNameCached = '';
+                    userFavorites.clear();
+                    sessionStorage.removeItem('pikmin_nickname_skipped');
+                    updateUserInfo(); loadSpots();
+                }
+                else if (event === 'TOKEN_REFRESHED' && session) {
+                    currentUser = session.user;
+                }
             });
+
+            // Fallback：如果瀏覽器不支援 INITIAL_SESSION（舊版 Supabase JS）
+            // 等 500ms，若 onAuthStateChange 還沒觸發就手動檢查
+            setTimeout(async () => {
+                if (!initialSessionHandled) {
+                    const { data: { session } } = await supabaseClient.auth.getSession();
+                    if (session && !currentUser) {
+                        currentUser = session.user;
+                        await checkAdminStatus();
+                        await loadFavorites();
+                        updateUserInfo();
+                        renderSpots();
+                    }
+                }
+            }, 500);
+
             initSearchableSelects(); initImageUpload(); initTagsInput(); initCoordsInput(); initPagination();
             updateClearFilterBar();
         }
@@ -2384,6 +2422,8 @@
         }
         function closeNicknameModal() {
             document.getElementById('nicknameModal').classList.remove('active');
+            // 記錄「已跳過」，同一個 session 內不再重複提示
+            try { sessionStorage.setItem('pikmin_nickname_skipped', '1'); } catch {}
         }
 
         async function saveNickname() {
@@ -2402,6 +2442,8 @@
 
                 userDisplayNameCached = name;
                 closeNicknameModal();
+                // 暱稱已設定，清除跳過記錄
+                try { sessionStorage.removeItem('pikmin_nickname_skipped'); } catch {}
                 updateUserInfo();
                 // 也更新 profile panel（如果開著的話）
                 const profileNameEl = document.getElementById('profileName');
