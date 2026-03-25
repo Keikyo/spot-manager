@@ -232,8 +232,9 @@
         .spot-list.grid-view .spot-note { display: none; }
         .spot-list.grid-view .spot-tags { display: none; }
         .spot-list.grid-view .spot-coords-row { margin-bottom: 0; }
-        .spot-list.grid-view .spot-actions { margin-top: 2px; gap: 3px; }
-        .spot-list.grid-view .spot-actions .btn { font-size: 0.72rem; padding: 4px 8px; }
+        .spot-list.grid-view .spot-actions { margin-top: 2px; gap: 2px; }
+        .spot-list.grid-view .spot-actions .btn { font-size: 0.68rem; padding: 3px 5px; }
+        .spot-list.grid-view .spot-actions .btn svg { width: 14px; height: 14px; }
 
         /* ===== Unified button style for actions ===== */
         .spot-actions .btn { background: white; color: var(--text-secondary); border: 1.5px solid #E0E8E4; display: inline-flex; align-items: center; gap: 3px; }
@@ -757,25 +758,48 @@
             </div>
         </div>
     </div>
-    <!-- Suggestion Modal -->
+    <!-- Suggestion Modal (structured fields) -->
     <div class="modal-overlay" id="suggestionModal" onclick="if(event.target===this)closeSuggestionModal()">
-        <div class="modal" style="max-width:440px;">
+        <div class="modal" style="max-width:480px;">
             <h2>💡 建議修改</h2>
-            <p style="font-size:0.85rem;color:#888;margin-bottom:16px;">你的建議會送給管理員審核，通過後會更新此純點。</p>
-            <div class="form-group">
-                <label class="form-label">建議內容 <span class="required">*</span></label>
-                <textarea id="suggestionText" class="form-input" rows="4" placeholder="例如：名稱有誤、座標不準、建議加上某個標籤..." style="resize:vertical;"></textarea>
-            </div>
+            <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:14px;">只填寫你認為需要修改的欄位，空白欄位不會被提交。管理員審核通過後會更新此純點。</p>
             <input type="hidden" id="suggestionSpotId">
+            <div id="suggestionCurrentInfo" style="background:#F5F8F6;border-radius:10px;padding:10px 12px;margin-bottom:14px;font-size:0.78rem;color:var(--text-secondary);"></div>
+            <div class="form-group">
+                <label class="form-label">名稱</label>
+                <input type="text" class="form-input" id="suggestName" placeholder="建議的名稱">
+            </div>
+            <div class="form-group">
+                <label class="form-label">座標</label>
+                <input type="text" class="form-input" id="suggestCoords" placeholder="例如: 25.0330, 121.5654">
+            </div>
+            <div class="form-group" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                <div>
+                    <label class="form-label">國家</label>
+                    <input type="text" class="form-input" id="suggestCountry" placeholder="例如: 台灣">
+                </div>
+                <div>
+                    <label class="form-label">縣市</label>
+                    <input type="text" class="form-input" id="suggestCity" placeholder="例如: 台北市">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">標籤</label>
+                <input type="text" class="form-input" id="suggestTags" placeholder="用逗號分隔，例如: 風景,神社">
+            </div>
+            <div class="form-group">
+                <label class="form-label">備註 / 其他建議</label>
+                <textarea class="form-input" id="suggestNote" rows="2" placeholder="其他想說的..." style="resize:vertical;"></textarea>
+            </div>
             <div class="modal-actions">
                 <button type="button" class="btn-cancel" onclick="closeSuggestionModal()">取消</button>
                 <button type="button" class="btn-submit" onclick="submitSuggestion()" id="btnSubmitSuggestion">📨 送出建議</button>
             </div>
         </div>
     </div>
-    <!-- Admin Suggestions Panel (inside tool panel) -->
+    <!-- Admin Suggestions Panel -->
     <div class="modal-overlay" id="suggestionsListModal" onclick="if(event.target===this)closeSuggestionsList()">
-        <div class="modal" style="max-width:520px;max-height:85vh;">
+        <div class="modal" style="max-width:560px;max-height:85vh;">
             <h2>📬 使用者建議</h2>
             <div id="suggestionsListContent" style="max-height:60vh;overflow-y:auto;"></div>
             <div class="modal-actions" style="margin-top:16px;">
@@ -816,11 +840,11 @@
                     <span>Email</span>
                 </button>
                 <button class="share-btn" onclick="copyShareUrl()" style="--share-color:#5A7A6A;">
-                    <div class="share-icon" style="background:#5A7A6A;">${ICN.link.replace('currentColor','white')}</div>
+                    <div class="share-icon" style="background:#5A7A6A;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div>
                     <span>複製連結</span>
                 </button>
                 <button class="share-btn" onclick="shareNative()" style="--share-color:#4CAF7D;">
-                    <div class="share-icon" style="background:#4CAF7D;">${ICN.smartphone.replace('currentColor','white')}</div>
+                    <div class="share-icon" style="background:#4CAF7D;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18"/></svg></div>
                     <span>更多</span>
                 </button>
             </div>
@@ -2481,14 +2505,14 @@
                         ${createdStr ? `<span style="font-size:0.72rem;color:#BBB;margin-left:6px;">建立於 ${createdStr}</span>` : ''}
                     </div>
                     <div class="detail-modal-actions">
-                        <button class="btn" onclick="copyCoords('${s.lat}, ${s.lng}')" title="複製座標">${ICN.copy} 複製</button>
-                        <button class="btn" onclick="window.open('${mapsUrl}','_blank')" title="Google Maps">${ICN.mapPin} 地圖</button>
-                        <button class="btn" onclick="shareSpot('${escapeHtml(s.name).replace(/'/g,"\\'")}','${s.lat}','${s.lng}')" title="分享">${ICN.share} 分享</button>
-                        ${currentUser ? `<button class="btn btn-fav ${isFav ? 'active' : ''}" onclick="toggleFavorite('${s.id}');closeDetail();setTimeout(()=>{const sp=spots.find(x=>String(x.id)==='${s.id}')||profileSpots.find(x=>String(x.id)==='${s.id}');if(sp)renderDetailContent(sp);document.getElementById('detailModal').classList.add('active');},300);" title="收藏">${isFav ? ICN.starFill : ICN.star} ${isFav ? '已收藏' : '收藏'}</button>` : ''}
-                        ${currentUser ? `<button class="btn ${isSaved ? 'btn-fav active' : ''}" onclick="toggleBookmark('${s.id}');closeDetail();setTimeout(()=>{const sp=spots.find(x=>String(x.id)==='${s.id}')||profileSpots.find(x=>String(x.id)==='${s.id}');if(sp)renderDetailContent(sp);document.getElementById('detailModal').classList.add('active');},300);" title="儲存">${isSaved ? ICN.bookmarkFill : ICN.bookmark} ${isSaved ? '已儲存' : '儲存'}</button>` : ''}
-                        ${!showEdit && currentUser ? `<button class="btn" onclick="closeDetail();openSuggestionModal('${s.id}')" title="建議修改">${ICN.lightbulb} 建議</button>` : ''}
-                        ${showEdit ? `<button class="btn" onclick="closeDetail();editSpot('${s.id}')" title="編輯">${ICN.pencil} 編輯</button>` : ''}
-                        ${showDelete ? `<button class="btn" onclick="closeDetail();deleteSpot('${s.id}')" title="刪除">${ICN.trash} 刪除</button>` : ''}
+                        <button class="btn" onclick="copyCoords('${s.lat}, ${s.lng}')" title="複製座標">${ICN.copy}</button>
+                        <button class="btn" onclick="window.open('${mapsUrl}','_blank')" title="Google Maps">${ICN.mapPin}</button>
+                        <button class="btn" onclick="shareSpot('${escapeHtml(s.name).replace(/'/g,"\\'")}','${s.id}')" title="分享">${ICN.share}</button>
+                        ${currentUser ? `<button class="btn btn-fav ${isFav ? 'active' : ''}" onclick="toggleFavorite('${s.id}');closeDetail();setTimeout(()=>{const sp=spots.find(x=>String(x.id)==='${s.id}')||profileSpots.find(x=>String(x.id)==='${s.id}');if(sp)renderDetailContent(sp);document.getElementById('detailModal').classList.add('active');},300);" title="收藏">${isFav ? ICN.starFill : ICN.star}</button>` : ''}
+                        ${currentUser ? `<button class="btn ${isSaved ? 'btn-fav active' : ''}" onclick="toggleBookmark('${s.id}');closeDetail();setTimeout(()=>{const sp=spots.find(x=>String(x.id)==='${s.id}')||profileSpots.find(x=>String(x.id)==='${s.id}');if(sp)renderDetailContent(sp);document.getElementById('detailModal').classList.add('active');},300);" title="儲存">${isSaved ? ICN.bookmarkFill : ICN.bookmark}</button>` : ''}
+                        ${!showEdit && currentUser ? `<button class="btn" onclick="closeDetail();openSuggestionModal('${s.id}')" title="建議修改">${ICN.lightbulb}</button>` : ''}
+                        ${showEdit ? `<button class="btn" onclick="closeDetail();editSpot('${s.id}')" title="編輯">${ICN.pencil}</button>` : ''}
+                        ${showDelete ? `<button class="btn" onclick="closeDetail();deleteSpot('${s.id}')" title="刪除">${ICN.trash}</button>` : ''}
                     </div>
                 </div>`;
             document.getElementById('detailModal').classList.add('active');
@@ -2794,7 +2818,16 @@
         // ==================== 建議修改功能 (suggestions) ====================
         function openSuggestionModal(spotId) {
             document.getElementById('suggestionSpotId').value = spotId;
-            document.getElementById('suggestionText').value = '';
+            // 清空所有欄位
+            ['suggestName','suggestCoords','suggestCountry','suggestCity','suggestTags','suggestNote'].forEach(id => {
+                const el = document.getElementById(id); if (el) el.value = '';
+            });
+            // 顯示目前的純點資訊供參考
+            const s = spots.find(x => String(x.id) === String(spotId)) || profileSpots.find(x => String(x.id) === String(spotId));
+            const info = document.getElementById('suggestionCurrentInfo');
+            if (s && info) {
+                info.innerHTML = `<strong>目前資訊：</strong> ${escapeHtml(s.name)} | ${s.country || ''} ${s.city || ''} | ${s.lat}, ${s.lng}${s.tags?.length ? ' | #' + s.tags.join(' #') : ''}`;
+            }
             document.getElementById('suggestionModal').classList.add('active');
         }
         function closeSuggestionModal() {
@@ -2803,21 +2836,37 @@
 
         async function submitSuggestion() {
             const spotId = document.getElementById('suggestionSpotId').value;
-            const text = document.getElementById('suggestionText').value.trim();
-            if (!text) { showToast('⚠️ 請輸入建議內容'); return; }
             if (!currentUser) { showToast('👤 請先登入'); showLoginModal(); return; }
+
+            // 收集所有有填寫的欄位
+            const fields = {};
+            const nameVal = document.getElementById('suggestName').value.trim();
+            const coordsVal = document.getElementById('suggestCoords').value.trim();
+            const countryVal = document.getElementById('suggestCountry').value.trim();
+            const cityVal = document.getElementById('suggestCity').value.trim();
+            const tagsVal = document.getElementById('suggestTags').value.trim();
+            const noteVal = document.getElementById('suggestNote').value.trim();
+
+            if (nameVal) fields.name = nameVal;
+            if (coordsVal) fields.coords = coordsVal;
+            if (countryVal) fields.country = countryVal;
+            if (cityVal) fields.city = cityVal;
+            if (tagsVal) fields.tags = tagsVal;
+            if (noteVal) fields.note = noteVal;
+
+            if (Object.keys(fields).length === 0) { showToast('⚠️ 請至少填寫一個欄位'); return; }
 
             const btn = document.getElementById('btnSubmitSuggestion');
             btn.disabled = true; btn.textContent = '⏳ 送出中...';
 
             try {
-                // 嘗試寫入 suggestions 表；若表不存在則 fallback 提示
+                const content = JSON.stringify(fields);
                 const { error } = await safeQuery(() => supabaseClient.from('suggestions').insert([{
                     spot_id: spotId,
                     user_id: currentUser.id,
                     user_name: getUserDisplayName(currentUser),
                     user_email: currentUser.email || '',
-                    content: text,
+                    content: content,
                     status: 'pending'
                 }]));
                 if (error) throw error;
@@ -2825,8 +2874,8 @@
                 showToast('📨 建議已送出，感謝你！');
             } catch (e) {
                 console.error('Submit suggestion error:', e);
-                if (e.message && (e.message.includes('relation') || e.message.includes('does not exist') || e.message.includes('schema cache') || e.message.includes('suggestions') || e.code === '42P01' || e.code === 'PGRST204')) {
-                    showToast('⚠️ suggestions 表尚未建立，請管理員在 Supabase 執行建表 SQL');
+                if (e.message && (e.message.includes('schema cache') || e.message.includes('suggestions') || e.message.includes('relation'))) {
+                    showToast('⚠️ suggestions 表尚未建立');
                 } else {
                     showToast('❌ 送出失敗：' + (e.message || ''));
                 }
@@ -2835,7 +2884,7 @@
             }
         }
 
-        // 管理員：查看建議列表
+        // 管理員：查看建議列表（結構化顯示 + 一鍵採納）
         async function openSuggestionsList() {
             const container = document.getElementById('suggestionsListContent');
             container.innerHTML = '<div style="text-align:center;padding:20px;color:#AAA;">載入中...</div>';
@@ -2858,21 +2907,33 @@
                     const statusColors = { pending: '#FFF8E1', approved: '#E8F5E9', rejected: '#FFEBEE' };
                     const statusLabels = { pending: '⏳ 待處理', approved: '✅ 已採納', rejected: '❌ 已拒絕' };
                     const bgColor = statusColors[sg.status] || '#F5F5F5';
-                    return `<div style="background:${bgColor};border-radius:12px;padding:14px;margin-bottom:10px;border:1px solid #E8E8E8;">
-                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                            <div style="font-weight:700;font-size:0.88rem;color:var(--dark-green);">
-                                ${escapeHtml(sg.user_name || sg.user_email || '匿名')}
-                            </div>
-                            <div style="font-size:0.72rem;color:#999;">${date}</div>
+
+                    // Parse structured content
+                    let fieldsHtml = '';
+                    try {
+                        const fields = JSON.parse(sg.content);
+                        const labels = { name: '名稱', coords: '座標', country: '國家', city: '縣市', tags: '標籤', note: '備註' };
+                        fieldsHtml = Object.entries(fields).map(([k, v]) =>
+                            `<div style="display:flex;gap:6px;padding:3px 0;font-size:0.78rem;"><span style="color:var(--text-muted);min-width:40px;font-weight:700;">${labels[k] || k}</span><span style="color:var(--text-primary);">${escapeHtml(v)}</span></div>`
+                        ).join('');
+                    } catch {
+                        // Old format: plain text
+                        fieldsHtml = `<div style="font-size:0.82rem;color:#555;padding:4px 0;">${escapeHtml(sg.content)}</div>`;
+                    }
+
+                    return `<div style="background:${bgColor};border-radius:12px;padding:12px;margin-bottom:10px;border:1px solid #E8E8E8;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                            <div style="font-weight:700;font-size:0.85rem;color:var(--text-primary);">${escapeHtml(sg.user_name || '匿名')}</div>
+                            <div style="font-size:0.7rem;color:#999;">${date}</div>
                         </div>
-                        <div style="font-size:0.85rem;color:#555;margin-bottom:8px;padding:8px;background:white;border-radius:8px;">${escapeHtml(sg.content)}</div>
+                        <div style="background:white;border-radius:8px;padding:8px 10px;margin-bottom:8px;">${fieldsHtml}</div>
                         <div style="display:flex;justify-content:space-between;align-items:center;">
-                            <span style="font-size:0.78rem;color:#888;">Spot ID: ${sg.spot_id ? sg.spot_id.slice(0,8) + '...' : 'N/A'}</span>
-                            <div style="display:flex;gap:6px;">
-                                <span style="font-size:0.78rem;font-weight:600;">${statusLabels[sg.status] || sg.status}</span>
+                            <span style="font-size:0.72rem;color:#AAA;">Spot: ${sg.spot_id ? sg.spot_id.slice(0,8) + '...' : 'N/A'}</span>
+                            <div style="display:flex;gap:4px;align-items:center;">
+                                <span style="font-size:0.75rem;font-weight:600;">${statusLabels[sg.status] || sg.status}</span>
                                 ${sg.status === 'pending' ? `
-                                    <button onclick="updateSuggestionStatus('${sg.id}','approved')" style="padding:4px 10px;border:none;border-radius:8px;font-size:0.75rem;font-weight:700;cursor:pointer;background:#C8E6C9;color:#2E7D32;">採納</button>
-                                    <button onclick="updateSuggestionStatus('${sg.id}','rejected')" style="padding:4px 10px;border:none;border-radius:8px;font-size:0.75rem;font-weight:700;cursor:pointer;background:#FFCDD2;color:#C62828;">拒絕</button>
+                                    <button onclick="applySuggestion('${sg.id}','${sg.spot_id}')" style="padding:4px 10px;border:none;border-radius:8px;font-size:0.72rem;font-weight:700;cursor:pointer;background:#C8E6C9;color:#2E7D32;">✅ 採納並套用</button>
+                                    <button onclick="updateSuggestionStatus('${sg.id}','rejected')" style="padding:4px 10px;border:none;border-radius:8px;font-size:0.72rem;font-weight:700;cursor:pointer;background:#FFCDD2;color:#C62828;">❌ 拒絕</button>
                                 ` : ''}
                             </div>
                         </div>
@@ -2880,34 +2941,13 @@
                 }).join('');
             } catch (e) {
                 console.error('Load suggestions error:', e);
-                if (e.message && (e.message.includes('relation') || e.message.includes('does not exist') || e.message.includes('schema cache') || e.message.includes('suggestions') || e.code === '42P01' || e.code === 'PGRST204')) {
+                const isTableMissing = e.message && (e.message.includes('schema cache') || e.message.includes('suggestions') || e.message.includes('relation'));
+                if (isTableMissing) {
                     container.innerHTML = `<div style="text-align:center;padding:20px;">
-                        <p style="color:#E65100;font-weight:700;margin-bottom:12px;">⚠️ suggestions 表尚未建立</p>
-                        <p style="font-size:0.82rem;color:#888;line-height:1.6;">請在 Supabase SQL Editor 執行以下指令：</p>
-                        <pre style="text-align:left;background:#F5F5F5;padding:12px;border-radius:10px;font-size:0.75rem;overflow-x:auto;margin-top:8px;">CREATE TABLE suggestions (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  spot_id UUID REFERENCES spots(id) ON DELETE CASCADE,
-  user_id UUID,
-  user_name TEXT,
-  user_email TEXT,
-  content TEXT NOT NULL,
-  status TEXT DEFAULT 'pending',
-  created_at TIMESTAMPTZ DEFAULT now()
-);
-
-ALTER TABLE suggestions ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Anyone can insert suggestions"
-  ON suggestions FOR INSERT WITH CHECK (true);
-
-CREATE POLICY "Admin can read all suggestions"
-  ON suggestions FOR SELECT USING (true);
-
-CREATE POLICY "Admin can update suggestions"
-  ON suggestions FOR UPDATE USING (true);</pre>
-                    </div>`;
+                        <p style="color:#E65100;font-weight:700;">⚠️ suggestions 表尚未建立</p>
+                        <p style="font-size:0.78rem;color:#888;margin-top:8px;">請在 Supabase SQL Editor 執行建表指令</p></div>`;
                 } else {
-                    container.innerHTML = `<div style="text-align:center;padding:20px;color:#C62828;">❌ 載入失敗：${escapeHtml(e.message || '')}</div>`;
+                    container.innerHTML = `<div style="text-align:center;padding:20px;color:#C62828;">❌ ${escapeHtml(e.message || '')}</div>`;
                 }
             }
         }
@@ -2915,11 +2955,53 @@ CREATE POLICY "Admin can update suggestions"
             document.getElementById('suggestionsListModal').classList.remove('active');
         }
 
+        // 一鍵採納：將建議內容套用到純點，然後標記為 approved
+        async function applySuggestion(suggestionId, spotId) {
+            try {
+                // 1. 讀取建議內容
+                const { data: sg, error: sgErr } = await supabaseClient.from('suggestions').select('content').eq('id', suggestionId).single();
+                if (sgErr) throw sgErr;
+
+                let fields;
+                try { fields = JSON.parse(sg.content); } catch { showToast('⚠️ 此建議為舊格式，無法自動套用'); return; }
+
+                // 2. 組裝更新資料
+                const update = {};
+                if (fields.name) update.name = fields.name;
+                if (fields.country) update.country = fields.country;
+                if (fields.city) update.city = fields.city;
+                if (fields.tags) update.tags = fields.tags.split(/[,，、\s]+/).filter(Boolean);
+                if (fields.note) update.note = fields.note;
+                if (fields.coords) {
+                    const m = fields.coords.match(/(-?\d+\.?\d*)[,\s]+(-?\d+\.?\d*)/);
+                    if (m) { update.lat = parseFloat(m[1]); update.lng = parseFloat(m[2]); }
+                }
+                update.updated_at = new Date().toISOString();
+                update.updated_by_name = getUserDisplayName(currentUser);
+
+                if (Object.keys(update).length <= 2) { showToast('⚠️ 沒有可套用的欄位'); return; }
+
+                // 3. 更新純點
+                const { error: upErr } = await safeQuery(() => supabaseClient.from('spots').update(update).eq('id', spotId));
+                if (upErr) throw upErr;
+
+                // 4. 標記建議為 approved
+                await safeQuery(() => supabaseClient.from('suggestions').update({ status: 'approved' }).eq('id', suggestionId));
+
+                showToast('✅ 已採納並套用到純點！');
+                await openSuggestionsList();
+                await loadFilterMetadata(); await loadSpots();
+            } catch (e) {
+                console.error('Apply suggestion error:', e);
+                showToast('❌ 套用失敗：' + (e.message || ''));
+            }
+        }
+
         async function updateSuggestionStatus(id, status) {
             try {
                 await safeQuery(() => supabaseClient.from('suggestions').update({ status }).eq('id', id));
                 showToast(status === 'approved' ? '✅ 已採納' : '❌ 已拒絕');
-                await openSuggestionsList(); // Refresh list
+                await openSuggestionsList();
             } catch (e) {
                 console.error('Update suggestion error:', e);
                 showToast('❌ 更新失敗：' + (e.message || ''));
@@ -2958,16 +3040,20 @@ CREATE POLICY "Admin can update suggestions"
         // ==================== 分享功能 ====================
         let shareData = { name: '', url: '' };
 
-        function shareSpot(name, lat, lng) {
-            const mapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
-            const text = `📍 ${name}\n座標：${lat}, ${lng}\n${mapsUrl}`;
-            shareData = { name, url: mapsUrl, text, lat, lng };
+        function shareSpot(name, spotId) {
+            const siteUrl = `${SITE_URL}#spot=${spotId}`;
+            const spot = spots.find(x => String(x.id) === String(spotId)) || profileSpots.find(x => String(x.id) === String(spotId));
+            const lat = spot ? spot.lat : '';
+            const lng = spot ? spot.lng : '';
+            const mapsUrl = lat ? `https://www.google.com/maps?q=${lat},${lng}` : '';
+            const text = `📍 ${name}${lat ? `\n座標：${lat}, ${lng}` : ''}\n${siteUrl}`;
+            shareData = { name, url: siteUrl, text, lat, lng };
 
             document.getElementById('shareSpotName').textContent = name;
-            document.getElementById('shareUrl').textContent = mapsUrl;
+            document.getElementById('shareUrl').textContent = siteUrl;
 
-            // QR Code (using free API)
-            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(mapsUrl)}`;
+            // QR Code
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(siteUrl)}`;
             document.getElementById('shareQrCode').innerHTML = `<img src="${qrUrl}" alt="QR Code" style="width:180px;height:180px;border-radius:8px;">`;
 
             document.getElementById('shareModal').classList.add('active');
@@ -3159,6 +3245,33 @@ CREATE POLICY "Admin can update suggestions"
 
         init();
         checkDesktopMap();
+
+        // Deep link: #spot=<id> → auto open detail
+        function checkDeepLink() {
+            const hash = window.location.hash;
+            if (hash.startsWith('#spot=')) {
+                const spotId = hash.replace('#spot=', '');
+                if (spotId) {
+                    // Wait for spots to load, then open
+                    const tryOpen = () => {
+                        let s = spots.find(x => String(x.id) === spotId);
+                        if (s) { renderDetailContent(s); return; }
+                        // Spot not in current page, fetch it directly
+                        supabaseClient.from('spots')
+                            .select('*')
+                            .eq('id', spotId)
+                            .single()
+                            .then(({ data, error }) => {
+                                if (!error && data) renderDetailContent(data);
+                                else showToast('找不到此純點');
+                            });
+                    };
+                    setTimeout(tryOpen, 1500);
+                }
+            }
+        }
+        checkDeepLink();
+        window.addEventListener('hashchange', checkDeepLink);
     </script>
 </body>
 </html>
