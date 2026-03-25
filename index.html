@@ -40,57 +40,25 @@
             min-height: 100vh; color: var(--text-primary); position: relative; overflow-x: hidden;
         }
 
-        /* ===== LAYOUT: Left sidebar + full-screen map ===== */
-        .app-layout { display: flex; flex-direction: column; min-height: 100vh; position: relative; }
+        /* ===== RESPONSIVE LAYOUT ===== */
+        .app-layout { display: flex; flex-direction: column; min-height: 100vh; }
 
-        /* Desktop (1024+): fixed-width sidebar left, map fills rest */
+        /* Desktop: map left, content right */
         @media (min-width: 1024px) {
-            .app-layout { flex-direction: row; height: 100vh; overflow: hidden; }
-            .sidebar { width: 420px; min-width: 380px; height: 100vh; overflow-y: auto; display: flex; flex-direction: column; background: white; border-right: 1px solid #E0E8E2; z-index: 10; flex-shrink: 0; }
-            .map-panel { flex: 1; height: 100vh; position: relative; display: block !important; }
+            .app-layout { flex-direction: row; }
+            .map-panel { width: 60%; height: 100vh; position: sticky; top: 0; display: block !important; }
+            .content-panel { width: 40%; min-height: 100vh; padding-bottom: 80px; }
+            .header { border-radius: 0; }
             .mobile-map-toggle { display: none !important; }
-            .mobile-sheet-handle { display: none !important; }
-            .header { border-radius: 0; padding: 10px 14px 12px; }
-            .header h1 { font-size: 1.1rem; }
-            .header p { font-size: 0.78rem; }
-            .seedling-icon { font-size: 1.6rem; }
-            .floating-cloud { display: none; }
-            .container { padding: 0 14px 80px; max-width: 100%; }
-            .filters-sticky { position: sticky; top: 0; z-index: 50; background: rgba(255,255,255,0.97); backdrop-filter: blur(8px); padding: 10px 14px; margin: 0 -14px 8px; border-bottom: 1px solid #E8EEE8; }
+            .container { max-width: 100%; padding: 16px 24px; }
         }
 
-        /* Tablet (768-1023) */
-        @media (min-width: 768px) and (max-width: 1023px) {
-            .sidebar { width: 100%; }
-            .map-panel { display: none; height: 40vh; width: 100%; position: relative; }
+        /* Mobile */
+        @media (max-width: 1023px) {
+            .map-panel { display: none; height: 45vh; width: 100%; position: relative; }
             .map-panel.open { display: block; }
-            .mobile-sheet-handle { display: none !important; }
-            .container { max-width: 720px; margin: 0 auto; padding: 12px; }
-            .filters-sticky { position: sticky; top: 0; z-index: 50; background: rgba(255,255,255,0.97); backdrop-filter: blur(8px); padding: 8px 12px; margin: 0 -12px 8px; border-bottom: 1px solid #E8EEE8; }
-        }
-
-        /* Mobile (<768): map fullscreen + bottom sheet */
-        @media (max-width: 767px) {
-            .app-layout { height: 100vh; overflow: hidden; position: relative; }
-            .map-panel { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 1; display: block !important; }
-            .sidebar { position: absolute; bottom: 0; left: 0; right: 0; z-index: 20; background: white; border-radius: 18px 18px 0 0; box-shadow: 0 -4px 20px rgba(0,0,0,0.12); max-height: 60vh; min-height: 56px; overflow-y: auto; transition: max-height 0.3s ease; }
-            .sidebar.collapsed { max-height: 56px; overflow: hidden; }
-            .sidebar.expanded { max-height: 88vh; }
-            .mobile-sheet-handle { display: flex; justify-content: center; padding: 10px 0 6px; cursor: grab; position: sticky; top: 0; background: white; z-index: 5; border-radius: 18px 18px 0 0; }
-            .mobile-sheet-handle::before { content: ''; width: 36px; height: 4px; background: #C8C8C8; border-radius: 2px; }
-            .mobile-sheet-handle-text { font-size: 0.78rem; font-weight: 700; color: var(--text-muted); margin-top: 2px; }
-            .header { display: none; }
-            .floating-cloud { display: none; }
-            .mobile-map-toggle { display: none !important; }
-            .container { padding: 0 12px 120px; max-width: 100%; }
-            .filters-sticky { padding: 6px 12px; }
-            .fab { bottom: calc(60vh + 16px); right: 16px; }
-            .fab-gear { bottom: calc(60vh + 80px); }
-        }
-
-        @media (max-width: 400px) {
-            .stats { gap: 2px; }
-            .stat-card { min-width: 46px; padding: 4px 5px; }
+            .content-panel { width: 100%; padding-bottom: 100px; }
+            .container { max-width: 600px; margin: 0 auto; padding: 16px; }
         }
 
         /* ===== MAP ===== */
@@ -100,52 +68,65 @@
         .mobile-map-toggle:hover { background: var(--primary-bg); }
         .map-spot-count { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
 
-        /* ===== HEADER (compact) ===== */
+        /* ===== HEADER ===== */
         .header {
-            background: linear-gradient(180deg, #D0E8F4 0%, #DDF0E8 100%);
-            padding: 10px 14px 14px; text-align: center; position: relative; overflow: hidden;
-            border-radius: 0 0 16px 16px;
+            background: linear-gradient(180deg, #C8E6F8 0%, #D8EFE8 100%);
+            padding: 20px 16px 28px; text-align: center; position: relative; overflow: hidden;
+            border-radius: 0 0 28px 28px; box-shadow: 0 2px 12px rgba(0,0,0,0.05);
         }
-        .header-cloud { display: none; } /* Remove clouds for cleaner look */
-        .header-login-area { flex-shrink: 0; }
-        .user-info-compact { display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.9); padding: 5px 10px; border-radius: 16px; font-size: 0.75rem; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
-        .user-email { color: var(--primary-dark); font-weight: 600; max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .user-role { background: var(--primary); color: white; padding: 1px 6px; border-radius: 8px; font-size: 0.62rem; font-weight: 700; }
-        .btn-logout { background: #EF7070; color: white; border: none; padding: 3px 8px; border-radius: 8px; font-size: 0.68rem; font-weight: 600; cursor: pointer; }
-        .btn-admin-header { background: rgba(255,255,255,0.85); border: 1.5px solid var(--primary); color: var(--primary-dark); padding: 5px 12px; border-radius: 14px; font-size: 0.78rem; font-weight: 700; cursor: pointer; }
+        .header-cloud { position: absolute; background: rgba(255,255,255,0.8); border-radius: 50%; will-change: transform; transform: translateZ(0); }
+        .header-cloud::before, .header-cloud::after { content: ''; position: absolute; background: rgba(255,255,255,0.8); border-radius: 50%; }
+        .header-cloud-1 { width: 70px; height: 26px; top: 10px; left: 8%; animation: cloud-drift 25s ease-in-out infinite; }
+        .header-cloud-1::before { width: 35px; height: 35px; top: -18px; left: 10px; }
+        .header-cloud-1::after { width: 42px; height: 30px; top: -12px; left: 30px; }
+        .header-cloud-2 { width: 85px; height: 30px; top: 15px; right: 12%; animation: cloud-drift 30s ease-in-out infinite; animation-delay: -8s; }
+        .header-cloud-2::before { width: 42px; height: 42px; top: -22px; left: 12px; }
+        .header-cloud-2::after { width: 50px; height: 35px; top: -15px; left: 38px; }
+        .header-cloud-3 { width: 50px; height: 18px; top: 42px; left: 45%; animation: cloud-drift 22s ease-in-out infinite; animation-delay: -4s; opacity: 0.6; }
+        .header-cloud-3::before { width: 25px; height: 25px; top: -13px; left: 6px; }
+        .header-cloud-3::after { width: 28px; height: 20px; top: -8px; left: 22px; }
+        @keyframes cloud-drift { 0%, 100% { transform: translate3d(-12px, 0, 0); } 50% { transform: translate3d(12px, 0, 0); } }
+
+        .header-login-area { position: absolute; top: 10px; right: 12px; z-index: 20; }
+        .user-info-compact { display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.92); padding: 6px 12px; border-radius: 20px; font-size: 0.78rem; box-shadow: 0 1px 6px rgba(0,0,0,0.06); backdrop-filter: blur(8px); }
+        .user-email { color: var(--primary-dark); font-weight: 600; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .user-role { background: var(--primary); color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.68rem; font-weight: 700; }
+        .btn-logout { background: #EF7070; color: white; border: none; padding: 4px 10px; border-radius: 10px; font-size: 0.72rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .btn-logout:hover { background: #E05050; }
+        .btn-admin-header { background: rgba(255,255,255,0.85); border: 1.5px solid var(--primary); color: var(--primary-dark); padding: 6px 14px; border-radius: 18px; font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: all 0.2s; backdrop-filter: blur(6px); }
+        .btn-admin-header:hover { background: var(--primary); color: white; }
         .header-content { position: relative; z-index: 10; }
-        .seedling-icon { font-size: 1.8rem; display: inline-block; }
-        .header h1 { font-size: 1.05rem; font-weight: 800; color: var(--primary-dark); margin-top: 2px; }
-        .header p { font-size: 0.78rem; color: var(--text-secondary); font-weight: 600; }
-        .sync-status { font-size: 0.65rem; margin-top: 4px; padding: 2px 10px; border-radius: 10px; display: inline-block; font-weight: 600; }
+        .seedling-icon { font-size: 2.4rem; display: inline-block; animation: seedling-bounce 2.5s ease-in-out infinite; }
+        @keyframes seedling-bounce { 0%, 100% { transform: translateY(0) rotate(-3deg); } 50% { transform: translateY(-6px) rotate(3deg); } }
+        .header h1 { font-size: 1.25rem; font-weight: 800; color: var(--primary-dark); margin-top: 4px; }
+        .header p { font-size: 0.82rem; color: var(--text-secondary); font-weight: 600; margin-top: 2px; }
+        .sync-status { font-size: 0.7rem; margin-top: 8px; padding: 4px 12px; border-radius: 12px; display: inline-block; font-weight: 600; }
         .sync-status.syncing { background: #FFF3E0; color: #E65100; }
         .sync-status.synced { background: rgba(232,245,233,0.9); color: #2E7D32; }
         .sync-status.error { background: #FFEBEE; color: #C62828; }
 
-        /* ===== STATS (compact) ===== */
-        .stats { display: flex; gap: 4px; margin-bottom: 8px; justify-content: center; flex-wrap: wrap; }
-        .stat-card { background: var(--card-bg); border-radius: 10px; padding: 6px 10px; text-align: center; box-shadow: var(--card-shadow); border-bottom: 2px solid var(--primary-light); transition: all 0.2s; cursor: pointer; min-width: 56px; }
-        .stat-card:hover { transform: translateY(-1px); }
-        .stat-card.active { background: var(--primary-bg); border-bottom-color: var(--primary); }
+        /* ===== STATS ===== */
+        .stats { display: grid; grid-template-columns: repeat(5,1fr); gap: 6px; margin-bottom: 14px; }
+        .stat-card { background: var(--card-bg); border-radius: 12px; padding: 8px 4px; text-align: center; box-shadow: var(--card-shadow); border-bottom: 3px solid var(--primary-light); transition: all 0.2s; cursor: pointer; }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: var(--card-hover-shadow); }
+        .stat-card.active { box-shadow: 0 2px 12px rgba(76,175,125,0.25); background: var(--primary-bg); border-bottom-color: var(--primary); }
         .stat-card.flower-card { border-bottom-color: var(--flower-color); }
         .stat-card.pikmin-card { border-bottom-color: var(--pikmin-color); }
         .stat-card.mushroom-card { border-bottom-color: var(--mushroom-color); }
         .stat-card.postcard-card { border-bottom-color: var(--postcard-color); }
-        .stat-icon { font-size: 1rem; }
-        .stat-label { font-size: 0.6rem; color: var(--text-muted); font-weight: 600; }
-        .stat-number { font-size: 1rem; font-weight: 800; color: var(--text-primary); }
+        .stat-icon { font-size: 1.3rem; }
+        .stat-label { font-size: 0.68rem; color: var(--text-muted); margin-top: 2px; font-weight: 600; }
+        .stat-number { font-size: 1.2rem; font-weight: 800; color: var(--text-primary); margin-top: 1px; }
 
-        /* ===== FILTERS (compact) ===== */
-        .filters-section { background: var(--card-bg); border-radius: var(--border-radius); padding: 10px 12px; margin-bottom: 8px; box-shadow: var(--card-shadow); }
-        .search-box { position: relative; margin-bottom: 8px; }
-        .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 0.85rem; opacity: 0.5; }
-        .search-input { width: 100%; padding: 8px 10px 8px 32px; border: 1.5px solid #E0E8E4; border-radius: 10px; font-size: 0.82rem; font-family: inherit; transition: all 0.2s; background: #FAFCFB; }
+        /* ===== FILTERS ===== */
+        .filters-section { background: var(--card-bg); border-radius: var(--border-radius); padding: 14px; margin-bottom: 12px; box-shadow: var(--card-shadow); }
+        .search-box { position: relative; margin-bottom: 12px; }
+        .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 0.9rem; opacity: 0.5; }
+        .search-input { width: 100%; padding: 10px 12px 10px 38px; border: 1.5px solid #E0E8E4; border-radius: 12px; font-size: 0.88rem; font-family: inherit; transition: all 0.2s; background: #FAFCFB; }
         .search-input:focus { outline: none; border-color: var(--primary-light); background: white; box-shadow: 0 0 0 3px rgba(76,175,125,0.1); }
-        .filter-group { margin-bottom: 6px; }
+        .filter-group { margin-bottom: 12px; }
         .filter-group:last-child { margin-bottom: 0; }
-        .filter-label { font-size: 0.7rem; color: var(--text-muted); font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; gap: 4px; }
-        .filter-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
-        .dropdown-filters { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+        .filter-label { font-size: 0.75rem; color: var(--text-muted); font-weight: 700; margin-bottom: 6px; display: flex; align-items: center; gap: 5px; }
 
         /* Sort bar */
         .sort-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
@@ -195,10 +176,10 @@
         .view-mode-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
         .view-mode-info { font-size: 0.72rem; color: var(--text-muted); font-weight: 600; }
 
-        /* ===== SPOT CARDS (larger, modern) ===== */
-        .spot-list { display: flex; flex-direction: column; gap: 12px; }
-        .spot-card { background: var(--card-bg); border-radius: 12px; padding: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); border-left: 4px solid var(--primary-light); transition: all 0.2s; position: relative; cursor: pointer; }
-        .spot-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.1); transform: translateY(-2px); }
+        /* ===== SPOT CARDS ===== */
+        .spot-list { display: flex; flex-direction: column; gap: 10px; }
+        .spot-card { background: var(--card-bg); border-radius: var(--border-radius); padding: 14px; box-shadow: var(--card-shadow); border-left: 4px solid var(--primary-light); transition: all 0.2s; position: relative; cursor: pointer; }
+        .spot-card:hover { box-shadow: var(--card-hover-shadow); transform: translateY(-2px); }
         .spot-card.flower-card { border-left-color: var(--flower-color); }
         .spot-card.pikmin-card { border-left-color: var(--pikmin-color); }
         .spot-card.mushroom-card { border-left-color: var(--mushroom-color); }
@@ -206,7 +187,7 @@
         .spot-card.select-mode { padding-left: 44px; }
         .spot-checkbox { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; cursor: pointer; accent-color: var(--primary); }
         .spot-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; gap: 8px; }
-        .spot-name { font-size: 1rem; font-weight: 700; color: var(--text-primary); flex: 1; line-height: 1.4; }
+        .spot-name { font-size: 0.95rem; font-weight: 700; color: var(--text-primary); flex: 1; line-height: 1.3; }
         .spot-badges { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
         .spot-region, .spot-city { font-size: 0.65rem; padding: 2px 7px; border-radius: 8px; font-weight: 600; }
         .spot-region { background: var(--badge-bg); color: var(--badge-text); }
@@ -218,8 +199,8 @@
         .spot-type-badge.postcard { background: #F0F5FA; color: #4070A0; }
         .spot-coords { font-size: 0.72rem; color: var(--text-muted); font-family: 'Courier New', monospace; margin-bottom: 4px; background: #F5F8F6; padding: 3px 6px; border-radius: 5px; display: inline-block; }
         .spot-note { font-size: 0.82rem; color: var(--text-secondary); margin: 8px 0; padding: 8px 10px; background: #F8FAF9; border-radius: 8px; border-left: 2px solid #D0DCD4; }
-        .spot-image-container { margin: 10px 0; border-radius: 10px; overflow: hidden; position: relative; }
-        .spot-image-container img { width: 100%; height: auto; aspect-ratio: 16/9; object-fit: cover; display: block; cursor: pointer; transition: transform 0.3s; }
+        .spot-image-container { margin: 8px 0; border-radius: 10px; overflow: hidden; }
+        .spot-image-container img { width: 100%; height: auto; max-height: 220px; object-fit: cover; display: block; cursor: pointer; transition: transform 0.3s; }
         .spot-image-container img:hover { transform: scale(1.02); }
         .spot-tags { display: flex; gap: 4px; flex-wrap: wrap; margin: 6px 0; }
         .spot-tag { font-size: 0.68rem; padding: 2px 8px; border-radius: 10px; font-weight: 600; background: var(--badge-bg); color: var(--primary-dark); border: 1px solid #D0E0D4; }
@@ -238,22 +219,21 @@
         .btn-quick-upload:hover { background: #EDE0F5; }
         .btn-quick-upload.uploading { opacity: 0.6; pointer-events: none; }
 
-        /* ===== GRID VIEW (compact horizontal) ===== */
-        .spot-list.grid-view { display: flex; flex-direction: column; gap: 8px; }
-        .spot-list.grid-view .spot-card { padding: 10px 12px; border-left-width: 3px; display: flex; flex-direction: row; align-items: center; gap: 10px; border-radius: 10px; }
-        .spot-list.grid-view .spot-image-container { margin: 0; flex-shrink: 0; width: 60px; height: 60px; border-radius: 8px; overflow: hidden; }
-        .spot-list.grid-view .spot-image-container img { width: 60px; height: 60px; max-height: 60px; object-fit: cover; border-radius: 8px; aspect-ratio: auto; }
+        /* ===== GRID VIEW (compact horizontal cards like reference) ===== */
+        .spot-list.grid-view { display: flex; flex-direction: column; gap: 6px; }
+        .spot-list.grid-view .spot-card { padding: 8px 10px; border-left-width: 3px; display: flex; flex-direction: row; align-items: center; gap: 10px; }
+        .spot-list.grid-view .spot-image-container { margin: 0; flex-shrink: 0; width: 64px; height: 64px; border-radius: 8px; overflow: hidden; }
+        .spot-list.grid-view .spot-image-container img { width: 64px; height: 64px; max-height: 64px; object-fit: cover; border-radius: 8px; }
         .spot-list.grid-view .spot-content { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
         .spot-list.grid-view .spot-header { margin-bottom: 0; }
-        .spot-list.grid-view .spot-name { font-size: 0.88rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .spot-list.grid-view .spot-name { font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .spot-list.grid-view .spot-badges { flex-shrink: 0; }
-        .spot-list.grid-view .spot-badges .spot-region, .spot-list.grid-view .spot-badges .spot-city, .spot-list.grid-view .spot-badges .spot-type-badge { font-size: 0.6rem; padding: 1px 6px; }
-        .spot-list.grid-view .spot-coords { font-size: 0.68rem; margin-bottom: 0; padding: 2px 5px; }
+        .spot-list.grid-view .spot-coords { font-size: 0.65rem; margin-bottom: 0; }
         .spot-list.grid-view .spot-note { display: none; }
         .spot-list.grid-view .spot-tags { display: none; }
         .spot-list.grid-view .spot-coords-row { margin-bottom: 0; }
         .spot-list.grid-view .spot-actions { margin-top: 2px; gap: 2px; }
-        .spot-list.grid-view .spot-actions .btn { font-size: 0.7rem; padding: 3px 6px; }
+        .spot-list.grid-view .spot-actions .btn { font-size: 0.68rem; padding: 3px 5px; }
         .spot-list.grid-view .spot-actions .btn svg { width: 14px; height: 14px; }
 
         /* ===== Unified button style for actions ===== */
@@ -461,6 +441,13 @@
         .tag-search-input { width: 100%; padding: 5px 8px; border: 1.5px solid #D8E8D8; border-radius: 8px; font-size: 0.78rem; font-family: inherit; background: #FAFCFB; }
         .tag-search-input:focus { outline: none; border-color: var(--primary-light); background: white; }
 
+        /* Mobile-specific */
+        @media (max-width: 400px) {
+            .stats { grid-template-columns: repeat(3,1fr); }
+            .dropdown-filters { grid-template-columns: 1fr; }
+            .type-pills { justify-content: center; }
+        }
+
         /* Leaflet emoji marker */
         .map-emoji-icon { background: none !important; border: none !important; }
         .leaflet-popup-content-wrapper { border-radius: 12px !important; box-shadow: 0 2px 12px rgba(0,0,0,0.15) !important; }
@@ -479,120 +466,116 @@
     <div class="map-panel" id="mapPanel">
         <div id="mapContainer"></div>
     </div>
-    <!-- Content Sidebar (desktop: left panel, mobile: bottom sheet) -->
-    <div class="sidebar" id="sidebar">
-    <!-- Mobile bottom sheet handle -->
-    <div class="mobile-sheet-handle" id="sheetHandle" onclick="toggleBottomSheet()">
-        <div class="mobile-sheet-handle-text" id="sheetHandleText">▲ 顯示列表</div>
-    </div>
-    <!-- Mobile Map Toggle (tablet only) -->
+    <!-- Content Panel -->
+    <div class="content-panel">
+    <!-- Mobile Map Toggle -->
     <div class="mobile-map-toggle" id="mobileMapToggle" onclick="toggleMobileMap()">
         🗺️ <span id="mapToggleText">顯示地圖</span> <span class="map-spot-count" id="mapSpotCount"></span>
     </div>
-    <div class="header" style="padding:8px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
-        <div style="display:flex;align-items:center;gap:6px;min-width:0;">
-            <div class="seedling-icon" id="seedlingIcon" style="font-size:1.5rem;flex-shrink:0;">🌱</div>
-            <h1 style="font-size:0.95rem;white-space:nowrap;">皮克敏純點管理器</h1>
-            <div id="syncStatus" class="sync-status synced" style="font-size:0.6rem;padding:2px 6px;white-space:nowrap;">✨ 已同步</div>
-        </div>
-        <div style="flex-shrink:0;display:flex;align-items:center;gap:4px;">
-            <div id="userInfo" class="user-info-compact" style="display:none;padding:4px 8px;font-size:0.72rem;">
-                <div onclick="openProfile()" style="cursor:pointer;display:flex;align-items:center;gap:4px;" title="個人頁面">
-                    <img id="userAvatar" src="" style="width:24px;height:24px;border-radius:50%;display:none;">
-                    <div id="userAvatarFallback" style="width:24px;height:24px;border-radius:50%;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:800;"></div>
-                    <span id="userDisplayName" class="user-email" style="max-width:60px;"></span>
+    <div class="floating-cloud floating-cloud-1"></div>
+    <div class="floating-cloud floating-cloud-2"></div>
+    <div class="floating-cloud floating-cloud-3"></div>
+    <div class="header">
+        <div class="header-cloud header-cloud-1"></div>
+        <div class="header-cloud header-cloud-2"></div>
+        <div class="header-cloud header-cloud-3"></div>
+        <div class="header-login-area">
+            <div id="userInfo" class="user-info-compact" style="display: none;">
+                <div onclick="openProfile()" style="cursor:pointer;display:flex;align-items:center;gap:6px;" title="個人頁面">
+                    <img id="userAvatar" src="" style="width:30px;height:30px;border-radius:50%;border:2px solid var(--primary-light);display:none;">
+                    <div id="userAvatarFallback" style="width:30px;height:30px;border-radius:50%;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-size:0.82rem;font-weight:800;border:2px solid var(--primary-light);"></div>
+                    <span id="userDisplayName" class="user-email"></span>
                 </div>
                 <span id="userRole" class="user-role"></span>
-                <button class="btn-logout" onclick="logout()" style="padding:2px 6px;font-size:0.62rem;">登出</button>
+                <button class="btn-logout" onclick="logout()">登出</button>
             </div>
-            <div id="guestInfo" style="display:inline-block;">
-                <button class="btn-admin-header" onclick="showLoginModal()" style="padding:4px 10px;font-size:0.72rem;">👤 登入</button>
+            <div id="guestInfo" style="display: inline-block;">
+                <button class="btn-admin-header" onclick="showLoginModal()">👤 登入</button>
             </div>
+        </div>
+        <div class="header-content">
+            <div class="seedling-icon" id="seedlingIcon">🌱</div>
+            <h1>皮克敏純點管理器</h1>
+            <p>收藏你的純點足跡</p>
+            <div id="syncStatus" class="sync-status synced">✨ 已同步</div>
         </div>
     </div>
     <div class="container">
-        <!-- Sticky filter bar -->
-        <div class="filters-sticky">
-            <!-- Stats row (inline compact) -->
-            <div class="stats">
-                <div class="stat-card active" data-filter="all" onclick="setFilter('all')"><div class="stat-icon">🌈</div><div class="stat-number" id="stat-all">0</div></div>
-                <div class="stat-card flower-card" data-filter="flower" onclick="setFilter('flower')"><div class="stat-icon">🌸</div><div class="stat-number" id="stat-flower">0</div></div>
-                <div class="stat-card pikmin-card" data-filter="pikmin" onclick="setFilter('pikmin')"><div class="stat-icon">🌱</div><div class="stat-number" id="stat-pikmin">0</div></div>
-                <div class="stat-card mushroom-card" data-filter="mushroom" onclick="setFilter('mushroom')"><div class="stat-icon">🍄</div><div class="stat-number" id="stat-mushroom">0</div></div>
-                <div class="stat-card postcard-card" data-filter="postcard" onclick="setFilter('postcard')"><div class="stat-icon">🏠</div><div class="stat-number" id="stat-postcard">0</div></div>
-            </div>
-            <!-- Search + compact filters -->
+        <div class="stats">
+            <div class="stat-card active" data-filter="all" onclick="setFilter('all')"><div class="stat-icon">🌈</div><div class="stat-label">全部</div><div class="stat-number" id="stat-all">0</div></div>
+            <div class="stat-card flower-card" data-filter="flower" onclick="setFilter('flower')"><div class="stat-icon">🌸</div><div class="stat-label">大花</div><div class="stat-number" id="stat-flower">0</div></div>
+            <div class="stat-card pikmin-card" data-filter="pikmin" onclick="setFilter('pikmin')"><div class="stat-icon">🌱</div><div class="stat-label">皮克敏</div><div class="stat-number" id="stat-pikmin">0</div></div>
+            <div class="stat-card mushroom-card" data-filter="mushroom" onclick="setFilter('mushroom')"><div class="stat-icon">🍄</div><div class="stat-label">蘑菇</div><div class="stat-number" id="stat-mushroom">0</div></div>
+            <div class="stat-card postcard-card" data-filter="postcard" onclick="setFilter('postcard')"><div class="stat-icon">🏠</div><div class="stat-label">明信片</div><div class="stat-number" id="stat-postcard">0</div></div>
+        </div>
+        <div class="filters-section">
             <div class="search-box">
                 <span class="search-icon">🔍</span>
                 <input type="text" class="search-input" id="searchInput" placeholder="搜尋名稱、備註、地點、標籤...">
             </div>
-            <!-- Collapsible filter details -->
-            <div id="filterDetails" style="display:none;">
-                <div class="filter-group" id="tagFilterGroup" style="display:none;">
-                    <div class="filter-label">🏷️ 標籤</div>
-                    <div class="tag-search-box"><input type="text" class="tag-search-input" id="tagSearchInput" placeholder="搜尋標籤..." oninput="filterTagPills(this.value)"></div>
-                    <div class="tag-pills" id="tagFilterPills"></div>
-                </div>
-                <div class="filter-group">
-                    <div class="dropdown-filters">
-                        <div class="dropdown-group">
-                            <label class="dropdown-label">國家</label>
-                            <div class="searchable-select" id="countrySelect">
-                                <input type="text" class="select-input" id="countryInput" placeholder="選擇國家" readonly>
-                                <span class="select-arrow">▼</span>
-                                <div class="select-dropdown">
-                                    <div class="select-search"><input type="text" id="countrySearch" placeholder="搜尋國家..."></div>
-                                    <div class="select-options" id="countryOptions"></div>
-                                </div>
+            <div class="filter-group" id="tagFilterGroup" style="display:none;">
+                <div class="filter-label">🏷️ 熱門標籤</div>
+                <div class="tag-search-box"><input type="text" class="tag-search-input" id="tagSearchInput" placeholder="搜尋標籤..." oninput="filterTagPills(this.value)"></div>
+                <div class="tag-pills" id="tagFilterPills"></div>
+            </div>
+            <div class="filter-group">
+                <div class="filter-label">📍 地區篩選</div>
+                <div class="dropdown-filters">
+                    <div class="dropdown-group">
+                        <label class="dropdown-label">國家</label>
+                        <div class="searchable-select" id="countrySelect">
+                            <input type="text" class="select-input" id="countryInput" placeholder="選擇國家" readonly>
+                            <span class="select-arrow">▼</span>
+                            <div class="select-dropdown">
+                                <div class="select-search"><input type="text" id="countrySearch" placeholder="搜尋國家..."></div>
+                                <div class="select-options" id="countryOptions"></div>
                             </div>
                         </div>
-                        <div class="dropdown-group">
-                            <label class="dropdown-label">縣市</label>
-                            <div class="searchable-select" id="citySelect">
-                                <input type="text" class="select-input" id="cityInput" placeholder="選擇縣市" readonly>
-                                <span class="select-arrow">▼</span>
-                                <div class="select-dropdown">
-                                    <div class="select-search"><input type="text" id="citySearch" placeholder="搜尋縣市..."></div>
-                                    <div class="select-options" id="cityOptions"></div>
-                                </div>
+                    </div>
+                    <div class="dropdown-group">
+                        <label class="dropdown-label">縣市</label>
+                        <div class="searchable-select" id="citySelect">
+                            <input type="text" class="select-input" id="cityInput" placeholder="選擇縣市" readonly>
+                            <span class="select-arrow">▼</span>
+                            <div class="select-dropdown">
+                                <div class="select-search"><input type="text" id="citySearch" placeholder="搜尋縣市..."></div>
+                                <div class="select-options" id="cityOptions"></div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div id="clearFilterBar" style="display:none;text-align:right;margin-top:4px;">
-                    <button onclick="clearAllFilters()" style="padding:4px 10px;background:#FFF0F0;border:1.5px solid #F0A0A0;border-radius:8px;font-size:0.72rem;font-weight:600;cursor:pointer;color:#A04040;font-family:inherit;">✕ 清除篩選</button>
-                </div>
             </div>
-            <!-- Toggle filter details -->
-            <div style="text-align:center;margin-top:4px;">
-                <button onclick="toggleFilterDetails()" id="filterToggleBtn" style="background:none;border:none;font-size:0.72rem;color:var(--text-muted);cursor:pointer;font-family:inherit;font-weight:600;padding:2px 8px;">▼ 更多篩選</button>
+            <!-- Clear filters button - only shown when filters are active -->
+            <div id="clearFilterBar" style="display:none;margin-top:10px;text-align:right;">
+                <button onclick="clearAllFilters()" style="padding:6px 14px;background:#FFEBEE;border:2px solid #EF9A9A;border-radius:10px;font-size:0.78rem;font-weight:600;cursor:pointer;color:#C62828;font-family:inherit;">✕ 清除所有篩選</button>
             </div>
-            <!-- Toolbar: view mode + sort + page size + pagination -->
-            <div class="view-mode-bar" style="margin-top:6px;margin-bottom:0;padding:6px 0;box-shadow:none;background:none;flex-wrap:wrap;gap:4px;">
-                <div style="display:flex;align-items:center;gap:3px;flex-wrap:wrap;">
-                    <div class="view-mode-btns">
-                        <button class="view-mode-btn active" data-mode="large" onclick="setViewMode('large')">🖼️</button>
-                        <button class="view-mode-btn" data-mode="grid" onclick="setViewMode('grid')">📋</button>
-                        <button class="view-mode-btn" data-mode="list" onclick="setViewMode('list')">☰</button>
-                    </div>
-                    <select class="sort-select" id="sortSelect" onchange="setSortOrder(this.value)" style="font-size:0.75rem;padding:4px 6px;">
-                        <option value="newest">最新</option>
-                        <option value="oldest">最舊</option>
-                        <option value="name_asc">A→Z</option>
-                        <option value="name_desc">Z→A</option>
-                    </select>
-                    <select class="sort-select" id="pageSizeSelect" onchange="setPageSize(parseInt(this.value))" style="font-size:0.75rem;padding:4px 6px;">
-                        <option value="20">20</option>
-                        <option value="40" selected>40</option>
-                        <option value="80">80</option>
-                    </select>
+        </div>
+        <!-- Toolbar: view mode + sort + page size + pagination -->
+        <div class="view-mode-bar" style="flex-wrap:wrap;gap:8px;">
+            <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
+                <div class="view-mode-btns">
+                    <button class="view-mode-btn active" data-mode="large" onclick="setViewMode('large')">🖼️ 大圖</button>
+                    <button class="view-mode-btn" data-mode="grid" onclick="setViewMode('grid')">🔲 縮圖</button>
+                    <button class="view-mode-btn" data-mode="list" onclick="setViewMode('list')">📋 清單</button>
                 </div>
-                <div style="display:flex;align-items:center;gap:3px;flex-wrap:wrap;">
-                    <div class="pagination-bar" id="paginationBar" style="padding:0;"></div>
-                    <div class="view-mode-info" id="viewModeInfo" style="font-size:0.68rem;"></div>
-                </div>
+                <select class="sort-select" id="sortSelect" onchange="setSortOrder(this.value)" style="margin-left:4px;">
+                    <option value="newest">最新</option>
+                    <option value="oldest">最舊</option>
+                    <option value="name_asc">名稱 A→Z</option>
+                    <option value="name_desc">名稱 Z→A</option>
+                </select>
+                <select class="sort-select" id="pageSizeSelect" onchange="setPageSize(parseInt(this.value))">
+                    <option value="20">20 筆</option>
+                    <option value="40" selected>40 筆</option>
+                    <option value="80">80 筆</option>
+                    <option value="120">120 筆</option>
+                </select>
             </div>
-        </div><!-- end filters-sticky -->
+            <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
+                <div class="pagination-bar" id="paginationBar" style="padding:0;"></div>
+                <div class="view-mode-info" id="viewModeInfo"></div>
+            </div>
+        </div>
         <div class="spot-list" id="spotList"></div>
         <!-- Bottom pagination (duplicate for convenience) -->
         <div class="pagination-bar" id="paginationBarBottom" style="margin-top:8px;"></div>
@@ -874,7 +857,7 @@
         <img id="lightboxImage" src="">
     </div>
     <div class="toast" id="toast"></div>
-    </div><!-- end sidebar -->
+    </div><!-- end content-panel -->
     </div><!-- end app-layout -->
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1788,14 +1771,13 @@
                 setSyncStatus('syncing');
                 if (reset) {
                     currentPage = 0;
-                    // 篩選條件變更時，暫停地圖範圍過濾，讓所有結果都能顯示
-                    mapBounds = null;
                 }
                 spots = [];
                 spotList.innerHTML = '';
                 const from = currentPage * PAGE_SIZE;
                 const to = from + PAGE_SIZE - 1;
 
+                // Parallel: get data + count
                 const [dataResult, countResult] = await Promise.all([
                     buildQuery(from, to),
                     buildCountQuery()
@@ -1812,22 +1794,9 @@
                 renderPagination();
                 updateStats(); renderTagFilters(); setSyncStatus('synced');
                 saveFiltersToSession();
+                // Update map
                 updateMapMarkers();
-
-                // 篩選條件變更時，地圖自動 fitBounds 到篩選結果（問題 1+4 修復）
-                if (reset && leafletMap && spots.length > 0) {
-                    fitMapToSpots(spots);
-                }
             } catch (e) { console.error(e); setSyncStatus('error'); showToast('❌ 載入失敗'); }
-        }
-
-        // 地圖自動縮放到純點範圍
-        function fitMapToSpots(spotsArr) {
-            if (!leafletMap || !spotsArr.length) return;
-            const bounds = spotsArr.filter(s => s.lat && s.lng).map(s => [s.lat, s.lng]);
-            if (bounds.length > 0) {
-                leafletMap.fitBounds(bounds, { padding: [40, 40], maxZoom: 14 });
-            }
         }
 
         function goToPage(page) {
@@ -2020,23 +1989,20 @@
         }
 
         function renderSpots(reset = true) {
-            // 多標籤 AND 過濾
+            // 多標籤 AND 過濾（Server query 只篩第一個，其餘在 client 端過濾）
             let fs = spots;
             if (activeTagFilters && activeTagFilters.length > 1) {
-                fs = fs.filter(s => {
+                fs = spots.filter(s => {
                     if (!s.tags || !Array.isArray(s.tags)) return false;
                     return activeTagFilters.every(t => s.tags.includes(t));
                 });
             }
-            // 地圖範圍過濾（桌面版地圖連動時）
-            if (mapFilterEnabled && mapBounds && leafletMap) {
-                fs = fs.filter(s => s.lat && s.lng && mapBounds.contains([s.lat, s.lng]));
-            }
 
-            document.getElementById('viewModeInfo').textContent = totalCount > 0 ? `${(currentPage * PAGE_SIZE) + 1}-${Math.min((currentPage + 1) * PAGE_SIZE, totalCount)} / ${totalCount}` : '0';
+            // Update view mode info
+            document.getElementById('viewModeInfo').textContent = totalCount > 0 ? `${(currentPage * PAGE_SIZE) + 1}-${Math.min((currentPage + 1) * PAGE_SIZE, totalCount)} / ${totalCount} 筆` : '0 筆';
 
             if (!fs.length) {
-                spotList.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🌱</div><div class="empty-state-text">找不到符合的純點<br><button onclick="clearAllFilters()" style="margin-top:8px;padding:6px 16px;background:var(--primary);color:white;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-family:inherit;font-size:0.82rem;">清除篩選</button></div></div>`;
+                spotList.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🌱</div><div class="empty-state-text">${'找不到符合的純點 🔍<br><button onclick=\"clearAllFilters()\" style=\"margin-top:10px;padding:8px 20px;background:var(--light-green);color:white;border:none;border-radius:10px;font-weight:700;cursor:pointer;font-family:inherit;\">清除篩選</button>'}</div></div>`;
                 return;
             }
 
@@ -3166,47 +3132,6 @@
             loadSpots();
         }
 
-        // ==================== 篩選器展開/收合 ====================
-        let filterDetailsOpen = false;
-        function toggleFilterDetails() {
-            filterDetailsOpen = !filterDetailsOpen;
-            document.getElementById('filterDetails').style.display = filterDetailsOpen ? 'block' : 'none';
-            document.getElementById('filterToggleBtn').textContent = filterDetailsOpen ? '▲ 收合篩選' : '▼ 更多篩選';
-        }
-
-        // ==================== 提示詞 A: 地圖邊界與列表聯動 ====================
-        let mapFilterEnabled = true; // 預設啟用
-        let mapBounds = null;
-
-        function setupMapSync() {
-            if (!leafletMap) return;
-            // 監聽 moveend：地圖停止移動/縮放後觸發
-            leafletMap.on('moveend', () => {
-                mapBounds = leafletMap.getBounds();
-                // 從當前數據中篩選範圍內的點並重新渲染
-                renderSpots(true);
-            });
-        }
-
-        // ==================== 手機底部抽屜 ====================
-        let sheetExpanded = false;
-        function toggleBottomSheet() {
-            const sidebar = document.getElementById('sidebar');
-            sheetExpanded = !sheetExpanded;
-            sidebar.classList.toggle('collapsed', !sheetExpanded);
-            sidebar.classList.toggle('expanded', sheetExpanded);
-            const text = document.getElementById('sheetHandleText');
-            if (text) text.textContent = sheetExpanded ? '▼ 收合列表' : '▲ 顯示列表';
-        }
-        // 初始化手機底部抽屜
-        function initBottomSheet() {
-            if (window.innerWidth < 768) {
-                const sidebar = document.getElementById('sidebar');
-                sidebar.classList.add('collapsed');
-                sheetExpanded = false;
-            }
-        }
-
         // ==================== 地圖 (Leaflet) ====================
         function initMap() {
             if (mapInitialized) return;
@@ -3226,7 +3151,6 @@
             }).addTo(leafletMap);
 
             mapInitialized = true;
-            setupMapSync();
 
             // Load ALL spots for map (lightweight query, no pagination)
             loadMapData();
@@ -3306,20 +3230,21 @@
             }
         }
 
-        // Auto-init map on all screen sizes
+        // Desktop: auto-init map
         function checkDesktopMap() {
-            // Desktop and mobile both show map
-            setTimeout(() => initMap(), 300);
+            if (window.innerWidth >= 1024) {
+                setTimeout(() => initMap(), 300);
+            }
         }
         window.addEventListener('resize', () => {
-            if (!mapInitialized) setTimeout(() => initMap(), 200);
+            if (window.innerWidth >= 1024 && !mapInitialized) {
+                setTimeout(() => initMap(), 200);
+            }
             if (leafletMap) leafletMap.invalidateSize();
-            initBottomSheet();
         });
 
         init();
         checkDesktopMap();
-        initBottomSheet();
 
         // Deep link: #spot=<id> → auto open detail
         function checkDeepLink() {
