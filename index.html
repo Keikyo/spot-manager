@@ -396,6 +396,9 @@
         .detail-modal-note { font-size: 0.85rem; color: var(--text-secondary); padding: 8px 10px; background: #F8FAF9; border-radius: 8px; border-left: 2px solid #D0DCD4; margin: 8px 0; }
         .detail-modal-by { font-size: 0.72rem; color: #AAA; margin-top: 6px; }
         .detail-modal-actions { display: flex; gap: 6px; margin-top: 12px; flex-wrap: wrap; }
+        .detail-modal-actions .btn { background: white; color: var(--text-secondary); border: 1.5px solid #E0E8E4; padding: 8px 14px; font-size: 0.88rem; }
+        .detail-modal-actions .btn:hover { background: var(--primary-bg); border-color: var(--primary-light); color: var(--primary-dark); }
+        .detail-modal-actions .btn.btn-fav.active { background: #FFFAE8; border-color: #E8D888; color: #B08820; }
 
         /* Lightbox */
         .lightbox-overlay { position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.85); z-index: 3000; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: all 0.3s; cursor: zoom-out; }
@@ -767,6 +770,28 @@
             <div id="suggestionsListContent" style="max-height:60vh;overflow-y:auto;"></div>
             <div class="modal-actions" style="margin-top:16px;">
                 <button type="button" class="btn-cancel" onclick="closeSuggestionsList()" style="flex:1;">關閉</button>
+            </div>
+        </div>
+    </div>
+    <!-- Share Modal -->
+    <div class="modal-overlay" id="shareModal" onclick="if(event.target===this)closeShareModal()">
+        <div class="modal" style="max-width:400px;text-align:center;">
+            <h2 style="justify-content:center;">📤 分享純點</h2>
+            <div id="shareSpotName" style="font-weight:700;font-size:1rem;margin-bottom:12px;color:var(--text-primary);"></div>
+            <div id="shareQrCode" style="margin:0 auto 16px;width:180px;height:180px;background:#F8F8F8;border-radius:12px;display:flex;align-items:center;justify-content:center;overflow:hidden;"></div>
+            <div id="shareUrl" style="font-size:0.75rem;color:var(--text-muted);word-break:break-all;background:#F5F8F6;padding:8px 12px;border-radius:8px;margin-bottom:14px;cursor:pointer;" onclick="copyShareUrl()" title="點擊複製"></div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:14px;">
+                <button class="btn" onclick="shareVia('line')" title="LINE">💬</button>
+                <button class="btn" onclick="shareVia('telegram')" title="Telegram">✈️</button>
+                <button class="btn" onclick="shareVia('whatsapp')" title="WhatsApp">📱</button>
+                <button class="btn" onclick="shareVia('twitter')" title="X/Twitter">🐦</button>
+                <button class="btn" onclick="shareVia('facebook')" title="Facebook">📘</button>
+                <button class="btn" onclick="shareVia('email')" title="Email">📧</button>
+                <button class="btn" onclick="copyShareUrl()" title="複製連結">🔗</button>
+                <button class="btn" onclick="shareNative()" title="更多分享">📲</button>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" onclick="closeShareModal()" style="flex:1;">關閉</button>
             </div>
         </div>
     </div>
@@ -2397,13 +2422,14 @@
                         ${createdStr ? `<span style="font-size:0.72rem;color:#BBB;margin-left:6px;">建立於 ${createdStr}</span>` : ''}
                     </div>
                     <div class="detail-modal-actions">
-                        <button class="btn btn-copy" onclick="copyCoords('${s.lat}, ${s.lng}')">📋 複製座標</button>
-                        <button class="btn" onclick="window.open('${mapsUrl}','_blank')" style="background:linear-gradient(135deg,#E8F5E9,#C8E6C9);color:#2E7D32;">🗺️ Google Maps</button>
-                        ${currentUser ? `<button class="btn btn-fav ${isFav ? 'active' : ''}" onclick="toggleFavorite('${s.id}');closeDetail();setTimeout(()=>{const sp=spots.find(x=>String(x.id)==='${s.id}')||profileSpots.find(x=>String(x.id)==='${s.id}');if(sp)renderDetailContent(sp);document.getElementById('detailModal').classList.add('active');},300);">${isFav ? '⭐ 已收藏' : '☆ 收藏'}</button>` : ''}
-                        ${currentUser ? `<button class="btn" onclick="toggleBookmark('${s.id}');closeDetail();setTimeout(()=>{const sp=spots.find(x=>String(x.id)==='${s.id}')||profileSpots.find(x=>String(x.id)==='${s.id}');if(sp)renderDetailContent(sp);document.getElementById('detailModal').classList.add('active');},300);" style="background:${isSaved ? '#EDF7FF' : '#F5F8F6'};color:${isSaved ? '#2060A0' : 'var(--text-muted)'};">${isSaved ? '🔖 已儲存' : '🏷️ 儲存'}</button>` : ''}
-                        ${!showEdit && currentUser ? `<button class="btn" onclick="closeDetail();openSuggestionModal('${s.id}')" style="background:linear-gradient(135deg,#FFF8E1,#FFECB3);color:#F57F17;">💡 建議修改</button>` : ''}
-                        ${showEdit ? `<button class="btn btn-edit" onclick="closeDetail();editSpot('${s.id}')">✏️ 編輯</button>` : ''}
-                        ${showDelete ? `<button class="btn btn-delete" onclick="closeDetail();deleteSpot('${s.id}')">🗑️ 刪除</button>` : ''}
+                        <button class="btn" onclick="copyCoords('${s.lat}, ${s.lng}')" title="複製座標">📋</button>
+                        <button class="btn" onclick="window.open('${mapsUrl}','_blank')" title="Google Maps">🗺️</button>
+                        <button class="btn" onclick="shareSpot('${escapeHtml(s.name).replace(/'/g,"\\'")}','${s.lat}','${s.lng}')" title="分享">📤</button>
+                        ${currentUser ? `<button class="btn btn-fav ${isFav ? 'active' : ''}" onclick="toggleFavorite('${s.id}');closeDetail();setTimeout(()=>{const sp=spots.find(x=>String(x.id)==='${s.id}')||profileSpots.find(x=>String(x.id)==='${s.id}');if(sp)renderDetailContent(sp);document.getElementById('detailModal').classList.add('active');},300);" title="收藏">${isFav ? '⭐' : '☆'}</button>` : ''}
+                        ${currentUser ? `<button class="btn ${isSaved ? 'btn-fav active' : ''}" onclick="toggleBookmark('${s.id}');closeDetail();setTimeout(()=>{const sp=spots.find(x=>String(x.id)==='${s.id}')||profileSpots.find(x=>String(x.id)==='${s.id}');if(sp)renderDetailContent(sp);document.getElementById('detailModal').classList.add('active');},300);" title="儲存">${isSaved ? '🔖' : '🏷️'}</button>` : ''}
+                        ${!showEdit && currentUser ? `<button class="btn" onclick="closeDetail();openSuggestionModal('${s.id}')" title="建議修改">💡</button>` : ''}
+                        ${showEdit ? `<button class="btn" onclick="closeDetail();editSpot('${s.id}')" title="編輯">✏️</button>` : ''}
+                        ${showDelete ? `<button class="btn" onclick="closeDetail();deleteSpot('${s.id}')" title="刪除">🗑️</button>` : ''}
                     </div>
                 </div>`;
             document.getElementById('detailModal').classList.add('active');
@@ -2866,6 +2892,84 @@ CREATE POLICY "Admin can update suggestions"
             }
             renderTagFilters();
             loadSpots();
+        }
+
+        // ==================== 分享功能 ====================
+        let shareData = { name: '', url: '' };
+
+        function shareSpot(name, lat, lng) {
+            const mapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+            const text = `📍 ${name}\n座標：${lat}, ${lng}\n${mapsUrl}`;
+            shareData = { name, url: mapsUrl, text, lat, lng };
+
+            document.getElementById('shareSpotName').textContent = name;
+            document.getElementById('shareUrl').textContent = mapsUrl;
+
+            // QR Code (using free API)
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(mapsUrl)}`;
+            document.getElementById('shareQrCode').innerHTML = `<img src="${qrUrl}" alt="QR Code" style="width:180px;height:180px;border-radius:8px;">`;
+
+            document.getElementById('shareModal').classList.add('active');
+        }
+
+        function closeShareModal() {
+            document.getElementById('shareModal').classList.remove('active');
+        }
+
+        function copyShareUrl() {
+            navigator.clipboard.writeText(shareData.url).then(() => {
+                showToast('🔗 連結已複製！');
+            }).catch(() => {
+                // Fallback
+                const ta = document.createElement('textarea'); ta.value = shareData.url;
+                document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+                document.body.removeChild(ta); showToast('🔗 連結已複製！');
+            });
+        }
+
+        function shareVia(platform) {
+            const text = encodeURIComponent(shareData.text);
+            const url = encodeURIComponent(shareData.url);
+            const name = encodeURIComponent(shareData.name);
+            let shareUrl = '';
+
+            switch (platform) {
+                case 'line':
+                    shareUrl = `https://social-plugins.line.me/lineit/share?url=${url}&text=${text}`;
+                    break;
+                case 'telegram':
+                    shareUrl = `https://t.me/share/url?url=${url}&text=${text}`;
+                    break;
+                case 'whatsapp':
+                    shareUrl = `https://wa.me/?text=${text}`;
+                    break;
+                case 'twitter':
+                    shareUrl = `https://twitter.com/intent/tweet?text=${text}`;
+                    break;
+                case 'facebook':
+                    shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+                    break;
+                case 'email':
+                    shareUrl = `mailto:?subject=${name}&body=${text}`;
+                    break;
+            }
+            if (shareUrl) window.open(shareUrl, '_blank');
+        }
+
+        async function shareNative() {
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: shareData.name,
+                        text: `📍 ${shareData.name}\n座標：${shareData.lat}, ${shareData.lng}`,
+                        url: shareData.url
+                    });
+                } catch (e) {
+                    if (e.name !== 'AbortError') console.error('Share error:', e);
+                }
+            } else {
+                copyShareUrl();
+            }
         }
 
         // ==================== 排序 ====================
