@@ -51,7 +51,6 @@
             .header { border-radius: 0; }
             .mobile-map-toggle { display: none !important; }
             .container { max-width: 100%; padding: 16px 24px; }
-            .spot-list.grid-view { grid-template-columns: repeat(2, 1fr); }
         }
 
         /* Mobile */
@@ -220,19 +219,31 @@
         .btn-quick-upload:hover { background: #EDE0F5; }
         .btn-quick-upload.uploading { opacity: 0.6; pointer-events: none; }
 
-        /* ===== GRID VIEW (tighter) ===== */
-        .spot-list.grid-view { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
-        @media (min-width: 1024px) { .spot-list.grid-view { grid-template-columns: repeat(2, 1fr); } }
-        .spot-list.grid-view .spot-card { padding: 8px; border-left-width: 3px; }
-        .spot-list.grid-view .spot-image-container img { max-height: 120px; }
-        .spot-list.grid-view .spot-header { flex-direction: column; gap: 3px; }
-        .spot-list.grid-view .spot-name { font-size: 0.82rem; }
+        /* ===== GRID VIEW (compact horizontal cards like reference) ===== */
+        .spot-list.grid-view { display: flex; flex-direction: column; gap: 6px; }
+        .spot-list.grid-view .spot-card { padding: 8px 10px; border-left-width: 3px; display: flex; flex-direction: row; align-items: center; gap: 10px; }
+        .spot-list.grid-view .spot-image-container { margin: 0; flex-shrink: 0; width: 64px; height: 64px; border-radius: 8px; overflow: hidden; }
+        .spot-list.grid-view .spot-image-container img { width: 64px; height: 64px; max-height: 64px; object-fit: cover; border-radius: 8px; }
+        .spot-list.grid-view .spot-content { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+        .spot-list.grid-view .spot-header { margin-bottom: 0; }
+        .spot-list.grid-view .spot-name { font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .spot-list.grid-view .spot-badges { display: none; }
-        .spot-list.grid-view .spot-coords { font-size: 0.65rem; }
+        .spot-list.grid-view .spot-coords { font-size: 0.65rem; margin-bottom: 0; }
         .spot-list.grid-view .spot-note { display: none; }
         .spot-list.grid-view .spot-tags { display: none; }
-        .spot-list.grid-view .spot-actions { gap: 3px; }
-        .spot-list.grid-view .spot-actions .btn { font-size: 0.68rem; padding: 5px 6px; flex: 1; text-align: center; }
+        .spot-list.grid-view .spot-coords-row { margin-bottom: 0; }
+        .spot-list.grid-view .spot-actions { margin-top: 2px; gap: 3px; }
+        .spot-list.grid-view .spot-actions .btn { font-size: 0.72rem; padding: 4px 8px; }
+
+        /* ===== Unified button style for actions ===== */
+        .spot-actions .btn { background: white; color: var(--text-secondary); border: 1.5px solid #E0E8E4; }
+        .spot-actions .btn:hover { background: var(--primary-bg); border-color: var(--primary-light); color: var(--primary-dark); }
+        .spot-actions .btn.btn-fav { border-color: #E0E8E4; color: var(--text-secondary); background: white; }
+        .spot-actions .btn.btn-fav.active { background: #FFFAE8; border-color: #E8D888; color: #B08820; }
+        .spot-actions .btn.btn-copy, .spot-actions .btn.btn-edit, .spot-actions .btn.btn-delete, .spot-actions .btn.btn-quick-upload {
+            background: white; color: var(--text-secondary); border: 1.5px solid #E0E8E4;
+        }
+        .spot-actions .btn.btn-delete:hover { background: #FFF0F0; border-color: #F0A0A0; color: #A04040; }
         /* ===== LIST VIEW ===== */
         .spot-list.list-view .spot-card { padding: 10px 12px; border-left-width: 3px; }
         .spot-list.list-view .spot-image-container { display: none; }
@@ -1831,37 +1842,38 @@
             const isFav = userFavorites.has(String(s.id));
             const isSaved = userBookmarks.has(String(s.id));
 
-            // Grid/List: icon-only compact buttons
+            // Grid: compact horizontal card (image left, info right, icon-only buttons)
             if (isGrid) {
-                const gridActions = !selectMode ? `<div class="spot-actions" style="justify-content:space-between;">
-                    <button class="btn btn-copy" onclick="event.stopPropagation();copyCoords('${s.lat}, ${s.lng}')" title="複製座標" style="flex:0;">📋</button>
-                    ${currentUser ? `<button class="btn btn-fav ${isFav ? 'active' : ''}" onclick="event.stopPropagation();toggleFavorite('${s.id}')" title="收藏" style="flex:0;">${isFav ? '⭐' : '☆'}</button>` : ''}
-                    ${currentUser ? `<button class="btn" onclick="event.stopPropagation();toggleBookmark('${s.id}')" title="儲存" style="flex:0;background:${isSaved ? '#EDF7FF' : '#F5F8F6'};color:${isSaved ? '#2060A0' : '#8AA89A'};">${isSaved ? '🔖' : '🏷️'}</button>` : ''}
-                    ${showEdit ? `<button class="btn btn-edit" onclick="event.stopPropagation();editSpot('${s.id}')" title="編輯" style="flex:0;">✏️</button>` : ''}
-                    ${showDelete ? `<button class="btn btn-delete" onclick="event.stopPropagation();deleteSpot('${s.id}')" title="刪除" style="flex:0;">🗑️</button>` : ''}
+                const gridActions = !selectMode ? `<div class="spot-actions">
+                    <button class="btn btn-copy" onclick="event.stopPropagation();copyCoords('${s.lat}, ${s.lng}')" title="複製座標">📋</button>
+                    ${currentUser ? `<button class="btn btn-fav ${isFav ? 'active' : ''}" onclick="event.stopPropagation();toggleFavorite('${s.id}')" title="收藏">${isFav ? '⭐' : '☆'}</button>` : ''}
+                    ${currentUser ? `<button class="btn ${isSaved ? 'btn-fav active' : ''}" onclick="event.stopPropagation();toggleBookmark('${s.id}')" title="儲存">${isSaved ? '🔖' : '🏷️'}</button>` : ''}
+                    ${showEdit ? `<button class="btn" onclick="event.stopPropagation();editSpot('${s.id}')" title="編輯">✏️</button>` : ''}
+                    ${showDelete ? `<button class="btn" onclick="event.stopPropagation();deleteSpot('${s.id}')" title="刪除">🗑️</button>` : ''}
                 </div>` : '';
 
                 return `<div class="spot-card ${s.type}-card ${selectMode ? 'select-mode' : ''}" data-id="${s.id}" onclick="openDetail('${s.id}')" style="cursor:pointer;">
                     ${selectMode ? `<input type="checkbox" class="spot-checkbox" ${selectedSpots.has(s.id) ? 'checked' : ''}>` : ''}
                     ${imgHtml}
-                    <div class="spot-name" style="font-size:0.82rem;margin-top:4px;">${escapeHtml(s.name)}</div>
-                    <div style="font-size:0.65rem;color:var(--text-muted);margin:2px 0;">${s.country || ''}${s.city ? ' · ' + s.city : ''}</div>
-                    <div class="spot-coords" style="font-size:0.62rem;margin:2px 0;">${s.lat.toString().slice(0,9)}, ${s.lng.toString().slice(0,10)}</div>
-                    ${gridActions}
+                    <div class="spot-content">
+                        <div class="spot-name">${escapeHtml(s.name)} ${byLine}</div>
+                        <div class="spot-coords">${s.lat}, ${s.lng}</div>
+                        ${gridActions}
+                    </div>
                 </div>`;
             }
 
             // Large / List view
-            const quickUploadHtml = !s.image_url && !selectMode && showEdit ? `<button class="btn btn-quick-upload" onclick="event.stopPropagation();quickUpload('${s.id}')">📷${short ? '' : ' 上傳圖片'}</button>` : '';
+            const quickUploadHtml = !s.image_url && !selectMode && showEdit ? `<button class="btn" onclick="event.stopPropagation();quickUpload('${s.id}')">📷${short ? '' : ' 上傳圖片'}</button>` : '';
             const favBtnHtml = currentUser ? `<button class="btn btn-fav ${isFav ? 'active' : ''}" onclick="event.stopPropagation();toggleFavorite('${s.id}')">${isFav ? '⭐' : '☆'}${short ? '' : (isFav ? ' 已收藏' : ' 收藏')}</button>` : '';
-            const saveBtnHtml = currentUser ? `<button class="btn" onclick="event.stopPropagation();toggleBookmark('${s.id}')" style="background:${isSaved ? '#EDF7FF' : '#F5F8F6'};color:${isSaved ? '#2060A0' : 'var(--text-muted)'};">${isSaved ? '🔖 已儲存' : '🏷️ 儲存'}</button>` : '';
+            const saveBtnHtml = currentUser ? `<button class="btn ${isSaved ? 'btn-fav active' : ''}" onclick="event.stopPropagation();toggleBookmark('${s.id}')">${isSaved ? '🔖' : '🏷️'}${short ? '' : (isSaved ? ' 已儲存' : ' 儲存')}</button>` : '';
             const actionsHtml = !selectMode ? `<div class="spot-actions">
                 <button class="btn btn-copy" onclick="event.stopPropagation();copyCoords('${s.lat}, ${s.lng}')">📋${short ? '' : ' 複製座標'}</button>
                 ${favBtnHtml}
                 ${saveBtnHtml}
                 ${quickUploadHtml}
-                ${showEdit ? `<button class="btn btn-edit" onclick="event.stopPropagation();editSpot('${s.id}')">✏️${short ? '' : ' 編輯'}</button>` : ''}
-                ${showDelete ? `<button class="btn btn-delete" onclick="event.stopPropagation();deleteSpot('${s.id}')">🗑️${short ? '' : ' 刪除'}</button>` : ''}
+                ${showEdit ? `<button class="btn" onclick="event.stopPropagation();editSpot('${s.id}')">✏️${short ? '' : ' 編輯'}</button>` : ''}
+                ${showDelete ? `<button class="btn" onclick="event.stopPropagation();deleteSpot('${s.id}')">🗑️${short ? '' : ' 刪除'}</button>` : ''}
             </div>` : '';
 
             return `<div class="spot-card ${s.type}-card ${selectMode ? 'select-mode' : ''}" data-id="${s.id}" onclick="openDetail('${s.id}')" style="cursor:pointer;">
