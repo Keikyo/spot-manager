@@ -46,8 +46,8 @@
         /* Desktop: map left, content right */
         @media (min-width: 1024px) {
             .app-layout { flex-direction: row; }
-            .map-panel { width: 50%; height: 100vh; position: sticky; top: 0; display: block !important; }
-            .content-panel { width: 50%; min-height: 100vh; padding-bottom: 80px; }
+            .map-panel { width: 60%; height: 100vh; position: sticky; top: 0; display: block !important; }
+            .content-panel { width: 40%; min-height: 100vh; padding-bottom: 80px; }
             .header { border-radius: 0; }
             .mobile-map-toggle { display: none !important; }
             .container { max-width: 100%; padding: 16px 24px; }
@@ -227,7 +227,7 @@
         .spot-list.grid-view .spot-content { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
         .spot-list.grid-view .spot-header { margin-bottom: 0; }
         .spot-list.grid-view .spot-name { font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .spot-list.grid-view .spot-badges { display: none; }
+        .spot-list.grid-view .spot-badges { flex-shrink: 0; }
         .spot-list.grid-view .spot-coords { font-size: 0.65rem; margin-bottom: 0; }
         .spot-list.grid-view .spot-note { display: none; }
         .spot-list.grid-view .spot-tags { display: none; }
@@ -1856,7 +1856,10 @@
                     ${selectMode ? `<input type="checkbox" class="spot-checkbox" ${selectedSpots.has(s.id) ? 'checked' : ''}>` : ''}
                     ${imgHtml}
                     <div class="spot-content">
-                        <div class="spot-name">${escapeHtml(s.name)} ${byLine}</div>
+                        <div class="spot-header" style="margin-bottom:2px;">
+                            <div class="spot-name">${escapeHtml(s.name)} ${byLine}</div>
+                            ${badgesHtml}
+                        </div>
                         <div class="spot-coords">${s.lat}, ${s.lng}</div>
                         ${gridActions}
                     </div>
