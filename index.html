@@ -525,28 +525,35 @@
                 <button onclick="clearAllFilters()" style="padding:6px 14px;background:#FFEBEE;border:2px solid #EF9A9A;border-radius:10px;font-size:0.78rem;font-weight:600;cursor:pointer;color:#C62828;font-family:inherit;">✕ 清除所有篩選</button>
             </div>
         </div>
-        <!-- View Mode Bar -->
-        <div class="view-mode-bar">
-            <div class="view-mode-btns">
-                <button class="view-mode-btn active" data-mode="large" onclick="setViewMode('large')">🖼️ 大圖</button>
-                <button class="view-mode-btn" data-mode="grid" onclick="setViewMode('grid')">🔲 縮圖</button>
-                <button class="view-mode-btn" data-mode="list" onclick="setViewMode('list')">📋 清單</button>
+        <!-- Toolbar: view mode + sort + page size + pagination -->
+        <div class="view-mode-bar" style="flex-wrap:wrap;gap:8px;">
+            <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
+                <div class="view-mode-btns">
+                    <button class="view-mode-btn active" data-mode="large" onclick="setViewMode('large')">🖼️ 大圖</button>
+                    <button class="view-mode-btn" data-mode="grid" onclick="setViewMode('grid')">🔲 縮圖</button>
+                    <button class="view-mode-btn" data-mode="list" onclick="setViewMode('list')">📋 清單</button>
+                </div>
+                <select class="sort-select" id="sortSelect" onchange="setSortOrder(this.value)" style="margin-left:4px;">
+                    <option value="newest">最新</option>
+                    <option value="oldest">最舊</option>
+                    <option value="name_asc">名稱 A→Z</option>
+                    <option value="name_desc">名稱 Z→A</option>
+                </select>
+                <select class="sort-select" id="pageSizeSelect" onchange="setPageSize(parseInt(this.value))">
+                    <option value="20">20 筆</option>
+                    <option value="40" selected>40 筆</option>
+                    <option value="80">80 筆</option>
+                    <option value="120">120 筆</option>
+                </select>
             </div>
-            <div class="view-mode-info" id="viewModeInfo"></div>
-        </div>
-        <!-- Sort Bar -->
-        <div class="sort-bar" id="sortBar">
-            <label>📊 排序</label>
-            <select class="sort-select" id="sortSelect" onchange="setSortOrder(this.value)">
-                <option value="newest">最新</option>
-                <option value="oldest">最舊</option>
-                <option value="name_asc">名稱 A→Z</option>
-                <option value="name_desc">名稱 Z→A</option>
-            </select>
+            <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
+                <div class="pagination-bar" id="paginationBar" style="padding:0;"></div>
+                <div class="view-mode-info" id="viewModeInfo"></div>
+            </div>
         </div>
         <div class="spot-list" id="spotList"></div>
-        <!-- Pagination (page numbers) -->
-        <div class="pagination-bar" id="paginationBar"></div>
+        <!-- Bottom pagination (duplicate for convenience) -->
+        <div class="pagination-bar" id="paginationBarBottom" style="margin-top:8px;"></div>
         <div id="paginationLoader" class="pagination-loader" style="display:none;"><div class="loader-spinner"></div></div>
     </div>
     <!-- FAB buttons -->
@@ -702,7 +709,8 @@
         </div>
         <div class="profile-tabs">
             <div class="profile-tab active" data-tab="my" onclick="setProfileTab('my')">我的純點</div>
-            <div class="profile-tab" data-tab="fav" onclick="setProfileTab('fav')">我的最愛</div>
+            <div class="profile-tab" data-tab="fav" onclick="setProfileTab('fav')">⭐ 最愛</div>
+            <div class="profile-tab" data-tab="saved" onclick="setProfileTab('saved')">🔖 儲存</div>
         </div>
         <div class="profile-list" id="profileList"></div>
     </div>
@@ -781,7 +789,7 @@
         let currentTags = [];
         let userDisplayNameCached = ''; // 自訂暱稱（從 users 表讀取）
         // Pagination (page numbers)
-        const PAGE_SIZE = 40;
+        let PAGE_SIZE = 40;
         let currentPage = 0;
         let isLoadingMore = false;
         let hasMoreData = true;
@@ -798,6 +806,7 @@
         // Batch upload
         let batchItems = []; // { file, base64, spotId }
         let userFavorites = new Set();
+        let userBookmarks = new Set(); // 儲存收藏
         let profileTab = 'my';
         let tagSearchQuery = '';
 
@@ -973,7 +982,7 @@
                     if (session) {
                         currentUser = session.user;
                         await checkAdminStatus();
-                        await loadFavorites();
+                        await loadFavorites(); await loadBookmarks();
                         updateUserInfo();
                         renderSpots();
                         // 已登入 + 沒暱稱 → 溫和提示（不用每次都跳 modal）
@@ -991,7 +1000,7 @@
                     }
                     currentUser = session.user;
                     await checkAdminStatus();
-                    await loadFavorites();
+                    await loadFavorites(); await loadBookmarks();
                     loginModal.classList.remove('active');
                     updateUserInfo();
                     renderSpots();
@@ -1027,7 +1036,7 @@
                     if (session && !currentUser) {
                         currentUser = session.user;
                         await checkAdminStatus();
-                        await loadFavorites();
+                        await loadFavorites(); await loadBookmarks();
                         updateUserInfo();
                         renderSpots();
                     }
@@ -1696,13 +1705,12 @@
         }
 
         function renderPagination() {
-            const bar = document.getElementById('paginationBar');
-            if (!bar || totalPages <= 1) { if (bar) bar.innerHTML = ''; return; }
+            const bars = [document.getElementById('paginationBar'), document.getElementById('paginationBarBottom')];
+            if (totalPages <= 1) { bars.forEach(b => { if (b) b.innerHTML = ''; }); return; }
 
             let html = '';
             html += `<button class="page-btn nav" onclick="goToPage(${currentPage - 1})" ${currentPage === 0 ? 'disabled' : ''}>◀</button>`;
 
-            // Smart page range: show first, last, and nearby pages
             const pages = new Set();
             pages.add(0); pages.add(totalPages - 1);
             for (let i = Math.max(0, currentPage - 2); i <= Math.min(totalPages - 1, currentPage + 2); i++) pages.add(i);
@@ -1716,8 +1724,7 @@
             }
 
             html += `<button class="page-btn nav" onclick="goToPage(${currentPage + 1})" ${currentPage >= totalPages - 1 ? 'disabled' : ''}>▶</button>`;
-            html += `<span class="page-info">${totalCount} 筆</span>`;
-            bar.innerHTML = html;
+            bars.forEach(b => { if (b) b.innerHTML = html; });
         }
 
         async function loadMoreSpots() { /* no longer used */ }
@@ -1821,12 +1828,37 @@
             const imgHtml = s.image_url ? `<div class="spot-image-container"><img src="${escapeHtml(s.image_url)}" alt="${escapeHtml(s.name)}" onclick="event.stopPropagation();openLightbox(this.src)" loading="lazy"></div>` : '';
             const showEdit = canEditSpot(s);
             const showDelete = canDeleteSpot(s);
-            const isFav = userFavorites.has(s.id);
+            const isFav = userFavorites.has(String(s.id));
+            const isSaved = userBookmarks.has(String(s.id));
+
+            // Grid/List: icon-only compact buttons
+            if (isGrid) {
+                const gridActions = !selectMode ? `<div class="spot-actions" style="justify-content:space-between;">
+                    <button class="btn btn-copy" onclick="event.stopPropagation();copyCoords('${s.lat}, ${s.lng}')" title="複製座標" style="flex:0;">📋</button>
+                    ${currentUser ? `<button class="btn btn-fav ${isFav ? 'active' : ''}" onclick="event.stopPropagation();toggleFavorite('${s.id}')" title="收藏" style="flex:0;">${isFav ? '⭐' : '☆'}</button>` : ''}
+                    ${currentUser ? `<button class="btn" onclick="event.stopPropagation();toggleBookmark('${s.id}')" title="儲存" style="flex:0;background:${isSaved ? '#EDF7FF' : '#F5F8F6'};color:${isSaved ? '#2060A0' : '#8AA89A'};">${isSaved ? '🔖' : '🏷️'}</button>` : ''}
+                    ${showEdit ? `<button class="btn btn-edit" onclick="event.stopPropagation();editSpot('${s.id}')" title="編輯" style="flex:0;">✏️</button>` : ''}
+                    ${showDelete ? `<button class="btn btn-delete" onclick="event.stopPropagation();deleteSpot('${s.id}')" title="刪除" style="flex:0;">🗑️</button>` : ''}
+                </div>` : '';
+
+                return `<div class="spot-card ${s.type}-card ${selectMode ? 'select-mode' : ''}" data-id="${s.id}" onclick="openDetail('${s.id}')" style="cursor:pointer;">
+                    ${selectMode ? `<input type="checkbox" class="spot-checkbox" ${selectedSpots.has(s.id) ? 'checked' : ''}>` : ''}
+                    ${imgHtml}
+                    <div class="spot-name" style="font-size:0.82rem;margin-top:4px;">${escapeHtml(s.name)}</div>
+                    <div style="font-size:0.65rem;color:var(--text-muted);margin:2px 0;">${s.country || ''}${s.city ? ' · ' + s.city : ''}</div>
+                    <div class="spot-coords" style="font-size:0.62rem;margin:2px 0;">${s.lat.toString().slice(0,9)}, ${s.lng.toString().slice(0,10)}</div>
+                    ${gridActions}
+                </div>`;
+            }
+
+            // Large / List view
             const quickUploadHtml = !s.image_url && !selectMode && showEdit ? `<button class="btn btn-quick-upload" onclick="event.stopPropagation();quickUpload('${s.id}')">📷${short ? '' : ' 上傳圖片'}</button>` : '';
             const favBtnHtml = currentUser ? `<button class="btn btn-fav ${isFav ? 'active' : ''}" onclick="event.stopPropagation();toggleFavorite('${s.id}')">${isFav ? '⭐' : '☆'}${short ? '' : (isFav ? ' 已收藏' : ' 收藏')}</button>` : '';
+            const saveBtnHtml = currentUser ? `<button class="btn" onclick="event.stopPropagation();toggleBookmark('${s.id}')" style="background:${isSaved ? '#EDF7FF' : '#F5F8F6'};color:${isSaved ? '#2060A0' : 'var(--text-muted)'};">${isSaved ? '🔖 已儲存' : '🏷️ 儲存'}</button>` : '';
             const actionsHtml = !selectMode ? `<div class="spot-actions">
                 <button class="btn btn-copy" onclick="event.stopPropagation();copyCoords('${s.lat}, ${s.lng}')">📋${short ? '' : ' 複製座標'}</button>
                 ${favBtnHtml}
+                ${saveBtnHtml}
                 ${quickUploadHtml}
                 ${showEdit ? `<button class="btn btn-edit" onclick="event.stopPropagation();editSpot('${s.id}')">✏️${short ? '' : ' 編輯'}</button>` : ''}
                 ${showDelete ? `<button class="btn btn-delete" onclick="event.stopPropagation();deleteSpot('${s.id}')">🗑️${short ? '' : ' 刪除'}</button>` : ''}
@@ -1847,7 +1879,7 @@
                     ${!isList && s.note ? `<div class="spot-note">${escapeHtml(s.note)}</div>` : ''}
                     ${actionsHtml}
                 </div>
-            </div>`;
+            </div>`
         }
 
         function renderSpots(reset = true) {
@@ -2324,6 +2356,7 @@
 
         function renderDetailContent(s) {
             const isFav = userFavorites.has(String(s.id));
+            const isSaved = userBookmarks.has(String(s.id));
             const showEdit = canEditSpot(s);
             const showDelete = canDeleteSpot(s);
             const mapsUrl = `https://www.google.com/maps?q=${s.lat},${s.lng}`;
@@ -2352,6 +2385,7 @@
                         <button class="btn btn-copy" onclick="copyCoords('${s.lat}, ${s.lng}')">📋 複製座標</button>
                         <button class="btn" onclick="window.open('${mapsUrl}','_blank')" style="background:linear-gradient(135deg,#E8F5E9,#C8E6C9);color:#2E7D32;">🗺️ Google Maps</button>
                         ${currentUser ? `<button class="btn btn-fav ${isFav ? 'active' : ''}" onclick="toggleFavorite('${s.id}');closeDetail();setTimeout(()=>{const sp=spots.find(x=>String(x.id)==='${s.id}')||profileSpots.find(x=>String(x.id)==='${s.id}');if(sp)renderDetailContent(sp);document.getElementById('detailModal').classList.add('active');},300);">${isFav ? '⭐ 已收藏' : '☆ 收藏'}</button>` : ''}
+                        ${currentUser ? `<button class="btn" onclick="toggleBookmark('${s.id}');closeDetail();setTimeout(()=>{const sp=spots.find(x=>String(x.id)==='${s.id}')||profileSpots.find(x=>String(x.id)==='${s.id}');if(sp)renderDetailContent(sp);document.getElementById('detailModal').classList.add('active');},300);" style="background:${isSaved ? '#EDF7FF' : '#F5F8F6'};color:${isSaved ? '#2060A0' : 'var(--text-muted)'};">${isSaved ? '🔖 已儲存' : '🏷️ 儲存'}</button>` : ''}
                         ${!showEdit && currentUser ? `<button class="btn" onclick="closeDetail();openSuggestionModal('${s.id}')" style="background:linear-gradient(135deg,#FFF8E1,#FFECB3);color:#F57F17;">💡 建議修改</button>` : ''}
                         ${showEdit ? `<button class="btn btn-edit" onclick="closeDetail();editSpot('${s.id}')">✏️ 編輯</button>` : ''}
                         ${showDelete ? `<button class="btn btn-delete" onclick="closeDetail();deleteSpot('${s.id}')">🗑️ 刪除</button>` : ''}
@@ -2395,6 +2429,48 @@
             }
         }
 
+        // ==================== 儲存/書籤功能 ====================
+        async function loadBookmarks() {
+            if (!currentUser) { userBookmarks.clear(); return; }
+            try {
+                const { data, error } = await supabaseClient.from('bookmarks')
+                    .select('spot_id')
+                    .eq('user_id', currentUser.id);
+                if (!error && data) {
+                    userBookmarks = new Set(data.map(b => String(b.spot_id)));
+                }
+            } catch (e) {
+                // bookmarks table might not exist yet
+                console.error('Load bookmarks error:', e);
+                userBookmarks.clear();
+            }
+        }
+
+        async function toggleBookmark(spotId) {
+            if (!currentUser) { showToast('👤 請先登入'); showLoginModal(); return; }
+            spotId = String(spotId);
+            const isSaved = userBookmarks.has(spotId);
+            try {
+                if (isSaved) {
+                    await safeQuery(() => supabaseClient.from('bookmarks').delete().eq('user_id', currentUser.id).eq('spot_id', spotId));
+                    userBookmarks.delete(spotId);
+                    showToast('已取消儲存');
+                } else {
+                    await safeQuery(() => supabaseClient.from('bookmarks').insert([{ user_id: currentUser.id, spot_id: spotId }]));
+                    userBookmarks.add(spotId);
+                    showToast('🔖 已儲存');
+                }
+                renderSpots(true);
+            } catch (e) {
+                console.error('Toggle bookmark error:', e);
+                if (e.message && (e.message.includes('schema cache') || e.message.includes('bookmarks') || e.message.includes('relation'))) {
+                    showToast('⚠️ bookmarks 表尚未建立，請管理員執行建表 SQL');
+                } else {
+                    showToast('❌ 操作失敗：' + (e.message || ''));
+                }
+            }
+        }
+
         // ==================== 個人頁面 ====================
         let profileSpots = []; // Store profile data separately
 
@@ -2432,7 +2508,7 @@
                         .order('created_at', { ascending: false })
                         .limit(50);
                     if (!error) items = data || [];
-                } else {
+                } else if (profileTab === 'fav') {
                     const favIds = [...userFavorites];
                     if (favIds.length > 0) {
                         const { data, error } = await supabaseClient.from('spots')
@@ -2440,10 +2516,19 @@
                             .in('id', favIds);
                         if (!error) items = data || [];
                     }
+                } else if (profileTab === 'saved') {
+                    const savedIds = [...userBookmarks];
+                    if (savedIds.length > 0) {
+                        const { data, error } = await supabaseClient.from('spots')
+                            .select('id,name,country,city,type,image_url,lat,lng,note,tags,created_by,created_by_name,created_at,updated_by_name,updated_at')
+                            .in('id', savedIds);
+                        if (!error) items = data || [];
+                    }
                 }
                 profileSpots = items;
+                const emptyMessages = { my: '你還沒有新增純點', fav: '你還沒有收藏任何純點', saved: '你還沒有儲存任何純點' };
                 if (!items.length) {
-                    list.innerHTML = `<div class="profile-empty">${profileTab === 'my' ? '你還沒有新增純點' : '你還沒有收藏任何純點'}</div>`;
+                    list.innerHTML = `<div class="profile-empty">${emptyMessages[profileTab] || '沒有資料'}</div>`;
                     return;
                 }
                 list.innerHTML = items.map(s => `
@@ -2771,6 +2856,12 @@ CREATE POLICY "Admin can update suggestions"
         // ==================== 排序 ====================
         function setSortOrder(val) {
             currentSort = val;
+            currentPage = 0;
+            loadSpots();
+        }
+
+        function setPageSize(val) {
+            PAGE_SIZE = val;
             currentPage = 0;
             loadSpots();
         }
