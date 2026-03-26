@@ -193,7 +193,7 @@
         .stat-number { font-size: 0.88rem; font-weight: 800; color: var(--text-primary); background: rgba(0,0,0,0.04); padding: 1px 8px; border-radius: 10px; }
 
         /* ===== FILTERS (Collapsible) ===== */
-        .filters-section { background: var(--card-bg); border-radius: var(--border-radius); padding: 0; margin-bottom: 12px; box-shadow: var(--card-shadow); overflow: hidden; }
+        .filters-section { background: var(--card-bg); border-radius: var(--border-radius); padding: 0; margin-bottom: 12px; box-shadow: var(--card-shadow); }
         .filters-toggle { padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: background 0.2s; user-select: none; }
         .filters-toggle:hover { background: var(--primary-bg); }
         .filters-toggle-label { font-size: 0.85rem; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 6px; }
@@ -202,7 +202,7 @@
         .filters-toggle-badges { display: flex; gap: 4px; align-items: center; }
         .filter-active-badge { font-size: 0.65rem; padding: 2px 8px; border-radius: 10px; font-weight: 600; background: var(--primary); color: white; }
         .filters-body { max-height: 0; overflow: hidden; transition: max-height 0.35s ease, padding 0.35s ease; padding: 0 14px; }
-        .filters-section.open .filters-body { max-height: 600px; padding: 0 14px 14px; }
+        .filters-section.open .filters-body { max-height: 800px; padding: 0 14px 14px; overflow: visible; }
         .search-box { position: relative; margin-bottom: 12px; }
         .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 0.9rem; opacity: 0.5; }
         .search-input { width: 100%; padding: 10px 12px 10px 38px; border: 1.5px solid #E0E8E4; border-radius: 12px; font-size: 0.88rem; font-family: inherit; transition: all 0.2s; background: #FAFCFB; }
@@ -696,9 +696,9 @@
                             </div>
                         </div>
                     </div>
-                    <div class="dropdown-group" id="clearFilterBar" style="display:none;align-self:end;">
+                    <div class="dropdown-group" id="clearFilterBar" style="align-self:end;">
                         <label class="dropdown-label">&nbsp;</label>
-                        <button onclick="clearAllFilters()" style="padding:8px 12px;background:#FFEBEE;border:1.5px solid #EF9A9A;border-radius:10px;font-size:0.78rem;font-weight:700;cursor:pointer;color:#C62828;font-family:inherit;white-space:nowrap;height:38px;">✕ 清除</button>
+                        <button id="clearFilterBtn" onclick="clearAllFilters()" style="padding:8px 12px;border:1.5px solid #E0E8E4;border-radius:10px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;height:38px;background:#F5F8F6;color:#B0B8B4;transition:all 0.2s;">✕ 清除</button>
                     </div>
                 </div>
             </div>
@@ -2104,8 +2104,20 @@
 
         function updateClearFilterBar() {
             const hasFilters = currentFilter !== 'all' || currentCountry !== 'all' || currentCity !== 'all' || currentTag !== 'all' || searchQuery;
-            const bar = document.getElementById('clearFilterBar');
-            if (bar) bar.style.display = hasFilters ? '' : 'none';
+            const btn = document.getElementById('clearFilterBtn');
+            if (btn) {
+                if (hasFilters) {
+                    btn.style.background = '#FFEBEE';
+                    btn.style.borderColor = '#EF9A9A';
+                    btn.style.color = '#C62828';
+                    btn.style.cursor = 'pointer';
+                } else {
+                    btn.style.background = '#F5F8F6';
+                    btn.style.borderColor = '#E0E8E4';
+                    btn.style.color = '#B0B8B4';
+                    btn.style.cursor = 'default';
+                }
+            }
             updateFilterBadges();
         }
 
@@ -3352,7 +3364,7 @@
         async function loadMapData() {
             try {
                 const { data, error } = await supabaseClient.from('spots')
-                    .select('id,name,lat,lng,type,country,city,image_url')
+                    .select('id,name,lat,lng,type,country,city,image_url,note,tags,created_by,created_by_name,updated_by_name,updated_at,created_at')
                     .order('created_at', { ascending: false })
                     .limit(2000);
                 if (!error && data) {
@@ -3565,21 +3577,15 @@
             // Update info display
             const countEl = document.getElementById('mapSpotCount');
             if (countEl) countEl.textContent = `(${visibleSpots.length} 個在視野中)`;
-            const infoEl = document.getElementById('viewModeInfo');
-            if (infoEl && boundsFilterActive) {
-                // Only filter cards if user opted in
-                renderBoundsFilteredSpots(visibleSpots);
-            } else if (infoEl && !boundsFilterActive) {
-                // Just show count as info, don't hide cards
-                const currentInfo = infoEl.textContent;
-                if (!currentInfo.includes('地圖')) {
-                    // Append map info
-                }
-            }
+
             // Update toggle button text
             const toggleBtn = document.getElementById('boundsFilterToggle');
             if (toggleBtn) {
                 toggleBtn.textContent = boundsFilterActive ? `🗺️ ${visibleSpots.length} 個 ✕` : `🗺️ ${visibleSpots.length} 個`;
+            }
+
+            if (boundsFilterActive) {
+                renderBoundsFilteredSpots(visibleSpots);
             }
         }
 
@@ -3591,10 +3597,9 @@
                 filterSpotsByMapBounds();
                 showToast('🗺️ 已開啟地圖範圍篩選');
             } else {
-                // Show all cards again
-                document.querySelectorAll('.spot-card[data-id]').forEach(card => {
-                    card.style.removeProperty('display');
-                });
+                // Restore normal paginated view
+                renderSpots(true);
+                renderPagination();
                 const infoEl = document.getElementById('viewModeInfo');
                 if (infoEl) {
                     infoEl.textContent = totalCount > 0 ? `${(currentPage * PAGE_SIZE) + 1}-${Math.min((currentPage + 1) * PAGE_SIZE, totalCount)} / ${totalCount} 筆` : '0 筆';
@@ -3609,22 +3614,48 @@
 
         function renderBoundsFilteredSpots(visibleSpots) {
             if (!leafletMap) return;
-            const visibleIds = new Set(visibleSpots.map(s => String(s.id)));
-            const allCards = document.querySelectorAll('.spot-card[data-id]');
-            let shownCount = 0;
-            allCards.forEach(card => {
-                const id = card.dataset.id;
-                if (visibleIds.has(id)) {
-                    card.style.removeProperty('display');
-                    shownCount++;
-                } else {
-                    card.style.display = 'none';
-                }
-            });
+
+            // Apply current type/tag/search filters on top of map bounds
+            let filtered = visibleSpots;
+            if (currentFilter !== 'all') {
+                filtered = filtered.filter(s => s.type === currentFilter);
+            }
+            // Note: allMapSpots only has lightweight fields, so search/tag filtering is limited
+            // But we can filter by type, country, city which are available
+
+            if (currentCountry !== 'all') {
+                filtered = filtered.filter(s => s.country === currentCountry);
+            }
+            if (currentCity !== 'all') {
+                filtered = filtered.filter(s => s.city === currentCity);
+            }
+
+            // Sort
+            if (currentSort === 'name_asc') filtered.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+            else if (currentSort === 'name_desc') filtered.sort((a, b) => (b.name || '').localeCompare(a.name || ''));
+
+            // Render cards using the map data (lightweight - may lack some fields like note, tags)
+            const spotList = document.getElementById('spotList');
+            spotList.classList.remove('grid-view', 'list-view', 'large-view');
+            if (currentViewMode === 'grid') spotList.classList.add('grid-view');
+            else if (currentViewMode === 'list') spotList.classList.add('list-view');
+            else spotList.classList.add('large-view');
+
+            if (!filtered.length) {
+                spotList.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🗺️</div><div class="empty-state-text">此地圖範圍內沒有純點<br><small style="color:#AAA;">請縮小地圖或移動到其他區域</small></div></div>`;
+            } else {
+                spotList.innerHTML = filtered.map(s => renderSpotCard(s)).join('');
+            }
+
+            // Update info
             const infoEl = document.getElementById('viewModeInfo');
             if (infoEl) {
-                infoEl.textContent = `${shownCount} / ${visibleSpots.length} 個在地圖範圍中`;
+                infoEl.textContent = `${filtered.length} 個在地圖範圍中`;
             }
+
+            // Hide pagination when bounds filter is active
+            document.getElementById('paginationBar').style.display = boundsFilterActive ? 'none' : '';
+            document.getElementById('paginationBarBottom').style.display = boundsFilterActive ? 'none' : '';
         }
 
         // ==================== Collapsible Filters ====================
