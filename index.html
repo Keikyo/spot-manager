@@ -575,8 +575,8 @@
         .map-popup-name { font-weight: 800; font-size: 0.9rem; color: var(--text-primary); margin-bottom: 3px; }
         .map-popup-meta { font-size: 0.72rem; color: #888; margin-bottom: 4px; }
         .map-popup-coords { font-size: 0.68rem; color: #AAA; font-family: 'Courier New', monospace; margin-bottom: 8px; }
-        .map-popup-actions { display: flex; gap: 6px; }
-        .map-popup-btn { padding: 4px 10px; border: 1.5px solid var(--primary-light); border-radius: 8px; background: var(--primary-bg); color: var(--primary-dark); font-size: 0.72rem; font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.2s; }
+        .map-popup-actions { display: flex; gap: 4px; }
+        .map-popup-btn { padding: 6px 10px; border: 1.5px solid var(--primary-light); border-radius: 8px; background: var(--primary-bg); color: var(--primary-dark); font-size: 0.72rem; font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.2s; text-align: center; white-space: nowrap; }
         .map-popup-btn:hover { background: #D4EDDC; }
         .map-popup-btn-detail { background: var(--primary); color: white; border-color: var(--primary); }
         .map-popup-btn-detail:hover { background: var(--primary-dark); }
@@ -621,8 +621,8 @@
 
         /* ===== ROUTE EDITOR PANEL (overlay on map) ===== */
         .route-editor {
-            position: absolute; top: 10px; left: 10px; z-index: 50;
-            width: 320px; max-height: calc(100% - 20px);
+            position: fixed; top: 10px; left: 10px; z-index: 150;
+            width: 320px; max-height: calc(100vh - 20px);
             background: rgba(255,255,255,0.97); backdrop-filter: blur(12px);
             border-radius: 14px; box-shadow: 0 4px 24px rgba(0,0,0,0.15);
             display: flex; flex-direction: column; overflow: hidden;
@@ -630,7 +630,10 @@
         }
         @keyframes route-editor-in { from { opacity:0; transform: translateX(-20px); } to { opacity:1; transform: translateX(0); } }
         @media (max-width: 1023px) {
-            .route-editor { top: auto; bottom: 56px; left: 8px; right: 8px; width: auto; max-height: 45vh; border-radius: 14px 14px 0 0; }
+            .route-editor {
+                top: auto; bottom: 48px; left: 8px; right: 8px; width: auto;
+                max-height: 40vh; border-radius: 14px;
+            }
         }
         .route-editor-header {
             display: flex; align-items: center; justify-content: space-between; gap: 8px;
@@ -690,28 +693,28 @@
     <!-- Map Panel (desktop: left side, mobile: collapsible) -->
     <div class="map-panel" id="mapPanel">
         <div id="mapContainer"></div>
-        <!-- Route Editor Panel (overlay on map) -->
-        <div class="route-editor" id="routeEditor" style="display:none;">
-            <div class="route-editor-header">
-                <div style="display:flex;align-items:center;gap:6px;">
-                    <span style="font-size:1.1rem;">🗺️</span>
-                    <input type="text" id="routeEditorName" class="route-editor-name-input" placeholder="路線名稱..." value="我的路線">
-                </div>
-                <div style="display:flex;gap:4px;">
-                    <button onclick="saveRouteFromEditor()" class="route-editor-btn route-editor-btn-save" title="儲存">💾</button>
-                    <button onclick="closeRouteEditor()" class="route-editor-btn" title="關閉">✕</button>
-                </div>
+    </div>
+    <!-- Route Editor Panel (fixed overlay, independent of map-panel) -->
+    <div class="route-editor" id="routeEditor" style="display:none;">
+        <div class="route-editor-header">
+            <div style="display:flex;align-items:center;gap:6px;flex:1;min-width:0;">
+                <span style="font-size:1.1rem;">🗺️</span>
+                <input type="text" id="routeEditorName" class="route-editor-name-input" placeholder="路線名稱..." value="我的路線">
             </div>
-            <div class="route-editor-list" id="routeEditorList">
-                <div class="route-editor-empty">點擊地圖上的純點，<br>選擇「加入路線」來新增</div>
+            <div style="display:flex;gap:4px;flex-shrink:0;">
+                <button onclick="saveRouteFromEditor()" class="route-editor-btn route-editor-btn-save" title="儲存">💾</button>
+                <button onclick="closeRouteEditor()" class="route-editor-btn" title="關閉">✕</button>
             </div>
-            <div class="route-editor-footer">
-                <div class="route-editor-count" id="routeEditorCount">0 個純點</div>
-                <div style="display:flex;gap:4px;flex-wrap:wrap;">
-                    <button onclick="openRouteInGoogleMaps()" class="route-editor-btn route-editor-btn-export" id="routeExportBtn" disabled>🗺️ Google Maps</button>
-                    <button onclick="exportRouteGpx()" class="route-editor-btn route-editor-btn-export" id="routeGpxBtn" disabled>📤 GPX</button>
-                    <button onclick="copyRouteGoogleMapsUrl()" class="route-editor-btn route-editor-btn-export" id="routeCopyBtn" disabled>🔗 複製</button>
-                </div>
+        </div>
+        <div class="route-editor-list" id="routeEditorList">
+            <div class="route-editor-empty">點擊地圖上的純點，<br>選擇「加入路線」來新增</div>
+        </div>
+        <div class="route-editor-footer">
+            <div class="route-editor-count" id="routeEditorCount">0 個純點</div>
+            <div style="display:flex;gap:4px;flex-wrap:wrap;">
+                <button onclick="openRouteInGoogleMaps()" class="route-editor-btn route-editor-btn-export" id="routeExportBtn" disabled>🗺️ Google Maps</button>
+                <button onclick="exportRouteGpx()" class="route-editor-btn route-editor-btn-export" id="routeGpxBtn" disabled>📤 GPX</button>
+                <button onclick="copyRouteGoogleMapsUrl()" class="route-editor-btn route-editor-btn-export" id="routeCopyBtn" disabled>🔗 複製</button>
             </div>
         </div>
     </div>
@@ -723,7 +726,7 @@
         <div class="sheet-cloud sheet-cloud-2"></div>
         <div class="sheet-handle-row">
             <div class="sheet-handle-title">
-                <span class="seedling-icon">🌱</span> 皮克敏純點管理器
+                <span class="seedling-icon" id="mobileSeedlingIcon">🌱</span> 皮克敏純點管理器
             </div>
             <div class="sheet-handle-right">
                 <button class="sheet-btn" onclick="toggleSheetSize()" id="sheetToggleBtn">展開</button>
@@ -1394,12 +1397,21 @@
         let longPressTimer = null;
         document.addEventListener('DOMContentLoaded', () => {
             const icon = document.getElementById('seedlingIcon');
-            if (!icon) return;
-            icon.addEventListener('touchstart', (e) => { longPressTimer = setTimeout(() => { toggleToolPanel(); }, 1500); }, { passive: true });
-            icon.addEventListener('touchend', () => { clearTimeout(longPressTimer); });
-            icon.addEventListener('touchmove', () => { clearTimeout(longPressTimer); });
-            // Desktop: double-click
-            icon.addEventListener('dblclick', () => { toggleToolPanel(); });
+            if (icon) {
+                icon.addEventListener('touchstart', (e) => { longPressTimer = setTimeout(() => { toggleToolPanel(); }, 1500); }, { passive: true });
+                icon.addEventListener('touchend', () => { clearTimeout(longPressTimer); });
+                icon.addEventListener('touchmove', () => { clearTimeout(longPressTimer); });
+                // Desktop: double-click
+                icon.addEventListener('dblclick', () => { toggleToolPanel(); });
+            }
+            // Mobile seedling icon (in sheet handle)
+            const mobileIcon = document.getElementById('mobileSeedlingIcon');
+            if (mobileIcon) {
+                mobileIcon.addEventListener('touchstart', (e) => { longPressTimer = setTimeout(() => { toggleToolPanel(); }, 1500); }, { passive: true });
+                mobileIcon.addEventListener('touchend', () => { clearTimeout(longPressTimer); });
+                mobileIcon.addEventListener('touchmove', () => { clearTimeout(longPressTimer); });
+                mobileIcon.addEventListener('dblclick', () => { toggleToolPanel(); });
+            }
         });
 
         // ==================== 初始化 ====================
@@ -3605,7 +3617,7 @@
                     </div>
                 `;
                 const marker = L.marker([s.lat, s.lng], { icon })
-                    .bindPopup(popupContent, { maxWidth: 260, minWidth: 200, className: 'map-custom-popup' });
+                    .bindPopup(popupContent, { maxWidth: 320, minWidth: 260, className: 'map-custom-popup' });
                 marker.spotData = s; // Store reference
                 marker.addTo(leafletMap);
                 mapMarkers.push(marker);
@@ -3925,6 +3937,10 @@
             document.getElementById('routeEditor').style.display = 'flex';
             renderRouteEditorList();
             updateRouteOnMap();
+            // On mobile, collapse the content sheet to show the map + route editor
+            if (window.innerWidth < 1024) {
+                collapseSheet();
+            }
         }
 
         function closeRouteEditor() {
