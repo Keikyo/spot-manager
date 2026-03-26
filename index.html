@@ -75,7 +75,7 @@
             .content-panel.sheet-expanded {
                 height: 85vh;
             }
-            .container { max-width: 600px; margin: 0 auto; padding: 12px 16px; }
+            .container { max-width: 100%; margin: 0; padding: 10px 12px; }
             .mobile-map-toggle { display: none !important; }
             .header { display: none; }
             .floating-cloud { display: none; }
@@ -178,8 +178,8 @@
         .sync-status.synced { background: rgba(232,245,233,0.9); color: #2E7D32; }
         .sync-status.error { background: #FFEBEE; color: #C62828; }
 
-        /* ===== STATS (Compact Pills - horizontal scroll, no wrap) ===== */
-        .stats { display: flex; gap: 6px; margin-bottom: 14px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding-bottom: 2px; }
+        /* ===== STATS (Compact Pills - horizontal scroll, centered) ===== */
+        .stats { display: flex; gap: 6px; margin-bottom: 14px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding-bottom: 2px; justify-content: center; }
         .stats::-webkit-scrollbar { display: none; }
         .stat-card { background: var(--card-bg); border-radius: 20px; padding: 6px 12px; display: flex; align-items: center; gap: 5px; box-shadow: var(--card-shadow); border: 2px solid transparent; transition: all 0.2s; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
         .stat-card:hover { transform: translateY(-1px); box-shadow: var(--card-hover-shadow); }
@@ -311,13 +311,13 @@
 
         /* ===== GRID VIEW (compact horizontal cards) ===== */
         .spot-list.grid-view { display: flex; flex-direction: column; gap: 6px; }
-        .spot-list.grid-view .spot-card { border-top: none; border-left: 3px solid var(--primary-light); border-radius: 12px; display: flex; flex-direction: row; align-items: center; gap: 10px; }
+        .spot-list.grid-view .spot-card { border-top: none; border-left: 3px solid var(--primary-light); border-radius: 12px; display: flex; flex-direction: row; align-items: center; gap: 10px; padding: 8px 10px 8px 10px; }
         .spot-list.grid-view .spot-card.flower-card { border-top: none; border-left-color: var(--flower-color); }
         .spot-list.grid-view .spot-card.pikmin-card { border-top: none; border-left-color: var(--pikmin-color); }
         .spot-list.grid-view .spot-card.mushroom-card { border-top: none; border-left-color: var(--mushroom-color); }
         .spot-list.grid-view .spot-card.postcard-card { border-top: none; border-left-color: var(--postcard-color); }
-        .spot-list.grid-view .spot-card .spot-content { padding: 8px 10px; }
-        .spot-list.grid-view .spot-image-container { margin: 0; flex-shrink: 0; width: 64px; height: 64px; border-radius: 8px; overflow: hidden; }
+        .spot-list.grid-view .spot-card .spot-content { padding: 8px 10px 8px 0; }
+        .spot-list.grid-view .spot-image-container { margin: 0; flex-shrink: 0; width: 64px; height: 64px; border-radius: 8px; overflow: hidden; margin-left: 4px; }
         .spot-list.grid-view .spot-image-container img { width: 64px; height: 64px; max-height: 64px; object-fit: cover; border-radius: 8px; }
         .spot-list.grid-view .spot-content { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
         .spot-list.grid-view .spot-header { margin-bottom: 0; }
@@ -673,7 +673,7 @@
             </div>
             <div class="filter-group">
                 <div class="filter-label">📍 地區篩選</div>
-                <div class="dropdown-filters">
+                <div class="dropdown-filters" style="grid-template-columns: 1fr 1fr auto;">
                     <div class="dropdown-group">
                         <label class="dropdown-label">國家</label>
                         <div class="searchable-select" id="countrySelect">
@@ -696,11 +696,11 @@
                             </div>
                         </div>
                     </div>
+                    <div class="dropdown-group" id="clearFilterBar" style="display:none;align-self:end;">
+                        <label class="dropdown-label">&nbsp;</label>
+                        <button onclick="clearAllFilters()" style="padding:8px 12px;background:#FFEBEE;border:1.5px solid #EF9A9A;border-radius:10px;font-size:0.78rem;font-weight:700;cursor:pointer;color:#C62828;font-family:inherit;white-space:nowrap;height:38px;">✕ 清除</button>
+                    </div>
                 </div>
-            </div>
-            <!-- Clear filters button - only shown when filters are active -->
-            <div id="clearFilterBar" style="display:none;margin-top:10px;text-align:right;">
-                <button onclick="clearAllFilters()" style="padding:6px 14px;background:#FFEBEE;border:2px solid #EF9A9A;border-radius:10px;font-size:0.78rem;font-weight:600;cursor:pointer;color:#C62828;font-family:inherit;">✕ 清除所有篩選</button>
             </div>
             </div><!-- end filters-body -->
         </div>
@@ -727,6 +727,7 @@
             </div>
             <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
                 <div class="pagination-bar" id="paginationBar" style="padding:0;"></div>
+                <button class="view-mode-btn" id="boundsFilterToggle" onclick="toggleBoundsFilter()" title="只顯示地圖範圍內的純點" style="font-size:0.7rem;">🗺️</button>
                 <div class="view-mode-info" id="viewModeInfo"></div>
             </div>
         </div>
@@ -769,7 +770,7 @@
             <button class="btn-select-action btn-select-export" id="btnConfirmExport">📤 匯出</button>
         </div>
     </div>
-    <div class="modal-overlay" id="modalOverlay">
+    <div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
         <div class="modal">
             <h2 id="modalTitle">🌱 新增純點</h2>
             <form id="spotForm">
@@ -842,7 +843,7 @@
             </form>
         </div>
     </div>
-    <div class="modal-overlay" id="loginModal">
+    <div class="modal-overlay" id="loginModal" onclick="if(event.target===this)closeLoginModal()">
         <div class="login-modal">
             <div class="seedling-icon" style="font-size: 4rem;">🌱</div>
             <h2 class="login-title">登入皮克敏純點管理器</h2>
@@ -855,7 +856,7 @@
         </div>
     </div>
     <!-- Batch Upload Modal -->
-    <div class="modal-overlay" id="batchModal">
+    <div class="modal-overlay" id="batchModal" onclick="if(event.target===this)closeBatchUpload()">
         <div class="batch-modal">
             <div class="batch-title">📷 批次上傳圖片</div>
             <div class="batch-select-area" id="batchSelectArea" onclick="document.getElementById('batchFileInput').click()">
@@ -894,7 +895,7 @@
         <div class="profile-list" id="profileList"></div>
     </div>
     <!-- Nickname Modal -->
-    <div class="modal-overlay" id="nicknameModal">
+    <div class="modal-overlay" id="nicknameModal" onclick="if(event.target===this)closeNicknameModal()">
         <div class="modal" style="max-width:400px;text-align:center;">
             <div style="font-size:3rem;margin-bottom:8px;">🌱</div>
             <h2 style="justify-content:center;">設定你的暱稱</h2>
@@ -2104,7 +2105,7 @@
         function updateClearFilterBar() {
             const hasFilters = currentFilter !== 'all' || currentCountry !== 'all' || currentCity !== 'all' || currentTag !== 'all' || searchQuery;
             const bar = document.getElementById('clearFilterBar');
-            if (bar) bar.style.display = hasFilters ? 'block' : 'none';
+            if (bar) bar.style.display = hasFilters ? '' : 'none';
             updateFilterBadges();
         }
 
@@ -3561,35 +3562,68 @@
                 if (!s.lat || !s.lng) return false;
                 return bounds.contains([s.lat, s.lng]);
             });
-            // Update the spot count display
+            // Update info display
             const countEl = document.getElementById('mapSpotCount');
             if (countEl) countEl.textContent = `(${visibleSpots.length} 個在視野中)`;
-            // Update the card list to show only visible spots
-            renderBoundsFilteredSpots(visibleSpots);
+            const infoEl = document.getElementById('viewModeInfo');
+            if (infoEl && boundsFilterActive) {
+                // Only filter cards if user opted in
+                renderBoundsFilteredSpots(visibleSpots);
+            } else if (infoEl && !boundsFilterActive) {
+                // Just show count as info, don't hide cards
+                const currentInfo = infoEl.textContent;
+                if (!currentInfo.includes('地圖')) {
+                    // Append map info
+                }
+            }
+            // Update toggle button text
+            const toggleBtn = document.getElementById('boundsFilterToggle');
+            if (toggleBtn) {
+                toggleBtn.textContent = boundsFilterActive ? `🗺️ ${visibleSpots.length} 個 ✕` : `🗺️ ${visibleSpots.length} 個`;
+            }
         }
 
         let boundsFilterActive = false;
 
+        function toggleBoundsFilter() {
+            boundsFilterActive = !boundsFilterActive;
+            if (boundsFilterActive) {
+                filterSpotsByMapBounds();
+                showToast('🗺️ 已開啟地圖範圍篩選');
+            } else {
+                // Show all cards again
+                document.querySelectorAll('.spot-card[data-id]').forEach(card => {
+                    card.style.removeProperty('display');
+                });
+                const infoEl = document.getElementById('viewModeInfo');
+                if (infoEl) {
+                    infoEl.textContent = totalCount > 0 ? `${(currentPage * PAGE_SIZE) + 1}-${Math.min((currentPage + 1) * PAGE_SIZE, totalCount)} / ${totalCount} 筆` : '0 筆';
+                }
+                showToast('已關閉地圖範圍篩選');
+            }
+            const toggleBtn = document.getElementById('boundsFilterToggle');
+            if (toggleBtn) {
+                toggleBtn.classList.toggle('active', boundsFilterActive);
+            }
+        }
+
         function renderBoundsFilteredSpots(visibleSpots) {
             if (!leafletMap) return;
-            boundsFilterActive = true;
             const visibleIds = new Set(visibleSpots.map(s => String(s.id)));
-            // Show/hide cards based on map bounds
             const allCards = document.querySelectorAll('.spot-card[data-id]');
-            let visibleCount = 0;
+            let shownCount = 0;
             allCards.forEach(card => {
                 const id = card.dataset.id;
                 if (visibleIds.has(id)) {
                     card.style.removeProperty('display');
-                    visibleCount++;
+                    shownCount++;
                 } else {
                     card.style.display = 'none';
                 }
             });
-            // Update count
             const infoEl = document.getElementById('viewModeInfo');
             if (infoEl) {
-                infoEl.textContent = `${visibleCount} / ${visibleSpots.length} 個在地圖範圍中`;
+                infoEl.textContent = `${shownCount} / ${visibleSpots.length} 個在地圖範圍中`;
             }
         }
 
