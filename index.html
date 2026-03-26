@@ -2907,7 +2907,7 @@
                         <button class="btn" onclick="addSpotToRouteEditor('${s.id}')" title="加入路線" style="background:#E8F5E9;border-color:#66BB6A;color:#2E7D32;">🗺️</button>
                         ${currentUser ? `<button class="btn btn-fav ${isFav ? 'active' : ''}" onclick="toggleFavorite('${s.id}');closeDetail();setTimeout(()=>{const sp=spots.find(x=>String(x.id)==='${s.id}')||profileSpots.find(x=>String(x.id)==='${s.id}');if(sp)renderDetailContent(sp);document.getElementById('detailModal').classList.add('active');},300);" title="收藏">${isFav ? ICN.starFill : ICN.star}</button>` : ''}
                         ${currentUser ? `<button class="btn ${isSaved ? 'btn-fav active' : ''}" onclick="toggleBookmark('${s.id}');closeDetail();setTimeout(()=>{const sp=spots.find(x=>String(x.id)==='${s.id}')||profileSpots.find(x=>String(x.id)==='${s.id}');if(sp)renderDetailContent(sp);document.getElementById('detailModal').classList.add('active');},300);" title="儲存">${isSaved ? ICN.bookmarkFill : ICN.bookmark}</button>` : ''}
-                        ${!showEdit && currentUser ? `<button class="btn" onclick="closeDetail();openSuggestionModal('${s.id}')" title="建議修改">${ICN.lightbulb}</button>` : ''}
+                        ${!showEdit && currentUser ? `<button class="btn" onclick="closeDetail();openSuggestionModal('${s.id}')" title="建議修改">${ICN.lightbulb} 建議修改</button>` : ''}
                         ${showEdit ? `<button class="btn" onclick="closeDetail();editSpot('${s.id}')" title="編輯">${ICN.pencil}</button>` : ''}
                         ${showDelete ? `<button class="btn" onclick="closeDetail();deleteSpot('${s.id}')" title="刪除">${ICN.trash}</button>` : ''}
                     </div>
