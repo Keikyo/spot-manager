@@ -588,6 +588,36 @@
         }
         /* Admin-only bottom tab */
         .bottom-tab-admin { display: none; }
+
+        /* ===== PATH BUILDER ===== */
+        .path-spot-item { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: white; border: 1.5px solid #E0E8E4; border-radius: 10px; margin-bottom: 4px; cursor: grab; transition: all 0.15s; user-select: none; }
+        .path-spot-item:hover { border-color: var(--primary-light); background: var(--primary-bg); }
+        .path-spot-item.dragging { opacity: 0.5; border-color: var(--primary); }
+        .path-spot-drag { color: #CCC; font-size: 1rem; cursor: grab; flex-shrink: 0; }
+        .path-spot-num { width: 22px; height: 22px; border-radius: 50%; background: var(--primary); color: white; font-size: 0.7rem; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .path-spot-img { width: 36px; height: 36px; border-radius: 6px; object-fit: cover; flex-shrink: 0; }
+        .path-spot-info { flex: 1; min-width: 0; }
+        .path-spot-name { font-size: 0.82rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .path-spot-sub { font-size: 0.68rem; color: #999; }
+        .path-spot-remove { background: none; border: none; color: #CCC; font-size: 1rem; cursor: pointer; padding: 2px; flex-shrink: 0; }
+        .path-spot-remove:hover { color: #E05050; }
+        .path-search-item { display: flex; align-items: center; gap: 8px; padding: 8px 12px; cursor: pointer; transition: background 0.15s; border-bottom: 1px solid #F0F0F0; }
+        .path-search-item:hover { background: var(--primary-bg); }
+        .path-search-item:last-child { border-bottom: none; }
+        .path-search-img { width: 32px; height: 32px; border-radius: 6px; object-fit: cover; flex-shrink: 0; }
+        .path-card { background: white; border-radius: 12px; padding: 12px; border: 1.5px solid #E0E8E4; margin-bottom: 8px; cursor: pointer; transition: all 0.2s; }
+        .path-card:hover { border-color: var(--primary-light); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .path-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .path-card-name { font-size: 0.92rem; font-weight: 800; color: var(--text-primary); }
+        .path-card-badge { font-size: 0.65rem; padding: 2px 8px; border-radius: 8px; font-weight: 600; }
+        .path-card-badge.public { background: #E8F5E9; color: #2E7D32; }
+        .path-card-badge.private { background: #F5F5F5; color: #888; }
+        .path-card-spots { display: flex; gap: 4px; flex-wrap: wrap; }
+        .path-card-spot-thumb { width: 28px; height: 28px; border-radius: 6px; object-fit: cover; border: 1.5px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .path-card-meta { font-size: 0.68rem; color: #AAA; margin-top: 6px; }
+        .path-card-actions { display: flex; gap: 6px; margin-top: 8px; }
+        .path-card-actions .btn { font-size: 0.72rem; padding: 4px 10px; }
+        .path-num-icon { background: none !important; border: none !important; }
     </style>
 </head>
 <body>
@@ -891,6 +921,7 @@
             <div class="profile-tab active" data-tab="my" onclick="setProfileTab('my')">我的純點</div>
             <div class="profile-tab" data-tab="fav" onclick="setProfileTab('fav')">⭐ 最愛</div>
             <div class="profile-tab" data-tab="saved" onclick="setProfileTab('saved')">🔖 儲存</div>
+            <div class="profile-tab" data-tab="paths" onclick="setProfileTab('paths')">🗺️ 路線</div>
         </div>
         <div class="profile-list" id="profileList"></div>
     </div>
@@ -1005,6 +1036,60 @@
             </div>
             <div class="modal-actions">
                 <button type="button" class="btn-cancel" onclick="closeShareModal()" style="flex:1;">關閉</button>
+            </div>
+        </div>
+    </div>
+    <!-- Path Builder Modal -->
+    <div class="modal-overlay" id="pathModal" onclick="if(event.target===this)closePathModal()">
+        <div class="modal" style="max-width:560px;max-height:90vh;">
+            <h2 id="pathModalTitle">🗺️ 建立路線</h2>
+            <div class="form-group">
+                <label class="form-label">路線名稱 <span class="required">*</span></label>
+                <input type="text" class="form-input" id="pathNameInput" placeholder="例：京都一日遊">
+            </div>
+            <div class="form-group">
+                <label class="form-label">選擇純點（拖拉排序）</label>
+                <div style="position:relative;margin-bottom:8px;">
+                    <input type="text" class="form-input" id="pathSpotSearch" placeholder="🔍 搜尋純點名稱..." style="padding-left:12px;">
+                </div>
+                <div id="pathSpotResults" style="max-height:180px;overflow-y:auto;border:1.5px solid #E0E8E4;border-radius:10px;display:none;"></div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">已選純點 <span id="pathSpotCount" style="color:var(--text-muted);font-weight:600;">(0)</span></label>
+                <div id="pathSelectedSpots" style="min-height:48px;border:1.5px dashed #D0DCD4;border-radius:10px;padding:8px;background:#FAFCFB;"></div>
+                <div style="font-size:0.68rem;color:#AAA;margin-top:4px;">拖拉可調整順序，路線將依照順序連接</div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">公開設定</label>
+                <div style="display:flex;gap:8px;">
+                    <label style="display:flex;align-items:center;gap:4px;font-size:0.85rem;cursor:pointer;">
+                        <input type="radio" name="pathVisibility" value="private" checked> 🔒 私人
+                    </label>
+                    <label style="display:flex;align-items:center;gap:4px;font-size:0.85rem;cursor:pointer;">
+                        <input type="radio" name="pathVisibility" value="public"> 🌍 公開
+                    </label>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" onclick="closePathModal()">取消</button>
+                <button type="button" class="btn-submit" id="btnSavePath" onclick="savePath()">✨ 儲存路線</button>
+            </div>
+        </div>
+    </div>
+    <!-- Path View Modal (export/share) -->
+    <div class="modal-overlay" id="pathViewModal" onclick="if(event.target===this)closePathViewModal()">
+        <div class="modal" style="max-width:480px;">
+            <h2 id="pathViewTitle">🗺️ 路線詳情</h2>
+            <div id="pathViewContent"></div>
+            <div style="display:flex;flex-direction:column;gap:8px;margin-top:16px;">
+                <button class="btn-submit" id="btnOpenGoogleMaps" onclick="openPathInGoogleMaps()" style="background:linear-gradient(135deg,#4285F4,#34A853);">🗺️ 在 Google Maps 開啟導航</button>
+                <div style="display:flex;gap:8px;">
+                    <button class="btn-cancel" onclick="exportPathGpx()" style="flex:1;background:#F0F5FA;color:#2060A0;border:1.5px solid #5BA4CF;">📤 匯出 GPX</button>
+                    <button class="btn-cancel" onclick="copyPathGoogleMapsUrl()" style="flex:1;background:#F0F9F4;color:#2E7D55;border:1.5px solid #4CAF7D;">🔗 複製連結</button>
+                </div>
+            </div>
+            <div class="modal-actions" style="margin-top:12px;">
+                <button type="button" class="btn-cancel" onclick="closePathViewModal()">關閉</button>
             </div>
         </div>
     </div>
@@ -2855,6 +2940,9 @@
                             .in('id', savedIds);
                         if (!error) items = data || [];
                     }
+                } else if (profileTab === 'paths') {
+                    await renderPathsList();
+                    return;
                 }
                 profileSpots = items;
                 const emptyMessages = { my: '你還沒有新增純點', fav: '你還沒有收藏任何純點', saved: '你還沒有儲存任何純點' };
@@ -3733,6 +3821,390 @@
 
         init();
         checkDesktopMap();
+
+        // ==================== Plant Paths (路線功能) ====================
+        let pathSelectedSpots = []; // [{id, name, lat, lng, image_url, country, city, type}]
+        let editingPathId = null;
+        let userPaths = [];
+        let pathPolyline = null; // Leaflet polyline on map
+
+        function openPathModal(editPath) {
+            if (!currentUser) { showToast('👤 請先登入'); showLoginModal(); return; }
+            editingPathId = null;
+            pathSelectedSpots = [];
+            document.getElementById('pathNameInput').value = '';
+            document.getElementById('pathSpotSearch').value = '';
+            document.getElementById('pathSpotResults').style.display = 'none';
+            document.querySelector('input[name="pathVisibility"][value="private"]').checked = true;
+            document.getElementById('pathModalTitle').textContent = '🗺️ 建立路線';
+            document.getElementById('btnSavePath').textContent = '✨ 儲存路線';
+
+            if (editPath) {
+                editingPathId = editPath.id;
+                document.getElementById('pathNameInput').value = editPath.name || '';
+                document.getElementById('pathModalTitle').textContent = '✏️ 編輯路線';
+                document.getElementById('btnSavePath').textContent = '✨ 更新路線';
+                const vis = editPath.is_public ? 'public' : 'private';
+                document.querySelector(`input[name="pathVisibility"][value="${vis}"]`).checked = true;
+                // Load spots by IDs
+                if (editPath.spot_ids && editPath.spot_ids.length) {
+                    loadPathSpotsByIds(editPath.spot_ids);
+                }
+            }
+
+            renderPathSelectedSpots();
+            document.getElementById('pathModal').classList.add('active');
+
+            // Setup search
+            const searchInput = document.getElementById('pathSpotSearch');
+            searchInput.oninput = () => searchPathSpots(searchInput.value);
+            searchInput.onfocus = () => searchPathSpots(searchInput.value);
+        }
+
+        function closePathModal() {
+            document.getElementById('pathModal').classList.remove('active');
+        }
+
+        async function loadPathSpotsByIds(ids) {
+            try {
+                const { data, error } = await supabaseClient.from('spots')
+                    .select('id,name,lat,lng,image_url,country,city,type')
+                    .in('id', ids);
+                if (!error && data) {
+                    // Maintain order from ids array
+                    pathSelectedSpots = ids.map(id => data.find(s => String(s.id) === String(id))).filter(Boolean);
+                    renderPathSelectedSpots();
+                }
+            } catch (e) { console.error('Load path spots error:', e); }
+        }
+
+        function searchPathSpots(query) {
+            const container = document.getElementById('pathSpotResults');
+            const q = (query || '').toLowerCase().trim();
+            const src = allMapSpots.length ? allMapSpots : spots;
+            const selectedIds = new Set(pathSelectedSpots.map(s => String(s.id)));
+            const filtered = src.filter(s =>
+                !selectedIds.has(String(s.id)) &&
+                (s.name && s.name.toLowerCase().includes(q) ||
+                 s.country && s.country.toLowerCase().includes(q) ||
+                 s.city && s.city.toLowerCase().includes(q))
+            ).slice(0, 15);
+
+            if (!filtered.length) {
+                container.innerHTML = '<div style="padding:12px;text-align:center;color:#AAA;font-size:0.82rem;">找不到純點</div>';
+            } else {
+                container.innerHTML = filtered.map(s => `
+                    <div class="path-search-item" onclick="addSpotToPath('${s.id}')">
+                        ${s.image_url ? `<img class="path-search-img" src="${escapeHtml(s.image_url)}" loading="lazy">` : `<div class="path-search-img" style="background:#F0F0F0;display:flex;align-items:center;justify-content:center;font-size:0.9rem;">${{flower:'🌸',pikmin:'🌱',mushroom:'🍄',postcard:'🏠'}[s.type]||'📍'}</div>`}
+                        <div style="flex:1;min-width:0;">
+                            <div style="font-size:0.82rem;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(s.name)}</div>
+                            <div style="font-size:0.68rem;color:#999;">${s.country || ''}${s.city ? ' · ' + s.city : ''}</div>
+                        </div>
+                        <div style="color:var(--primary);font-size:0.82rem;font-weight:700;">+ 加入</div>
+                    </div>
+                `).join('');
+            }
+            container.style.display = 'block';
+        }
+
+        function addSpotToPath(spotId) {
+            const src = allMapSpots.length ? allMapSpots : spots;
+            const s = src.find(x => String(x.id) === String(spotId));
+            if (!s || pathSelectedSpots.find(x => String(x.id) === String(spotId))) return;
+            pathSelectedSpots.push({ id: s.id, name: s.name, lat: s.lat, lng: s.lng, image_url: s.image_url, country: s.country, city: s.city, type: s.type });
+            renderPathSelectedSpots();
+            // Re-search to update available list
+            const searchInput = document.getElementById('pathSpotSearch');
+            searchPathSpots(searchInput.value);
+        }
+
+        function removeSpotFromPath(idx) {
+            pathSelectedSpots.splice(idx, 1);
+            renderPathSelectedSpots();
+        }
+
+        function renderPathSelectedSpots() {
+            const container = document.getElementById('pathSelectedSpots');
+            const countEl = document.getElementById('pathSpotCount');
+            if (countEl) countEl.textContent = `(${pathSelectedSpots.length})`;
+            if (!pathSelectedSpots.length) {
+                container.innerHTML = '<div style="padding:12px;text-align:center;color:#CCC;font-size:0.82rem;">尚未選擇純點</div>';
+                return;
+            }
+            container.innerHTML = pathSelectedSpots.map((s, i) => `
+                <div class="path-spot-item" draggable="true" data-path-idx="${i}">
+                    <div class="path-spot-drag">☰</div>
+                    <div class="path-spot-num">${i + 1}</div>
+                    ${s.image_url ? `<img class="path-spot-img" src="${escapeHtml(s.image_url)}" loading="lazy">` : ''}
+                    <div class="path-spot-info">
+                        <div class="path-spot-name">${escapeHtml(s.name)}</div>
+                        <div class="path-spot-sub">${s.country || ''}${s.city ? ' · ' + s.city : ''}</div>
+                    </div>
+                    <button class="path-spot-remove" onclick="removeSpotFromPath(${i})" title="移除">✕</button>
+                </div>
+            `).join('');
+
+            // Setup drag-and-drop reorder
+            setupPathDragDrop();
+        }
+
+        function setupPathDragDrop() {
+            const items = document.querySelectorAll('.path-spot-item[draggable]');
+            let dragIdx = null;
+            items.forEach(item => {
+                item.addEventListener('dragstart', (e) => {
+                    dragIdx = parseInt(item.dataset.pathIdx);
+                    item.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                });
+                item.addEventListener('dragend', () => { item.classList.remove('dragging'); });
+                item.addEventListener('dragover', (e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; });
+                item.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    const dropIdx = parseInt(item.dataset.pathIdx);
+                    if (dragIdx !== null && dragIdx !== dropIdx) {
+                        const moved = pathSelectedSpots.splice(dragIdx, 1)[0];
+                        pathSelectedSpots.splice(dropIdx, 0, moved);
+                        renderPathSelectedSpots();
+                    }
+                    dragIdx = null;
+                });
+            });
+        }
+
+        async function savePath() {
+            const name = document.getElementById('pathNameInput').value.trim();
+            if (!name) { showToast('⚠️ 請輸入路線名稱'); return; }
+            if (pathSelectedSpots.length < 2) { showToast('⚠️ 至少需要 2 個純點'); return; }
+            if (!currentUser) { showToast('👤 請先登入'); return; }
+
+            const isPublic = document.querySelector('input[name="pathVisibility"]:checked').value === 'public';
+            const spotIds = pathSelectedSpots.map(s => s.id);
+            const btn = document.getElementById('btnSavePath');
+            btn.disabled = true;
+
+            try {
+                if (editingPathId) {
+                    await safeQuery(() => supabaseClient.from('paths').update({
+                        name, spot_ids: spotIds, is_public: isPublic, updated_at: new Date().toISOString()
+                    }).eq('id', editingPathId));
+                    showToast('✏️ 路線已更新！');
+                } else {
+                    await safeQuery(() => supabaseClient.from('paths').insert([{
+                        name, spot_ids: spotIds, is_public: isPublic, created_by: currentUser.id
+                    }]));
+                    showToast('🗺️ 路線已建立！');
+                }
+                closePathModal();
+                if (profileTab === 'paths') await renderProfileList();
+            } catch (e) {
+                console.error('Save path error:', e);
+                if (e.message && (e.message.includes('paths') || e.message.includes('relation'))) {
+                    showToast('⚠️ paths 表尚未建立，請先在 Supabase 執行建表 SQL（見控制台說明）');
+                    console.log(`%c📋 請在 Supabase SQL Editor 執行以下 SQL 建立 paths 表：
+
+CREATE TABLE paths (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  name TEXT NOT NULL,
+  spot_ids JSONB NOT NULL DEFAULT '[]',
+  is_public BOOLEAN DEFAULT false,
+  created_by UUID REFERENCES auth.users(id),
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+ALTER TABLE paths ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Anyone can read public paths" ON paths FOR SELECT USING (is_public = true);
+CREATE POLICY "Users can read own paths" ON paths FOR SELECT USING (auth.uid() = created_by);
+CREATE POLICY "Users can insert own paths" ON paths FOR INSERT WITH CHECK (auth.uid() = created_by);
+CREATE POLICY "Users can update own paths" ON paths FOR UPDATE USING (auth.uid() = created_by);
+CREATE POLICY "Users can delete own paths" ON paths FOR DELETE USING (auth.uid() = created_by);
+`, 'color: #4CAF7D; font-size: 13px;');
+                } else {
+                    showToast('❌ 儲存失敗：' + (e.message || ''));
+                }
+            } finally { btn.disabled = false; }
+        }
+
+        async function deletePath(pathId) {
+            if (!confirm('確定要刪除這條路線嗎？')) return;
+            try {
+                await safeQuery(() => supabaseClient.from('paths').delete().eq('id', pathId));
+                showToast('🗑️ 路線已刪除');
+                if (profileTab === 'paths') await renderProfileList();
+                clearPathFromMap();
+            } catch (e) { showToast('❌ 刪除失敗'); }
+        }
+
+        // ==================== Path View / Export ====================
+        let currentViewPath = null;
+
+        async function viewPath(pathId) {
+            try {
+                const { data: path, error } = await supabaseClient.from('paths')
+                    .select('*').eq('id', pathId).single();
+                if (error) throw error;
+                if (!path.spot_ids || !path.spot_ids.length) { showToast('此路線沒有純點'); return; }
+
+                const { data: spotsData } = await supabaseClient.from('spots')
+                    .select('id,name,lat,lng,image_url,country,city,type')
+                    .in('id', path.spot_ids);
+                const orderedSpots = path.spot_ids.map(id => spotsData.find(s => String(s.id) === String(id))).filter(Boolean);
+
+                currentViewPath = { ...path, spots: orderedSpots };
+                document.getElementById('pathViewTitle').textContent = `🗺️ ${escapeHtml(path.name)}`;
+
+                let html = `<div style="font-size:0.78rem;color:#888;margin-bottom:12px;">${orderedSpots.length} 個純點 · ${path.is_public ? '🌍 公開' : '🔒 私人'}</div>`;
+                html += '<div style="display:flex;flex-direction:column;gap:4px;max-height:300px;overflow-y:auto;">';
+                orderedSpots.forEach((s, i) => {
+                    html += `<div style="display:flex;align-items:center;gap:8px;padding:6px 8px;background:#F8FAF9;border-radius:8px;">
+                        <div class="path-spot-num">${i + 1}</div>
+                        ${s.image_url ? `<img src="${escapeHtml(s.image_url)}" style="width:32px;height:32px;border-radius:6px;object-fit:cover;" loading="lazy">` : ''}
+                        <div style="flex:1;min-width:0;"><div style="font-size:0.82rem;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(s.name)}</div><div style="font-size:0.65rem;color:#999;">${s.country || ''}${s.city ? ' · ' + s.city : ''}</div></div>
+                    </div>`;
+                });
+                html += '</div>';
+                document.getElementById('pathViewContent').innerHTML = html;
+                document.getElementById('pathViewModal').classList.add('active');
+
+                // Show path on map
+                showPathOnMap(orderedSpots);
+            } catch (e) {
+                console.error('View path error:', e);
+                showToast('❌ 載入路線失敗');
+            }
+        }
+
+        function closePathViewModal() {
+            document.getElementById('pathViewModal').classList.remove('active');
+        }
+
+        function showPathOnMap(orderedSpots) {
+            clearPathFromMap();
+            if (!leafletMap || !orderedSpots.length) return;
+            const latlngs = orderedSpots.filter(s => s.lat && s.lng).map(s => [s.lat, s.lng]);
+            if (latlngs.length < 2) return;
+            pathPolyline = L.polyline(latlngs, {
+                color: '#4CAF7D', weight: 4, opacity: 0.8,
+                dashArray: '8, 8', lineCap: 'round'
+            }).addTo(leafletMap);
+            // Add numbered markers
+            orderedSpots.forEach((s, i) => {
+                if (!s.lat || !s.lng) return;
+                const numIcon = L.divIcon({
+                    html: `<div style="width:24px;height:24px;border-radius:50%;background:${i===0?'#4CAF7D':i===orderedSpots.length-1?'#EF7070':'#5BA4CF'};color:white;font-size:0.72rem;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.2);">${i + 1}</div>`,
+                    className: 'path-num-icon',
+                    iconSize: [24, 24], iconAnchor: [12, 12]
+                });
+                const m = L.marker([s.lat, s.lng], { icon: numIcon }).addTo(leafletMap);
+                m._isPathMarker = true;
+                mapMarkers.push(m);
+            });
+            leafletMap.fitBounds(latlngs, { padding: [40, 40] });
+        }
+
+        function clearPathFromMap() {
+            if (pathPolyline && leafletMap) { leafletMap.removeLayer(pathPolyline); pathPolyline = null; }
+            // Remove path numbered markers
+            mapMarkers = mapMarkers.filter(m => {
+                if (m._isPathMarker) { leafletMap.removeLayer(m); return false; }
+                return true;
+            });
+        }
+
+        // ==================== Path Export ====================
+        function buildGoogleMapsUrl(orderedSpots) {
+            if (!orderedSpots || orderedSpots.length < 2) return '';
+            const waypoints = orderedSpots.filter(s => s.lat && s.lng).map(s => `${s.lat},${s.lng}`);
+            return `https://www.google.com/maps/dir/${waypoints.join('/')}`;
+        }
+
+        function openPathInGoogleMaps() {
+            if (!currentViewPath || !currentViewPath.spots) return;
+            const url = buildGoogleMapsUrl(currentViewPath.spots);
+            if (url) window.open(url, '_blank');
+            else showToast('⚠️ 路線資料不足');
+        }
+
+        function copyPathGoogleMapsUrl() {
+            if (!currentViewPath || !currentViewPath.spots) return;
+            const url = buildGoogleMapsUrl(currentViewPath.spots);
+            navigator.clipboard.writeText(url).then(() => showToast('🔗 Google Maps 連結已複製！')).catch(() => showToast('❌ 複製失敗'));
+        }
+
+        function exportPathGpx() {
+            if (!currentViewPath || !currentViewPath.spots) return;
+            const s = currentViewPath.spots;
+            const gpxTrack = s.filter(p => p.lat && p.lng).map(p => `      <trkpt lat="${p.lat}" lon="${p.lng}"><name>${escapeXml(p.name || '')}</name></trkpt>`).join('\n');
+            const gpxWpts = s.filter(p => p.lat && p.lng).map(p => `  <wpt lat="${p.lat}" lon="${p.lng}"><name>${escapeXml(p.name || '')}</name></wpt>`).join('\n');
+            const gpx = `<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="Pikmin Spot Manager">\n  <metadata><name>${escapeXml(currentViewPath.name || '路線')}</name><time>${new Date().toISOString()}</time></metadata>\n${gpxWpts}\n  <trk>\n    <name>${escapeXml(currentViewPath.name || '路線')}</name>\n    <trkseg>\n${gpxTrack}\n    </trkseg>\n  </trk>\n</gpx>`;
+            downloadFile(gpx, `path_${(currentViewPath.name || 'route').replace(/\s/g, '_')}.gpx`, 'application/gpx+xml');
+            showToast('📤 GPX 已匯出');
+        }
+
+        // ==================== Profile Tab: Paths ====================
+        async function renderPathsList() {
+            const list = document.getElementById('profileList');
+            list.innerHTML = '<div class="profile-empty">載入中...</div>';
+            try {
+                const { data, error } = await supabaseClient.from('paths')
+                    .select('*')
+                    .eq('created_by', currentUser.id)
+                    .order('created_at', { ascending: false });
+                if (error) throw error;
+                userPaths = data || [];
+                if (!userPaths.length) {
+                    list.innerHTML = `<div class="profile-empty" style="padding:20px;">
+                        <div style="font-size:2rem;margin-bottom:8px;">🗺️</div>
+                        <div>你還沒有建立路線</div>
+                        <button onclick="openPathModal()" style="margin-top:12px;padding:8px 20px;background:var(--primary);color:white;border:none;border-radius:10px;font-weight:700;cursor:pointer;font-family:inherit;">+ 建立第一條路線</button>
+                    </div>`;
+                    return;
+                }
+                // Load spot thumbnails for cards
+                const allSpotIds = [...new Set(userPaths.flatMap(p => p.spot_ids || []))];
+                let spotMap = {};
+                if (allSpotIds.length) {
+                    const { data: sd } = await supabaseClient.from('spots')
+                        .select('id,name,image_url').in('id', allSpotIds);
+                    if (sd) sd.forEach(s => spotMap[s.id] = s);
+                }
+
+                list.innerHTML = `<div style="padding:8px;">
+                    <button onclick="openPathModal()" style="width:100%;padding:10px;background:var(--primary-bg);border:1.5px dashed var(--primary-light);border-radius:10px;font-size:0.85rem;font-weight:700;cursor:pointer;color:var(--primary-dark);font-family:inherit;margin-bottom:10px;">+ 建立新路線</button>
+                    ${userPaths.map(p => {
+                        const pathSpots = (p.spot_ids || []).map(id => spotMap[id]).filter(Boolean);
+                        const thumbs = pathSpots.filter(s => s.image_url).slice(0, 5);
+                        return `<div class="path-card" onclick="viewPath('${p.id}')">
+                            <div class="path-card-header">
+                                <div class="path-card-name">${escapeHtml(p.name)}</div>
+                                <span class="path-card-badge ${p.is_public ? 'public' : 'private'}">${p.is_public ? '🌍 公開' : '🔒 私人'}</span>
+                            </div>
+                            <div class="path-card-spots">
+                                ${thumbs.map(s => `<img class="path-card-spot-thumb" src="${escapeHtml(s.image_url)}" loading="lazy">`).join('')}
+                                ${pathSpots.length > 5 ? `<div style="width:28px;height:28px;border-radius:6px;background:#F0F0F0;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:700;color:#888;">+${pathSpots.length - 5}</div>` : ''}
+                            </div>
+                            <div class="path-card-meta">${(p.spot_ids || []).length} 個純點 · ${new Date(p.created_at).toLocaleDateString('zh-TW')}</div>
+                            <div class="path-card-actions">
+                                <button class="btn" onclick="event.stopPropagation();openPathModal(${JSON.stringify(p).replace(/"/g,'&quot;')})">✏️ 編輯</button>
+                                <button class="btn" onclick="event.stopPropagation();deletePath('${p.id}')" style="color:#C62828;">🗑️ 刪除</button>
+                            </div>
+                        </div>`;
+                    }).join('')}
+                </div>`;
+            } catch (e) {
+                console.error('Load paths error:', e);
+                if (e.message && (e.message.includes('paths') || e.message.includes('relation'))) {
+                    list.innerHTML = `<div class="profile-empty" style="padding:16px;">
+                        <div style="font-size:1.5rem;margin-bottom:8px;">⚠️</div>
+                        <div style="font-size:0.82rem;color:#888;line-height:1.6;">路線功能需要先建立 paths 資料表。<br>請管理員在 Supabase SQL Editor 執行建表 SQL。<br><small>（開啟瀏覽器 Console 可以看到完整 SQL）</small></div>
+                    </div>`;
+                } else {
+                    list.innerHTML = '<div class="profile-empty">載入失敗</div>';
+                }
+            }
+        }
 
         // Deep link: #spot=<id> → auto open detail
         function checkDeepLink() {
