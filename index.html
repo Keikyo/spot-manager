@@ -423,6 +423,7 @@
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; visibility: hidden; transition: all 0.3s; padding: 16px; backdrop-filter: blur(3px); }
         .modal-overlay.active { opacity: 1; visibility: visible; }
         .modal { background: white; border-radius: 20px; padding: 24px 20px; max-width: 480px; width: 100%; max-height: 88vh; overflow-y: auto; box-shadow: 0 16px 48px rgba(0,0,0,0.2); transform: scale(0.94) translateY(16px); transition: all 0.3s; }
+        @media (max-width: 1023px) { .modal { max-height: 80vh; padding-bottom: 80px; } }
         .modal-overlay.active .modal { transform: scale(1) translateY(0); }
         .modal h2 { font-size: 1.25rem; color: var(--text-primary); margin-bottom: 16px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
         .form-group { margin-bottom: 14px; }
@@ -849,7 +850,7 @@
             </div>
             <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
                 <div class="pagination-bar" id="paginationBar" style="padding:0;"></div>
-                <button class="view-mode-btn" id="boundsFilterToggle" onclick="toggleBoundsFilter()" title="只顯示地圖範圍內的純點" style="font-size:0.7rem;">🗺️</button>
+                <button class="view-mode-btn" id="boundsFilterToggle" onclick="toggleBoundsFilter()" title="切換地圖範圍/篩選器優先模式" style="font-size:0.7rem;">📋 篩選優先</button>
                 <div class="view-mode-info" id="viewModeInfo"></div>
             </div>
         </div>
@@ -2174,6 +2175,10 @@
                 saveFiltersToSession();
                 // Update map
                 updateMapMarkers();
+                // Re-apply bounds filter if active
+                if (boundsFilterActive && leafletMap) {
+                    setTimeout(() => filterSpotsByMapBounds(), 100);
+                }
             } catch (e) { console.error(e); setSyncStatus('error'); showToast('❌ 載入失敗'); }
         }
 
@@ -3750,11 +3755,14 @@
             if (!leafletMap) return;
             leafletMap.on('moveend', onMapMoveEnd);
             leafletMap.on('zoomend', onMapMoveEnd);
+            // Trigger initial bounds filter after data loads
+            const toggleBtn = document.getElementById('boundsFilterToggle');
+            if (toggleBtn) toggleBtn.textContent = '📋 篩選優先';
+            setTimeout(() => filterSpotsByMapBounds(), 500);
         }
 
         function onMapMoveEnd() {
             if (!leafletMap || !allMapSpots.length) return;
-            // Only filter the card list on mobile or if user opts in
             filterSpotsByMapBounds();
         }
 
@@ -3769,10 +3777,10 @@
             const countEl = document.getElementById('mapSpotCount');
             if (countEl) countEl.textContent = `(${visibleSpots.length} 個在視野中)`;
 
-            // Update toggle button text
+            // Update toggle button
             const toggleBtn = document.getElementById('boundsFilterToggle');
             if (toggleBtn) {
-                toggleBtn.textContent = boundsFilterActive ? `🗺️ ${visibleSpots.length} 個 ✕` : `🗺️ ${visibleSpots.length} 個`;
+                toggleBtn.textContent = boundsFilterActive ? '📋 篩選優先' : '🗺️ 地圖優先';
             }
 
             if (boundsFilterActive) {
@@ -3780,26 +3788,30 @@
             }
         }
 
-        let boundsFilterActive = false;
+        let boundsFilterActive = true; // DEFAULT: map bounds mode ON
 
         function toggleBoundsFilter() {
             boundsFilterActive = !boundsFilterActive;
             if (boundsFilterActive) {
+                // Switch to map-bounds mode (default)
                 filterSpotsByMapBounds();
-                showToast('🗺️ 已開啟地圖範圍篩選');
+                showToast('🗺️ 地圖範圍模式');
             } else {
-                // Restore normal paginated view
+                // Switch to filter-first / server-pagination mode
                 renderSpots(true);
                 renderPagination();
+                document.getElementById('paginationBar').style.display = '';
+                document.getElementById('paginationBarBottom').style.display = '';
                 const infoEl = document.getElementById('viewModeInfo');
                 if (infoEl) {
                     infoEl.textContent = totalCount > 0 ? `${(currentPage * PAGE_SIZE) + 1}-${Math.min((currentPage + 1) * PAGE_SIZE, totalCount)} / ${totalCount} 筆` : '0 筆';
                 }
-                showToast('已關閉地圖範圍篩選');
+                showToast('📋 篩選器優先模式');
             }
             const toggleBtn = document.getElementById('boundsFilterToggle');
             if (toggleBtn) {
-                toggleBtn.classList.toggle('active', boundsFilterActive);
+                toggleBtn.classList.toggle('active', !boundsFilterActive);
+                toggleBtn.textContent = boundsFilterActive ? '📋 篩選優先' : '🗺️ 地圖優先';
             }
         }
 
@@ -3811,14 +3823,28 @@
             if (currentFilter !== 'all') {
                 filtered = filtered.filter(s => s.type === currentFilter);
             }
-            // Note: allMapSpots only has lightweight fields, so search/tag filtering is limited
-            // But we can filter by type, country, city which are available
-
             if (currentCountry !== 'all') {
                 filtered = filtered.filter(s => s.country === currentCountry);
             }
             if (currentCity !== 'all') {
                 filtered = filtered.filter(s => s.city === currentCity);
+            }
+            // Tag filter
+            if (currentTag !== 'all') {
+                filtered = filtered.filter(s => s.tags && Array.isArray(s.tags) && s.tags.includes(currentTag));
+            }
+            if (activeTagFilters && activeTagFilters.length > 1) {
+                filtered = filtered.filter(s => s.tags && Array.isArray(s.tags) && activeTagFilters.every(t => s.tags.includes(t)));
+            }
+            // Search filter
+            if (searchQuery) {
+                const q = searchQuery.toLowerCase();
+                filtered = filtered.filter(s =>
+                    (s.name && s.name.toLowerCase().includes(q)) ||
+                    (s.note && s.note.toLowerCase().includes(q)) ||
+                    (s.country && s.country.toLowerCase().includes(q)) ||
+                    (s.city && s.city.toLowerCase().includes(q))
+                );
             }
 
             // Sort
