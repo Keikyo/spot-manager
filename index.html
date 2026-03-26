@@ -618,6 +618,71 @@
         .path-card-actions { display: flex; gap: 6px; margin-top: 8px; }
         .path-card-actions .btn { font-size: 0.72rem; padding: 4px 10px; }
         .path-num-icon { background: none !important; border: none !important; }
+
+        /* ===== ROUTE EDITOR PANEL (overlay on map) ===== */
+        .route-editor {
+            position: absolute; top: 10px; left: 10px; z-index: 50;
+            width: 320px; max-height: calc(100% - 20px);
+            background: rgba(255,255,255,0.97); backdrop-filter: blur(12px);
+            border-radius: 14px; box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+            display: flex; flex-direction: column; overflow: hidden;
+            animation: route-editor-in 0.25s ease-out;
+        }
+        @keyframes route-editor-in { from { opacity:0; transform: translateX(-20px); } to { opacity:1; transform: translateX(0); } }
+        @media (max-width: 1023px) {
+            .route-editor { top: auto; bottom: 56px; left: 8px; right: 8px; width: auto; max-height: 45vh; border-radius: 14px 14px 0 0; }
+        }
+        .route-editor-header {
+            display: flex; align-items: center; justify-content: space-between; gap: 8px;
+            padding: 10px 12px; border-bottom: 1px solid #E8E8E8; flex-shrink: 0;
+        }
+        .route-editor-name-input {
+            border: none; outline: none; font-size: 0.92rem; font-weight: 800; color: var(--text-primary);
+            background: transparent; font-family: inherit; width: 100%; min-width: 0;
+        }
+        .route-editor-name-input:focus { border-bottom: 2px solid var(--primary); }
+        .route-editor-btn {
+            padding: 5px 10px; border: 1.5px solid #E0E8E4; border-radius: 8px; background: white;
+            font-size: 0.75rem; font-weight: 700; cursor: pointer; font-family: inherit;
+            color: var(--text-secondary); transition: all 0.15s; white-space: nowrap;
+        }
+        .route-editor-btn:hover { background: var(--primary-bg); border-color: var(--primary-light); }
+        .route-editor-btn-save { background: var(--primary); color: white; border-color: var(--primary); }
+        .route-editor-btn-save:hover { background: var(--primary-dark); }
+        .route-editor-btn-export { font-size: 0.7rem; padding: 4px 8px; }
+        .route-editor-btn-export:disabled { opacity: 0.4; cursor: not-allowed; }
+        .route-editor-btn-export:not(:disabled):hover { background: var(--primary-bg); }
+        .route-editor-list {
+            flex: 1; overflow-y: auto; padding: 6px 8px; min-height: 60px;
+        }
+        .route-editor-empty {
+            text-align: center; padding: 20px 12px; color: #BBB; font-size: 0.82rem; line-height: 1.6;
+        }
+        .route-editor-item {
+            display: flex; align-items: center; gap: 6px; padding: 6px 8px;
+            background: white; border: 1.5px solid #E8EDE8; border-radius: 10px;
+            margin-bottom: 4px; cursor: grab; transition: all 0.15s; user-select: none;
+        }
+        .route-editor-item:hover { border-color: var(--primary-light); }
+        .route-editor-item.dragging { opacity: 0.4; }
+        .route-editor-item-num {
+            width: 22px; height: 22px; border-radius: 50%; font-size: 0.68rem; font-weight: 800;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: white;
+        }
+        .route-editor-item-num.first { background: #4CAF7D; }
+        .route-editor-item-num.last { background: #EF7070; }
+        .route-editor-item-num.mid { background: #5BA4CF; }
+        .route-editor-item-img { width: 32px; height: 32px; border-radius: 6px; object-fit: cover; flex-shrink: 0; }
+        .route-editor-item-info { flex: 1; min-width: 0; }
+        .route-editor-item-name { font-size: 0.78rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .route-editor-item-sub { font-size: 0.62rem; color: #AAA; }
+        .route-editor-item-remove { background: none; border: none; color: #CCC; cursor: pointer; font-size: 0.9rem; padding: 2px; flex-shrink: 0; }
+        .route-editor-item-remove:hover { color: #E05050; }
+        .route-editor-footer {
+            padding: 8px 12px; border-top: 1px solid #E8E8E8; flex-shrink: 0;
+            display: flex; flex-direction: column; gap: 6px;
+        }
+        .route-editor-count { font-size: 0.72rem; color: var(--text-muted); font-weight: 600; }
     </style>
 </head>
 <body>
@@ -625,6 +690,30 @@
     <!-- Map Panel (desktop: left side, mobile: collapsible) -->
     <div class="map-panel" id="mapPanel">
         <div id="mapContainer"></div>
+        <!-- Route Editor Panel (overlay on map) -->
+        <div class="route-editor" id="routeEditor" style="display:none;">
+            <div class="route-editor-header">
+                <div style="display:flex;align-items:center;gap:6px;">
+                    <span style="font-size:1.1rem;">🗺️</span>
+                    <input type="text" id="routeEditorName" class="route-editor-name-input" placeholder="路線名稱..." value="我的路線">
+                </div>
+                <div style="display:flex;gap:4px;">
+                    <button onclick="saveRouteFromEditor()" class="route-editor-btn route-editor-btn-save" title="儲存">💾</button>
+                    <button onclick="closeRouteEditor()" class="route-editor-btn" title="關閉">✕</button>
+                </div>
+            </div>
+            <div class="route-editor-list" id="routeEditorList">
+                <div class="route-editor-empty">點擊地圖上的純點，<br>選擇「加入路線」來新增</div>
+            </div>
+            <div class="route-editor-footer">
+                <div class="route-editor-count" id="routeEditorCount">0 個純點</div>
+                <div style="display:flex;gap:4px;flex-wrap:wrap;">
+                    <button onclick="openRouteInGoogleMaps()" class="route-editor-btn route-editor-btn-export" id="routeExportBtn" disabled>🗺️ Google Maps</button>
+                    <button onclick="exportRouteGpx()" class="route-editor-btn route-editor-btn-export" id="routeGpxBtn" disabled>📤 GPX</button>
+                    <button onclick="copyRouteGoogleMapsUrl()" class="route-editor-btn route-editor-btn-export" id="routeCopyBtn" disabled>🔗 複製</button>
+                </div>
+            </div>
+        </div>
     </div>
     <!-- Content Panel -->
     <div class="content-panel" id="contentPanel">
@@ -800,7 +889,7 @@
             <button class="btn-select-action btn-select-export" id="btnConfirmExport">📤 匯出</button>
         </div>
     </div>
-    <div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+    <div class="modal-overlay" id="modalOverlay">
         <div class="modal">
             <h2 id="modalTitle">🌱 新增純點</h2>
             <form id="spotForm">
@@ -926,7 +1015,7 @@
         <div class="profile-list" id="profileList"></div>
     </div>
     <!-- Nickname Modal -->
-    <div class="modal-overlay" id="nicknameModal" onclick="if(event.target===this)closeNicknameModal()">
+    <div class="modal-overlay" id="nicknameModal">
         <div class="modal" style="max-width:400px;text-align:center;">
             <div style="font-size:3rem;margin-bottom:8px;">🌱</div>
             <h2 style="justify-content:center;">設定你的暱稱</h2>
@@ -945,7 +1034,7 @@
         </div>
     </div>
     <!-- Suggestion Modal (structured fields) -->
-    <div class="modal-overlay" id="suggestionModal" onclick="if(event.target===this)closeSuggestionModal()">
+    <div class="modal-overlay" id="suggestionModal">
         <div class="modal" style="max-width:480px;">
             <h2>💡 建議修改</h2>
             <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:14px;">只填寫你認為需要修改的欄位，空白欄位不會被提交。管理員審核通過後會更新此純點。</p>
@@ -1040,7 +1129,7 @@
         </div>
     </div>
     <!-- Path Builder Modal -->
-    <div class="modal-overlay" id="pathModal" onclick="if(event.target===this)closePathModal()">
+    <div class="modal-overlay" id="pathModal">
         <div class="modal" style="max-width:560px;max-height:90vh;">
             <h2 id="pathModalTitle">🗺️ 建立路線</h2>
             <div class="form-group">
@@ -2798,6 +2887,7 @@
                         <button class="btn" onclick="copyCoords('${s.lat}, ${s.lng}')" title="複製座標">${ICN.copy}</button>
                         <button class="btn" onclick="window.open('${mapsUrl}','_blank')" title="Google Maps">${ICN.mapPin}</button>
                         <button class="btn" onclick="shareSpot('${escapeHtml(s.name).replace(/'/g,"\\'")}','${s.id}')" title="分享">${ICN.share}</button>
+                        <button class="btn" onclick="addSpotToRouteEditor('${s.id}')" title="加入路線" style="background:#E8F5E9;border-color:#66BB6A;color:#2E7D32;">🗺️</button>
                         ${currentUser ? `<button class="btn btn-fav ${isFav ? 'active' : ''}" onclick="toggleFavorite('${s.id}');closeDetail();setTimeout(()=>{const sp=spots.find(x=>String(x.id)==='${s.id}')||profileSpots.find(x=>String(x.id)==='${s.id}');if(sp)renderDetailContent(sp);document.getElementById('detailModal').classList.add('active');},300);" title="收藏">${isFav ? ICN.starFill : ICN.star}</button>` : ''}
                         ${currentUser ? `<button class="btn ${isSaved ? 'btn-fav active' : ''}" onclick="toggleBookmark('${s.id}');closeDetail();setTimeout(()=>{const sp=spots.find(x=>String(x.id)==='${s.id}')||profileSpots.find(x=>String(x.id)==='${s.id}');if(sp)renderDetailContent(sp);document.getElementById('detailModal').classList.add('active');},300);" title="儲存">${isSaved ? ICN.bookmarkFill : ICN.bookmark}</button>` : ''}
                         ${!showEdit && currentUser ? `<button class="btn" onclick="closeDetail();openSuggestionModal('${s.id}')" title="建議修改">${ICN.lightbulb}</button>` : ''}
@@ -3508,6 +3598,7 @@
                             <div class="map-popup-coords">${s.lat}, ${s.lng}</div>
                             <div class="map-popup-actions">
                                 <button onclick="navigator.clipboard.writeText('${s.lat}, ${s.lng}');this.textContent='✅ 已複製'" class="map-popup-btn">📋 複製座標</button>
+                                <button onclick="addSpotToRouteEditor('${s.id}')" class="map-popup-btn" style="background:#E8F5E9;border-color:#66BB6A;color:#2E7D32;">🗺️ 加入路線</button>
                                 <button onclick="openDetailFromMap('${s.id}')" class="map-popup-btn map-popup-btn-detail">查看更多</button>
                             </div>
                         </div>
@@ -3822,7 +3913,222 @@
         init();
         checkDesktopMap();
 
-        // ==================== Plant Paths (路線功能) ====================
+        // ==================== Route Editor (Map-based, Google Maps style) ====================
+        let routeEditorSpots = []; // [{id, name, lat, lng, image_url, country, city, type}]
+        let routePolyline = null;
+        let routeMarkers = [];
+        let routeEditorOpen = false;
+        const ROUTE_HINT_KEY = 'pikmin_route_hint_dismissed';
+
+        function openRouteEditor() {
+            routeEditorOpen = true;
+            document.getElementById('routeEditor').style.display = 'flex';
+            renderRouteEditorList();
+            updateRouteOnMap();
+        }
+
+        function closeRouteEditor() {
+            routeEditorOpen = false;
+            document.getElementById('routeEditor').style.display = 'none';
+            clearRouteFromMap();
+        }
+
+        function addSpotToRouteEditor(spotId) {
+            const src = allMapSpots.length ? allMapSpots : spots;
+            const s = src.find(x => String(x.id) === String(spotId));
+            if (!s) { showToast('找不到此純點'); return; }
+            if (routeEditorSpots.find(x => String(x.id) === String(spotId))) {
+                showToast('⚠️ 此純點已在路線中');
+                if (!routeEditorOpen) openRouteEditor();
+                return;
+            }
+            routeEditorSpots.push({
+                id: s.id, name: s.name, lat: s.lat, lng: s.lng,
+                image_url: s.image_url, country: s.country, city: s.city, type: s.type
+            });
+            if (!routeEditorOpen) openRouteEditor();
+            renderRouteEditorList();
+            updateRouteOnMap();
+            showToast(`✅ 已加入「${s.name}」到路線`);
+
+            // Show hint (only once)
+            if (!localStorage.getItem(ROUTE_HINT_KEY)) {
+                showRouteHint();
+            }
+        }
+
+        function removeSpotFromRouteEditor(idx) {
+            routeEditorSpots.splice(idx, 1);
+            renderRouteEditorList();
+            updateRouteOnMap();
+        }
+
+        function renderRouteEditorList() {
+            const container = document.getElementById('routeEditorList');
+            const countEl = document.getElementById('routeEditorCount');
+            const n = routeEditorSpots.length;
+            countEl.textContent = `${n} 個純點`;
+
+            // Enable/disable export buttons
+            const hasEnough = n >= 2;
+            document.getElementById('routeExportBtn').disabled = !hasEnough;
+            document.getElementById('routeGpxBtn').disabled = !hasEnough;
+            document.getElementById('routeCopyBtn').disabled = !hasEnough;
+
+            if (!n) {
+                container.innerHTML = '<div class="route-editor-empty">點擊地圖上的純點，<br>選擇「🗺️ 加入路線」來新增</div>';
+                return;
+            }
+            container.innerHTML = routeEditorSpots.map((s, i) => {
+                const numClass = i === 0 ? 'first' : i === n - 1 && n > 1 ? 'last' : 'mid';
+                return `<div class="route-editor-item" draggable="true" data-route-idx="${i}">
+                    <div class="route-editor-item-num ${numClass}">${i + 1}</div>
+                    ${s.image_url ? `<img class="route-editor-item-img" src="${escapeHtml(s.image_url)}" loading="lazy">` : ''}
+                    <div class="route-editor-item-info">
+                        <div class="route-editor-item-name">${escapeHtml(s.name)}</div>
+                        <div class="route-editor-item-sub">${s.country || ''}${s.city ? ' · ' + s.city : ''}</div>
+                    </div>
+                    <button class="route-editor-item-remove" onclick="removeSpotFromRouteEditor(${i})" title="移除">✕</button>
+                </div>`;
+            }).join('');
+            setupRouteEditorDrag();
+        }
+
+        function setupRouteEditorDrag() {
+            const items = document.querySelectorAll('.route-editor-item[draggable]');
+            let dragIdx = null;
+            items.forEach(item => {
+                item.addEventListener('dragstart', (e) => {
+                    dragIdx = parseInt(item.dataset.routeIdx);
+                    item.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                });
+                item.addEventListener('dragend', () => { item.classList.remove('dragging'); });
+                item.addEventListener('dragover', (e) => { e.preventDefault(); });
+                item.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    const dropIdx = parseInt(item.dataset.routeIdx);
+                    if (dragIdx !== null && dragIdx !== dropIdx) {
+                        const moved = routeEditorSpots.splice(dragIdx, 1)[0];
+                        routeEditorSpots.splice(dropIdx, 0, moved);
+                        renderRouteEditorList();
+                        updateRouteOnMap();
+                    }
+                    dragIdx = null;
+                });
+            });
+        }
+
+        function updateRouteOnMap() {
+            clearRouteFromMap();
+            if (!leafletMap || routeEditorSpots.length === 0) return;
+            const latlngs = routeEditorSpots.filter(s => s.lat && s.lng).map(s => [s.lat, s.lng]);
+            if (latlngs.length >= 2) {
+                routePolyline = L.polyline(latlngs, {
+                    color: '#4CAF7D', weight: 4, opacity: 0.8,
+                    dashArray: '10, 8', lineCap: 'round'
+                }).addTo(leafletMap);
+            }
+            const n = routeEditorSpots.length;
+            routeEditorSpots.forEach((s, i) => {
+                if (!s.lat || !s.lng) return;
+                const color = i === 0 ? '#4CAF7D' : i === n - 1 && n > 1 ? '#EF7070' : '#5BA4CF';
+                const icon = L.divIcon({
+                    html: `<div style="width:26px;height:26px;border-radius:50%;background:${color};color:white;font-size:0.72rem;font-weight:800;display:flex;align-items:center;justify-content:center;border:2.5px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.25);">${i + 1}</div>`,
+                    className: 'path-num-icon',
+                    iconSize: [26, 26], iconAnchor: [13, 13]
+                });
+                const m = L.marker([s.lat, s.lng], { icon }).addTo(leafletMap);
+                m._isRouteMarker = true;
+                routeMarkers.push(m);
+            });
+        }
+
+        function clearRouteFromMap() {
+            if (routePolyline && leafletMap) { leafletMap.removeLayer(routePolyline); routePolyline = null; }
+            routeMarkers.forEach(m => { if (leafletMap) leafletMap.removeLayer(m); });
+            routeMarkers = [];
+        }
+
+        // Route export functions
+        function buildRouteGoogleMapsUrl() {
+            const pts = routeEditorSpots.filter(s => s.lat && s.lng);
+            if (pts.length < 2) return '';
+            return `https://www.google.com/maps/dir/${pts.map(s => `${s.lat},${s.lng}`).join('/')}`;
+        }
+
+        function openRouteInGoogleMaps() {
+            const url = buildRouteGoogleMapsUrl();
+            if (url) window.open(url, '_blank');
+            else showToast('⚠️ 至少需要 2 個純點');
+        }
+
+        function copyRouteGoogleMapsUrl() {
+            const url = buildRouteGoogleMapsUrl();
+            if (!url) { showToast('⚠️ 至少需要 2 個純點'); return; }
+            navigator.clipboard.writeText(url).then(() => showToast('🔗 Google Maps 連結已複製！')).catch(() => showToast('❌ 複製失敗'));
+        }
+
+        function exportRouteGpx() {
+            const pts = routeEditorSpots.filter(s => s.lat && s.lng);
+            if (pts.length < 2) { showToast('⚠️ 至少需要 2 個純點'); return; }
+            const name = document.getElementById('routeEditorName').value.trim() || '我的路線';
+            const gpxWpts = pts.map(p => `  <wpt lat="${p.lat}" lon="${p.lng}"><n>${escapeXml(p.name || '')}</n></wpt>`).join('\n');
+            const gpxTrack = pts.map(p => `      <trkpt lat="${p.lat}" lon="${p.lng}"><n>${escapeXml(p.name || '')}</n></trkpt>`).join('\n');
+            const gpx = `<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="Pikmin Spot Manager">\n  <metadata><n>${escapeXml(name)}</n><time>${new Date().toISOString()}</time></metadata>\n${gpxWpts}\n  <trk><n>${escapeXml(name)}</n><trkseg>\n${gpxTrack}\n  </trkseg></trk>\n</gpx>`;
+            downloadFile(gpx, `path_${name.replace(/\s/g, '_')}.gpx`, 'application/gpx+xml');
+            showToast('📤 GPX 已匯出');
+        }
+
+        async function saveRouteFromEditor() {
+            if (!currentUser) { showToast('👤 請先登入才能儲存路線'); showLoginModal(); return; }
+            if (routeEditorSpots.length < 2) { showToast('⚠️ 至少需要 2 個純點'); return; }
+            const name = document.getElementById('routeEditorName').value.trim() || '我的路線';
+            const spotIds = routeEditorSpots.map(s => s.id);
+            try {
+                await safeQuery(() => supabaseClient.from('paths').insert([{
+                    name, spot_ids: spotIds, is_public: false, created_by: currentUser.id
+                }]));
+                showToast('🗺️ 路線已儲存！可在「我的 → 路線」中管理');
+            } catch (e) {
+                console.error('Save route error:', e);
+                if (e.message && e.message.includes('paths')) {
+                    showToast('⚠️ 請先建立 paths 資料表（見 Console）');
+                } else {
+                    showToast('❌ 儲存失敗：' + (e.message || ''));
+                }
+            }
+        }
+
+        // Hint modal (shown once)
+        function showRouteHint() {
+            if (localStorage.getItem(ROUTE_HINT_KEY)) return;
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);z-index:2000;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(2px);';
+            overlay.innerHTML = `
+                <div style="background:white;border-radius:18px;padding:24px 20px;max-width:360px;width:100%;box-shadow:0 16px 48px rgba(0,0,0,0.2);text-align:center;">
+                    <div style="font-size:2.5rem;margin-bottom:8px;">🗺️</div>
+                    <div style="font-size:1.1rem;font-weight:800;color:var(--text-primary);margin-bottom:8px;">路線編輯器已開啟！</div>
+                    <div style="font-size:0.85rem;color:var(--text-secondary);line-height:1.6;margin-bottom:16px;">
+                        繼續在地圖上點擊純點，選擇「🗺️ 加入路線」來規劃你的行程。<br><br>
+                        你可以在左側面板中<strong>拖拉排序</strong>、<strong>匯出到 Google Maps</strong>，或<strong>儲存路線</strong>到個人頁面。
+                    </div>
+                    <label style="display:flex;align-items:center;justify-content:center;gap:6px;font-size:0.78rem;color:#888;cursor:pointer;margin-bottom:14px;">
+                        <input type="checkbox" id="routeHintDismiss"> 不再顯示此提示
+                    </label>
+                    <button onclick="dismissRouteHint(this.closest('div[style*=fixed]'))" style="padding:10px 32px;background:var(--primary);color:white;border:none;border-radius:12px;font-size:0.92rem;font-weight:700;cursor:pointer;font-family:inherit;">我知道了！</button>
+                </div>`;
+            document.body.appendChild(overlay);
+        }
+
+        function dismissRouteHint(overlay) {
+            if (document.getElementById('routeHintDismiss')?.checked) {
+                localStorage.setItem(ROUTE_HINT_KEY, '1');
+            }
+            overlay.remove();
+        }
+
+        // ==================== Plant Paths (路線功能 - Profile管理) ====================
         let pathSelectedSpots = []; // [{id, name, lat, lng, image_url, country, city, type}]
         let editingPathId = null;
         let userPaths = [];
