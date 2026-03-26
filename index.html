@@ -51,34 +51,92 @@
             .header { border-radius: 0; }
             .mobile-map-toggle { display: none !important; }
             .mobile-bottom-tabs { display: none !important; }
+            .mobile-sheet-handle { display: none !important; }
             .container { max-width: 100%; padding: 16px 24px; }
         }
 
-        /* Mobile */
+        /* Mobile: map behind + bottom sheet overlay */
         @media (max-width: 1023px) {
-            .map-panel { display: none; height: calc(100vh - 60px); width: 100%; position: fixed; top: 0; left: 0; z-index: 90; }
-            .map-panel.tab-active { display: block; }
-            .content-panel { width: 100%; padding-bottom: 72px; }
-            .content-panel.tab-hidden { display: none; }
-            .container { max-width: 600px; margin: 0 auto; padding: 16px; }
+            .app-layout { position: relative; height: 100vh; height: 100dvh; overflow: hidden; }
+            .map-panel { display: block !important; position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 1; height: 100%; }
+            .content-panel {
+                position: absolute; left: 0; right: 0; bottom: 0; z-index: 10;
+                height: 55vh; max-height: 80vh; min-height: 60px;
+                background: var(--bg-gradient); background-attachment: fixed;
+                border-radius: 18px 18px 0 0;
+                box-shadow: 0 -4px 24px rgba(0,0,0,0.12);
+                overflow-y: auto; overflow-x: hidden;
+                transition: height 0.3s ease;
+                padding-bottom: 52px;
+            }
+            .content-panel.sheet-collapsed {
+                height: 60px; min-height: 60px; overflow: hidden;
+            }
+            .content-panel.sheet-expanded {
+                height: 85vh;
+            }
+            .container { max-width: 600px; margin: 0 auto; padding: 12px 16px; }
             .mobile-map-toggle { display: none !important; }
+            .header { display: none; }
+            .floating-cloud { display: none; }
         }
 
-        /* ===== Mobile Bottom Tab Bar ===== */
-        .mobile-bottom-tabs { display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 200; background: rgba(255,255,255,0.97); backdrop-filter: blur(16px) saturate(1.5); border-top: 1px solid rgba(0,0,0,0.06); padding: 6px 0 env(safe-area-inset-bottom, 8px); box-shadow: 0 -2px 16px rgba(0,0,0,0.05); }
+        /* ===== Mobile Sheet Handle ===== */
+        .mobile-sheet-handle { display: none; }
+        @media (max-width: 1023px) {
+            .mobile-sheet-handle {
+                display: flex; flex-direction: column; align-items: center;
+                padding: 8px 16px 6px; cursor: grab; user-select: none;
+                position: sticky; top: 0; z-index: 20;
+                background: linear-gradient(180deg, #C8E6F8 0%, #D8EFE8 80%, #E0F4EB 100%);
+                border-radius: 18px 18px 0 0;
+                overflow: hidden;
+                min-height: 52px;
+            }
+            .mobile-sheet-handle::before {
+                content: ''; width: 36px; height: 4px; border-radius: 2px;
+                background: rgba(255,255,255,0.6); margin-bottom: 4px; flex-shrink: 0;
+            }
+            /* Clouds inside sheet handle */
+            .sheet-cloud { position: absolute; background: rgba(255,255,255,0.7); border-radius: 50%; will-change: transform; }
+            .sheet-cloud::before, .sheet-cloud::after { content: ''; position: absolute; background: rgba(255,255,255,0.7); border-radius: 50%; }
+            .sheet-cloud-1 { width: 50px; height: 16px; top: 6px; left: 5%; animation: cloud-drift 22s ease-in-out infinite; }
+            .sheet-cloud-1::before { width: 22px; height: 22px; top: -12px; left: 8px; }
+            .sheet-cloud-1::after { width: 28px; height: 18px; top: -8px; left: 22px; }
+            .sheet-cloud-2 { width: 40px; height: 14px; top: 10px; right: 8%; animation: cloud-drift 28s ease-in-out infinite; animation-delay: -6s; }
+            .sheet-cloud-2::before { width: 20px; height: 20px; top: -10px; left: 6px; }
+            .sheet-cloud-2::after { width: 24px; height: 16px; top: -6px; left: 18px; }
+            .sheet-handle-row {
+                display: flex; align-items: center; justify-content: center; width: 100%; gap: 8px;
+                position: relative; z-index: 2;
+            }
+            .sheet-handle-title {
+                display: flex; align-items: center; gap: 5px;
+                font-size: 0.88rem; font-weight: 800; color: var(--primary-dark);
+            }
+            .sheet-handle-title .seedling-icon { font-size: 1.3rem; animation: seedling-bounce 2.5s ease-in-out infinite; }
+            .sheet-handle-right {
+                position: absolute; right: 0; top: 50%; transform: translateY(-50%);
+                display: flex; gap: 4px; align-items: center;
+            }
+            .sheet-btn { padding: 4px 8px; border: 1.5px solid rgba(255,255,255,0.6); border-radius: 14px; background: rgba(255,255,255,0.7); font-size: 0.68rem; font-weight: 700; cursor: pointer; color: var(--primary-dark); font-family: inherit; transition: all 0.2s; backdrop-filter: blur(4px); }
+            .sheet-btn:hover, .sheet-btn.active { background: rgba(255,255,255,0.9); border-color: var(--primary-light); }
+        }
+
+        /* ===== Mobile Bottom Tab Bar (compact) ===== */
+        .mobile-bottom-tabs { display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 200; background: rgba(255,255,255,0.97); backdrop-filter: blur(16px) saturate(1.5); border-top: 1px solid rgba(0,0,0,0.06); padding: 4px 0 env(safe-area-inset-bottom, 4px); box-shadow: 0 -1px 8px rgba(0,0,0,0.04); }
         @media (max-width: 1023px) { .mobile-bottom-tabs { display: flex; } }
-        .bottom-tab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 6px 0; cursor: pointer; transition: all 0.2s; border: none; background: none; font-family: inherit; color: var(--text-muted); -webkit-tap-highlight-color: transparent; }
+        .bottom-tab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; padding: 4px 0; cursor: pointer; transition: all 0.2s; border: none; background: none; font-family: inherit; color: var(--text-muted); -webkit-tap-highlight-color: transparent; }
         .bottom-tab.active { color: var(--primary-dark); }
-        .bottom-tab-icon { font-size: 1.3rem; line-height: 1; transition: transform 0.2s; }
+        .bottom-tab-icon { font-size: 1.1rem; line-height: 1; transition: transform 0.2s; }
         .bottom-tab.active .bottom-tab-icon { transform: scale(1.1); }
-        .bottom-tab-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.02em; }
+        .bottom-tab-label { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.02em; }
         .bottom-tab.active .bottom-tab-label { color: var(--primary); }
-        .bottom-tab-add { background: linear-gradient(135deg, var(--primary-light), var(--primary)); width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-top: -20px; box-shadow: 0 4px 16px rgba(76,175,125,0.35); border: 3px solid white; }
-        .bottom-tab-add .bottom-tab-icon { color: white; font-size: 1.6rem; }
+        .bottom-tab-add { background: linear-gradient(135deg, var(--primary-light), var(--primary)); width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-top: -16px; box-shadow: 0 3px 12px rgba(76,175,125,0.35); border: 2.5px solid white; }
+        .bottom-tab-add .bottom-tab-icon { color: white; font-size: 1.4rem; }
 
         /* ===== MAP ===== */
         .map-panel { background: #E8F0EC; z-index: 1; }
-        @media (max-width: 1023px) { .map-panel { z-index: 90; } }
         #mapContainer { width: 100%; height: 100%; }
         .mobile-map-toggle { position: sticky; top: 0; z-index: 50; background: var(--card-bg); border-bottom: 1px solid var(--card-border); padding: 10px 16px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; font-size: 0.88rem; font-weight: 700; color: var(--primary-dark); backdrop-filter: blur(12px); }
         .mobile-map-toggle:hover { background: var(--primary-bg); }
@@ -115,15 +173,15 @@
         .seedling-icon { font-size: 2.4rem; display: inline-block; animation: seedling-bounce 2.5s ease-in-out infinite; }
         @keyframes seedling-bounce { 0%, 100% { transform: translateY(0) rotate(-3deg); } 50% { transform: translateY(-6px) rotate(3deg); } }
         .header h1 { font-size: 1.25rem; font-weight: 800; color: var(--primary-dark); margin-top: 4px; }
-        .header p { font-size: 0.82rem; color: var(--text-secondary); font-weight: 600; margin-top: 2px; }
         .sync-status { font-size: 0.7rem; margin-top: 8px; padding: 4px 12px; border-radius: 12px; display: inline-block; font-weight: 600; }
         .sync-status.syncing { background: #FFF3E0; color: #E65100; }
         .sync-status.synced { background: rgba(232,245,233,0.9); color: #2E7D32; }
         .sync-status.error { background: #FFEBEE; color: #C62828; }
 
-        /* ===== STATS (Compact Pills) ===== */
-        .stats { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
-        .stat-card { background: var(--card-bg); border-radius: 20px; padding: 6px 14px; display: flex; align-items: center; gap: 6px; box-shadow: var(--card-shadow); border: 2px solid transparent; transition: all 0.2s; cursor: pointer; white-space: nowrap; }
+        /* ===== STATS (Compact Pills - horizontal scroll, no wrap) ===== */
+        .stats { display: flex; gap: 6px; margin-bottom: 14px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding-bottom: 2px; }
+        .stats::-webkit-scrollbar { display: none; }
+        .stat-card { background: var(--card-bg); border-radius: 20px; padding: 6px 12px; display: flex; align-items: center; gap: 5px; box-shadow: var(--card-shadow); border: 2px solid transparent; transition: all 0.2s; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
         .stat-card:hover { transform: translateY(-1px); box-shadow: var(--card-hover-shadow); }
         .stat-card.active { background: var(--primary-bg); border-color: var(--primary); }
         .stat-card.flower-card.active { background: #FFF0F3; border-color: var(--flower-color); }
@@ -494,34 +552,42 @@
             .type-pills { justify-content: center; }
         }
 
-        /* Mobile header compact */
-        @media (max-width: 1023px) {
-            .header { padding: 10px 16px 14px; border-radius: 0 0 18px 18px; }
-            .seedling-icon { font-size: 1.8rem; }
-            .header h1 { font-size: 1.1rem; margin-top: 2px; }
-            .header p { font-size: 0.75rem; margin-top: 1px; }
-            .sync-status { font-size: 0.65rem; margin-top: 4px; padding: 3px 10px; }
-            .header-cloud-1 { width: 50px; height: 18px; top: 5px; }
-            .header-cloud-1::before { width: 24px; height: 24px; top: -12px; left: 8px; }
-            .header-cloud-1::after { width: 30px; height: 22px; top: -8px; left: 22px; }
-            .header-cloud-2 { width: 60px; height: 22px; top: 8px; }
-            .header-cloud-2::before { width: 30px; height: 30px; top: -16px; left: 8px; }
-            .header-cloud-2::after { width: 36px; height: 25px; top: -10px; left: 28px; }
-            .header-cloud-3 { width: 36px; height: 13px; top: 28px; }
-            .header-cloud-3::before { width: 18px; height: 18px; top: -9px; left: 4px; }
-            .header-cloud-3::after { width: 20px; height: 14px; top: -6px; left: 16px; }
-        }
+        /* Mobile-specific (header hidden on mobile, shown on desktop only) */
 
         /* Leaflet emoji marker */
         .map-emoji-icon { background: none !important; border: none !important; }
-        .leaflet-popup-content-wrapper { border-radius: 12px !important; box-shadow: 0 2px 12px rgba(0,0,0,0.15) !important; }
-        .leaflet-popup-content { margin: 10px 14px !important; font-family: 'Noto Sans TC', sans-serif !important; }
+        .leaflet-popup-content-wrapper { border-radius: 14px !important; box-shadow: 0 4px 20px rgba(0,0,0,0.15) !important; padding: 0 !important; }
+        .leaflet-popup-content { margin: 0 !important; font-family: 'Noto Sans TC', sans-serif !important; }
+        .leaflet-popup-tip { box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important; }
+
+        /* Map photo markers */
+        .map-photo-icon { background: none !important; border: none !important; }
+        .map-photo-marker { width: 52px; height: 52px; border-radius: 50%; overflow: hidden; border: 3px solid white; box-shadow: 0 2px 10px rgba(0,0,0,0.3); position: relative; }
+        .map-photo-marker img { width: 100%; height: 100%; object-fit: cover; }
+        .map-photo-badge { position: absolute; bottom: -2px; right: -2px; font-size: 0.75rem; background: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
+
+        /* Map popup card */
+        .map-custom-popup .leaflet-popup-content-wrapper { padding: 0 !important; overflow: hidden; }
+        .map-custom-popup .leaflet-popup-content { margin: 0 !important; }
+        .map-popup-card { width: 100%; }
+        .map-popup-img { width: 100%; height: 120px; object-fit: cover; display: block; }
+        .map-popup-body { padding: 10px 12px 12px; }
+        .map-popup-name { font-weight: 800; font-size: 0.9rem; color: var(--text-primary); margin-bottom: 3px; }
+        .map-popup-meta { font-size: 0.72rem; color: #888; margin-bottom: 4px; }
+        .map-popup-coords { font-size: 0.68rem; color: #AAA; font-family: 'Courier New', monospace; margin-bottom: 8px; }
+        .map-popup-actions { display: flex; gap: 6px; }
+        .map-popup-btn { padding: 4px 10px; border: 1.5px solid var(--primary-light); border-radius: 8px; background: var(--primary-bg); color: var(--primary-dark); font-size: 0.72rem; font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.2s; }
+        .map-popup-btn:hover { background: #D4EDDC; }
+        .map-popup-btn-detail { background: var(--primary); color: white; border-color: var(--primary); }
+        .map-popup-btn-detail:hover { background: var(--primary-dark); }
 
         /* No floating clouds on desktop to keep it clean */
         @media (min-width: 1024px) {
             .floating-cloud { display: none; }
             .header { border-radius: 0 0 20px 20px; padding: 16px 16px 24px; }
         }
+        /* Admin-only bottom tab */
+        .bottom-tab-admin { display: none; }
     </style>
 </head>
 <body>
@@ -531,8 +597,24 @@
         <div id="mapContainer"></div>
     </div>
     <!-- Content Panel -->
-    <div class="content-panel">
-    <!-- Mobile Map Toggle -->
+    <div class="content-panel" id="contentPanel">
+    <!-- Mobile Sheet Handle (replaces header on mobile) -->
+    <div class="mobile-sheet-handle" id="mobileSheetHandle">
+        <div class="sheet-cloud sheet-cloud-1"></div>
+        <div class="sheet-cloud sheet-cloud-2"></div>
+        <div class="sheet-handle-row">
+            <div class="sheet-handle-title">
+                <span class="seedling-icon">🌱</span> 皮克敏純點管理器
+            </div>
+            <div class="sheet-handle-right">
+                <button class="sheet-btn" onclick="toggleSheetSize()" id="sheetToggleBtn">展開</button>
+                <div id="mobileUserArea">
+                    <button class="sheet-btn" onclick="showLoginModal()" id="mobileLoginBtn">👤</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Mobile Map Toggle (legacy, hidden) -->
     <div class="mobile-map-toggle" id="mobileMapToggle" onclick="toggleMobileMap()">
         🗺️ <span id="mapToggleText">顯示地圖</span> <span class="map-spot-count" id="mapSpotCount"></span>
     </div>
@@ -560,7 +642,6 @@
         <div class="header-content">
             <div class="seedling-icon" id="seedlingIcon">🌱</div>
             <h1>皮克敏純點管理器</h1>
-            <p>收藏你的純點足跡</p>
             <div id="syncStatus" class="sync-status synced">✨ 已同步</div>
         </div>
     </div>
@@ -933,13 +1014,13 @@
     </div><!-- end content-panel -->
     <!-- Mobile Bottom Tab Bar -->
     <div class="mobile-bottom-tabs" id="mobileBottomTabs">
-        <button class="bottom-tab active" data-tab="cards" onclick="switchMobileTab('cards')">
-            <div class="bottom-tab-icon">📋</div>
-            <div class="bottom-tab-label">卡片</div>
-        </button>
-        <button class="bottom-tab" data-tab="map" onclick="switchMobileTab('map')">
+        <button class="bottom-tab" onclick="collapseSheet()">
             <div class="bottom-tab-icon">🗺️</div>
             <div class="bottom-tab-label">地圖</div>
+        </button>
+        <button class="bottom-tab active" onclick="expandSheet()">
+            <div class="bottom-tab-icon">📋</div>
+            <div class="bottom-tab-label">卡片</div>
         </button>
         <button class="bottom-tab" onclick="openAddModal()">
             <div class="bottom-tab-add">
@@ -947,11 +1028,11 @@
             </div>
             <div class="bottom-tab-label" style="margin-top:4px;">新增</div>
         </button>
-        <button class="bottom-tab" data-tab="profile" onclick="openProfile()">
+        <button class="bottom-tab" onclick="openProfile()">
             <div class="bottom-tab-icon">👤</div>
             <div class="bottom-tab-label">我的</div>
         </button>
-        <button class="bottom-tab" onclick="toggleToolPanel()">
+        <button class="bottom-tab bottom-tab-admin" id="bottomTabAdmin" onclick="toggleToolPanel()" style="display:none;">
             <div class="bottom-tab-icon">⚙️</div>
             <div class="bottom-tab-label">工具</div>
         </button>
@@ -1809,6 +1890,18 @@
                 r.style.display = isAdmin ? 'inline-block' : 'none';
             } else { ui.style.display = 'none'; gi.style.display = 'inline-block'; }
             document.getElementById('fabGear').style.display = isAdmin ? 'flex' : 'none';
+            // Mobile: show/hide admin tools tab
+            const adminTab = document.getElementById('bottomTabAdmin');
+            if (adminTab) adminTab.style.display = isAdmin ? 'flex' : 'none';
+            // Mobile: update login btn
+            const mobileLoginBtn = document.getElementById('mobileLoginBtn');
+            if (mobileLoginBtn) {
+                if (currentUser && !currentUser.is_anonymous) {
+                    mobileLoginBtn.style.display = 'none';
+                } else {
+                    mobileLoginBtn.style.display = '';
+                }
+            }
         }
 
         function showLoginModal() { loginModal.classList.add('active'); }
@@ -3258,13 +3351,16 @@
         async function loadMapData() {
             try {
                 const { data, error } = await supabaseClient.from('spots')
-                    .select('id,name,lat,lng,type,country,city')
+                    .select('id,name,lat,lng,type,country,city,image_url')
                     .order('created_at', { ascending: false })
                     .limit(2000);
                 if (!error && data) {
+                    allMapSpots = data;
                     updateMapWithData(data);
                     const countEl = document.getElementById('mapSpotCount');
                     if (countEl) countEl.textContent = `(${data.length} 個點)`;
+                    // Setup bounds listener after data is loaded
+                    setupMapBoundsListener();
                 }
             } catch (e) { console.error('Map data error:', e); }
         }
@@ -3282,19 +3378,43 @@
             const bounds = [];
             data.forEach(s => {
                 if (!s.lat || !s.lng) return;
-                const icon = L.divIcon({
-                    html: `<div style="font-size:1.2rem;text-align:center;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.3));">${typeIcons[s.type] || '📍'}</div>`,
-                    className: 'map-emoji-icon',
-                    iconSize: [28, 28],
-                    iconAnchor: [14, 14]
-                });
+
+                // Use photo thumbnail as marker if image exists
+                let icon;
+                if (s.image_url) {
+                    icon = L.divIcon({
+                        html: `<div class="map-photo-marker"><img src="${s.image_url}" alt="" loading="lazy"><div class="map-photo-badge">${typeIcons[s.type] || '📍'}</div></div>`,
+                        className: 'map-photo-icon',
+                        iconSize: [52, 52],
+                        iconAnchor: [26, 26]
+                    });
+                } else {
+                    icon = L.divIcon({
+                        html: `<div style="font-size:1.4rem;text-align:center;filter:drop-shadow(0 1px 3px rgba(0,0,0,0.3));">${typeIcons[s.type] || '📍'}</div>`,
+                        className: 'map-emoji-icon',
+                        iconSize: [32, 32],
+                        iconAnchor: [16, 16]
+                    });
+                }
+
+                // Rich popup with photo
+                const popupContent = `
+                    <div class="map-popup-card">
+                        ${s.image_url ? `<img src="${s.image_url}" class="map-popup-img" alt="${s.name || ''}" loading="lazy">` : ''}
+                        <div class="map-popup-body">
+                            <div class="map-popup-name">${s.name || '未命名'}</div>
+                            <div class="map-popup-meta">${s.country || ''}${s.city ? ' · ' + s.city : ''}</div>
+                            <div class="map-popup-coords">${s.lat}, ${s.lng}</div>
+                            <div class="map-popup-actions">
+                                <button onclick="navigator.clipboard.writeText('${s.lat}, ${s.lng}');this.textContent='✅ 已複製'" class="map-popup-btn">📋 複製座標</button>
+                                <button onclick="openDetailFromMap('${s.id}')" class="map-popup-btn map-popup-btn-detail">查看更多</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
                 const marker = L.marker([s.lat, s.lng], { icon })
-                    .bindPopup(`
-                        <div style="font-weight:700;font-size:0.88rem;margin-bottom:4px;">${s.name || '未命名'}</div>
-                        <div style="font-size:0.75rem;color:#666;margin-bottom:6px;">${s.country || ''}${s.city ? ' · ' + s.city : ''}</div>
-                        <div style="font-size:0.72rem;color:#999;font-family:monospace;margin-bottom:6px;">${s.lat}, ${s.lng}</div>
-                        <button onclick="navigator.clipboard.writeText('${s.lat}, ${s.lng}');this.textContent='✅ 已複製'" style="padding:4px 10px;border:1px solid #4CAF7D;border-radius:6px;background:#F0F9F4;color:#2E7D55;font-size:0.72rem;font-weight:700;cursor:pointer;font-family:inherit;">📋 複製座標</button>
-                    `, { maxWidth: 220 });
+                    .bindPopup(popupContent, { maxWidth: 260, minWidth: 200, className: 'map-custom-popup' });
+                marker.spotData = s; // Store reference
                 marker.addTo(leafletMap);
                 mapMarkers.push(marker);
                 bounds.push([s.lat, s.lng]);
@@ -3302,6 +3422,19 @@
 
             if (bounds.length > 0) {
                 leafletMap.fitBounds(bounds, { padding: [30, 30], maxZoom: 12 });
+            }
+        }
+
+        // Open detail modal from map popup
+        function openDetailFromMap(spotId) {
+            const s = allMapSpots.find(x => String(x.id) === String(spotId));
+            if (s) {
+                // Fetch full spot data for detail
+                supabaseClient.from('spots').select('*').eq('id', spotId).single()
+                    .then(({ data, error }) => {
+                        if (!error && data) renderDetailContent(data);
+                        else showToast('找不到此純點');
+                    });
             }
         }
 
@@ -3325,6 +3458,9 @@
         function checkDesktopMap() {
             if (window.innerWidth >= 1024) {
                 setTimeout(() => initMap(), 300);
+            } else {
+                // Mobile: always show map behind sheet
+                initMobileMap();
             }
         }
         window.addEventListener('resize', () => {
@@ -3338,26 +3474,122 @@
         let currentMobileTab = 'cards';
 
         function switchMobileTab(tab) {
+            // Legacy compatibility
             currentMobileTab = tab;
-            const mapPanel = document.getElementById('mapPanel');
-            const contentPanel = document.querySelector('.content-panel');
+        }
 
-            // Update bottom tab active state
-            document.querySelectorAll('.bottom-tab[data-tab]').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.tab === tab);
+        // ==================== Mobile Sheet Controls ====================
+        function collapseSheet() {
+            const panel = document.getElementById('contentPanel');
+            if (panel) {
+                panel.classList.add('sheet-collapsed');
+                panel.classList.remove('sheet-expanded');
+            }
+            const btn = document.getElementById('sheetToggleBtn');
+            if (btn) btn.textContent = '▲ 展開';
+            // Update bottom tab highlights
+            updateBottomTabHighlight('map');
+        }
+
+        function expandSheet() {
+            const panel = document.getElementById('contentPanel');
+            if (panel) {
+                panel.classList.remove('sheet-collapsed');
+                panel.classList.add('sheet-expanded');
+            }
+            const btn = document.getElementById('sheetToggleBtn');
+            if (btn) btn.textContent = '▼ 收合';
+            updateBottomTabHighlight('cards');
+        }
+
+        function toggleSheetSize() {
+            const panel = document.getElementById('contentPanel');
+            if (!panel) return;
+            if (panel.classList.contains('sheet-collapsed')) {
+                expandSheet();
+            } else if (panel.classList.contains('sheet-expanded')) {
+                // Go to default half-size
+                panel.classList.remove('sheet-expanded');
+                panel.classList.remove('sheet-collapsed');
+                const btn = document.getElementById('sheetToggleBtn');
+                if (btn) btn.textContent = '▼ 展開';
+                updateBottomTabHighlight('cards');
+            } else {
+                collapseSheet();
+            }
+        }
+
+        function updateBottomTabHighlight(active) {
+            document.querySelectorAll('#mobileBottomTabs .bottom-tab').forEach(btn => {
+                btn.classList.remove('active');
             });
+            // Highlight the relevant tab based on action
+            const tabs = document.querySelectorAll('#mobileBottomTabs .bottom-tab');
+            if (active === 'map' && tabs[0]) tabs[0].classList.add('active');
+            if (active === 'cards' && tabs[1]) tabs[1].classList.add('active');
+        }
 
-            if (tab === 'map') {
-                mapPanel.classList.add('tab-active');
-                contentPanel.classList.add('tab-hidden');
-                // Init map if first time
+        // Mobile: init map on load since it's always visible
+        function initMobileMap() {
+            if (window.innerWidth < 1024) {
                 setTimeout(() => {
                     initMap();
                     if (leafletMap) leafletMap.invalidateSize();
-                }, 100);
-            } else {
-                mapPanel.classList.remove('tab-active');
-                contentPanel.classList.remove('tab-hidden');
+                }, 300);
+            }
+        }
+
+        // ==================== Map Bounds Filtering (Feature 3) ====================
+        let allMapSpots = []; // Store all spots loaded for map
+
+        function setupMapBoundsListener() {
+            if (!leafletMap) return;
+            leafletMap.on('moveend', onMapMoveEnd);
+            leafletMap.on('zoomend', onMapMoveEnd);
+        }
+
+        function onMapMoveEnd() {
+            if (!leafletMap || !allMapSpots.length) return;
+            // Only filter the card list on mobile or if user opts in
+            filterSpotsByMapBounds();
+        }
+
+        function filterSpotsByMapBounds() {
+            if (!leafletMap) return;
+            const bounds = leafletMap.getBounds();
+            const visibleSpots = allMapSpots.filter(s => {
+                if (!s.lat || !s.lng) return false;
+                return bounds.contains([s.lat, s.lng]);
+            });
+            // Update the spot count display
+            const countEl = document.getElementById('mapSpotCount');
+            if (countEl) countEl.textContent = `(${visibleSpots.length} 個在視野中)`;
+            // Update the card list to show only visible spots
+            renderBoundsFilteredSpots(visibleSpots);
+        }
+
+        let boundsFilterActive = false;
+
+        function renderBoundsFilteredSpots(visibleSpots) {
+            if (!leafletMap) return;
+            boundsFilterActive = true;
+            const visibleIds = new Set(visibleSpots.map(s => String(s.id)));
+            // Show/hide cards based on map bounds
+            const allCards = document.querySelectorAll('.spot-card[data-id]');
+            let visibleCount = 0;
+            allCards.forEach(card => {
+                const id = card.dataset.id;
+                if (visibleIds.has(id)) {
+                    card.style.removeProperty('display');
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            // Update count
+            const infoEl = document.getElementById('viewModeInfo');
+            if (infoEl) {
+                infoEl.textContent = `${visibleCount} / ${visibleSpots.length} 個在地圖範圍中`;
             }
         }
 
@@ -3384,6 +3616,55 @@
                     : '';
             }
         }
+
+        // ==================== Mobile Sheet Touch Drag ====================
+        (function() {
+            let startY = 0, startH = 0, dragging = false;
+            document.addEventListener('DOMContentLoaded', () => {
+                const handle = document.getElementById('mobileSheetHandle');
+                const panel = document.getElementById('contentPanel');
+                if (!handle || !panel) return;
+
+                handle.addEventListener('touchstart', (e) => {
+                    startY = e.touches[0].clientY;
+                    startH = panel.offsetHeight;
+                    dragging = true;
+                    panel.style.transition = 'none';
+                }, { passive: true });
+
+                document.addEventListener('touchmove', (e) => {
+                    if (!dragging) return;
+                    const dy = startY - e.touches[0].clientY;
+                    const newH = Math.max(60, Math.min(window.innerHeight * 0.9, startH + dy));
+                    panel.style.height = newH + 'px';
+                }, { passive: true });
+
+                document.addEventListener('touchend', () => {
+                    if (!dragging) return;
+                    dragging = false;
+                    panel.style.transition = '';
+                    const h = panel.offsetHeight;
+                    const vh = window.innerHeight;
+                    // Snap to positions
+                    if (h < vh * 0.2) {
+                        panel.classList.add('sheet-collapsed');
+                        panel.classList.remove('sheet-expanded');
+                        panel.style.height = '';
+                        updateBottomTabHighlight('map');
+                    } else if (h > vh * 0.65) {
+                        panel.classList.add('sheet-expanded');
+                        panel.classList.remove('sheet-collapsed');
+                        panel.style.height = '';
+                        updateBottomTabHighlight('cards');
+                    } else {
+                        panel.classList.remove('sheet-collapsed');
+                        panel.classList.remove('sheet-expanded');
+                        panel.style.height = '';
+                        updateBottomTabHighlight('cards');
+                    }
+                });
+            });
+        })();
 
         init();
         checkDesktopMap();
