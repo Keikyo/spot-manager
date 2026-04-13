@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://byeyuxfhmackhmngksij.supabase.co https://api.qrserver.com; connect-src 'self' https://byeyuxfhmackhmngksij.supabase.co https://nominatim.openstreetmap.org; frame-ancestors 'none'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://byeyuxfhmackhmngksij.supabase.co https://api.qrserver.com https://*.tile.openstreetmap.org https://unpkg.com; connect-src 'self' https://byeyuxfhmackhmngksij.supabase.co https://nominatim.openstreetmap.org; frame-ancestors 'none'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests">
     <title>皮克敏純點管理器</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1517,7 +1517,7 @@
 
         async function uploadImageToStorage(file) {
             if (!file || !ALLOWED_IMAGE_TYPES.has(file.type)) {
-                throw new Error('Only JPG, PNG, WebP, and GIF images are allowed');
+                throw new Error('僅允許 JPG、PNG、WebP、GIF 圖片格式');
             }
             const ext = IMAGE_EXT_BY_TYPE[file.type];
             const fileName = `${Date.now()}_${Math.random().toString(36).slice(2,8)}.${ext}`;
@@ -1868,7 +1868,7 @@
             const filtered = countries.filter(c => c === 'all' || c.toLowerCase().includes(search.toLowerCase()));
             const container = document.getElementById('countryOptions');
             if (!filtered.length) { container.innerHTML = '<div class="select-option no-results">找不到結果</div>'; return; }
-            container.innerHTML = filtered.map(c => `<div class="select-option ${c === currentCountry ? 'active' : ''}" onclick="selectCountry(${jsAttrString(c)})">${c === 'all' ? 'All countries' : escapeHtml(c)}</div>`).join('');
+            container.innerHTML = filtered.map(c => `<div class="select-option ${c === currentCountry ? 'active' : ''}" onclick="selectCountry(${jsAttrString(c)})">${c === 'all' ? '🌍 全部國家' : escapeHtml(c)}</div>`).join('');
         }
         function renderCityOptions(search = '') {
             const src = allSpotsMeta.length ? allSpotsMeta : spots;
@@ -1877,7 +1877,7 @@
             const filtered = cities.filter(c => c === 'all' || c.toLowerCase().includes(search.toLowerCase()));
             const container = document.getElementById('cityOptions');
             if (!filtered.length) { container.innerHTML = '<div class="select-option no-results">找不到結果</div>'; return; }
-            container.innerHTML = filtered.map(c => `<div class="select-option ${c === currentCity ? 'active' : ''}" onclick="selectCity(${jsAttrString(c)})">${c === 'all' ? 'All cities' : escapeHtml(c)}</div>`).join('');
+            container.innerHTML = filtered.map(c => `<div class="select-option ${c === currentCity ? 'active' : ''}" onclick="selectCity(${jsAttrString(c)})">${c === 'all' ? '🏙️ 全部縣市' : escapeHtml(c)}</div>`).join('');
         }
         function selectCountry(c) { currentCountry = c; currentCity = 'all'; document.getElementById('countryInput').value = c === 'all' ? '🌍 全部國家' : c; document.getElementById('cityInput').value = '🏙️ 全部縣市'; closeAllDropdowns(); loadSpots(); }
         function selectCity(c) { currentCity = c; document.getElementById('cityInput').value = c === 'all' ? '🏙️ 全部縣市' : c; closeAllDropdowns(); loadSpots(); }
@@ -1953,11 +1953,11 @@
             overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:2000;display:flex;align-items:center;justify-content:center;padding:16px;';
             overlay.innerHTML = `
                 <div style="background:white;border-radius:16px;padding:24px;max-width:340px;width:100%;text-align:center;">
-                    <div style="font-size:1.1rem;font-weight:800;color:var(--dark-green);margin-bottom:12px;">Admin login</div>
-                    <input type="password" id="adminPwInput" placeholder="Admin password" autocomplete="current-password" style="width:100%;padding:12px;border:2px solid #E8E8E8;border-radius:12px;font-size:0.95rem;font-family:inherit;margin-bottom:12px;">
+                    <div style="font-size:1.1rem;font-weight:800;color:var(--dark-green);margin-bottom:12px;">🔑 管理員登入</div>
+                    <input type="password" id="adminPwInput" placeholder="輸入管理員密碼" autocomplete="current-password" style="width:100%;padding:12px;border:2px solid #E8E8E8;border-radius:12px;font-size:0.95rem;font-family:inherit;margin-bottom:12px;">
                     <div style="display:flex;gap:10px;">
-                        <button id="adminPwCancel" style="flex:1;padding:10px;background:#F5F5F5;border:none;border-radius:10px;font-weight:700;cursor:pointer;font-family:inherit;color:#666;">Cancel</button>
-                        <button id="adminPwSubmit" style="flex:2;padding:10px;background:linear-gradient(135deg,#FF6B35,#F7931A);border:none;border-radius:10px;font-weight:700;cursor:pointer;font-family:inherit;color:white;">Login</button>
+                        <button id="adminPwCancel" style="flex:1;padding:10px;background:#F5F5F5;border:none;border-radius:10px;font-weight:700;cursor:pointer;font-family:inherit;color:#666;">取消</button>
+                        <button id="adminPwSubmit" style="flex:2;padding:10px;background:linear-gradient(135deg,#FF6B35,#F7931A);border:none;border-radius:10px;font-weight:700;cursor:pointer;font-family:inherit;color:white;">登入</button>
                     </div>
                 </div>`;
             document.body.appendChild(overlay);
@@ -1979,14 +1979,14 @@
                         await checkAdminStatus();
                         if (!isAdmin) {
                             await supabaseClient.auth.signOut();
-                            throw new Error('Admin role is not authorized by the backend');
+                            throw new Error('此帳號沒有管理員權限');
                         }
                         updateUserInfo();
                         setSyncStatus('synced');
                     } catch (e) {
                         console.error(e);
                         setSyncStatus('error');
-                        showToast('Admin login failed: ' + (e.message || ''));
+                        showToast('❌ 登入失敗：' + (e.message || ''));
                     }
                     cleanup();
                 };
@@ -2317,8 +2317,8 @@
             const safeSpotIdAttr = escapeHtml(s.id);
             const safeTypeClass = escapeHtml(s.type);
             const badgesHtml = `<div class="spot-badges">
-                ${s.country ? `<span class="spot-region">${escapeHtml(s.country)}</span>` : ''}
-                ${s.city ? `<span class="spot-city">${escapeHtml(s.city)}</span>` : ''}
+                ${s.country ? `<span class="spot-region">🌍 ${escapeHtml(s.country)}</span>` : ''}
+                ${s.city ? `<span class="spot-city">🏙️ ${escapeHtml(s.city)}</span>` : ''}
                 <span class="spot-type-badge ${safeTypeClass}">${escapeHtml(getTypeLabel(s.type))}</span>
             </div>`;
             const imgHtml = s.image_url ? `<div class="spot-image-container"><img src="${escapeHtml(safeImageUrl(s.image_url))}" alt="${escapeHtml(s.name)}" onclick="event.stopPropagation();openLightbox(this.src)" loading="lazy"></div>` : '';
@@ -2329,11 +2329,11 @@
 
             if (isGrid) {
                 const gridActions = !selectMode ? `<div class="spot-actions">
-                    <button class="btn" onclick="event.stopPropagation();copyCoords(${safeCoordsJs})" title="Copy coordinates">${ICN.copy}</button>
-                    ${currentUser ? `<button class="btn btn-fav ${isFav ? 'active' : ''}" onclick="event.stopPropagation();toggleFavorite(${safeSpotIdJs})" title="Favorite">${isFav ? ICN.starFill : ICN.star}</button>` : ''}
-                    ${currentUser ? `<button class="btn ${isSaved ? 'btn-fav active' : ''}" onclick="event.stopPropagation();toggleBookmark(${safeSpotIdJs})" title="Save">${isSaved ? ICN.bookmarkFill : ICN.bookmark}</button>` : ''}
-                    ${showEdit ? `<button class="btn" onclick="event.stopPropagation();editSpot(${safeSpotIdJs})" title="Edit">${ICN.pencil}</button>` : ''}
-                    ${showDelete ? `<button class="btn" onclick="event.stopPropagation();deleteSpot(${safeSpotIdJs})" title="Delete">${ICN.trash}</button>` : ''}
+                    <button class="btn" onclick="event.stopPropagation();copyCoords(${safeCoordsJs})" title="複製座標">${ICN.copy}</button>
+                    ${currentUser ? `<button class="btn btn-fav ${isFav ? 'active' : ''}" onclick="event.stopPropagation();toggleFavorite(${safeSpotIdJs})" title="收藏">${isFav ? ICN.starFill : ICN.star}</button>` : ''}
+                    ${currentUser ? `<button class="btn ${isSaved ? 'btn-fav active' : ''}" onclick="event.stopPropagation();toggleBookmark(${safeSpotIdJs})" title="儲存">${isSaved ? ICN.bookmarkFill : ICN.bookmark}</button>` : ''}
+                    ${showEdit ? `<button class="btn" onclick="event.stopPropagation();editSpot(${safeSpotIdJs})" title="編輯">${ICN.pencil}</button>` : ''}
+                    ${showDelete ? `<button class="btn" onclick="event.stopPropagation();deleteSpot(${safeSpotIdJs})" title="刪除">${ICN.trash}</button>` : ''}
                 </div>` : '';
 
                 return `<div class="spot-card ${safeTypeClass}-card ${selectMode ? 'select-mode' : ''}" data-id="${safeSpotIdAttr}" onclick="openDetail(${safeSpotIdJs})" style="cursor:pointer;">
@@ -2350,16 +2350,16 @@
                 </div>`;
             }
 
-            const quickUploadHtml = !s.image_url && !selectMode && showEdit ? `<button class="btn" onclick="event.stopPropagation();quickUpload(${safeSpotIdJs})">${ICN.camera}${short ? '' : ' Upload image'}</button>` : '';
-            const favBtnHtml = currentUser ? `<button class="btn btn-fav ${isFav ? 'active' : ''}" onclick="event.stopPropagation();toggleFavorite(${safeSpotIdJs})">${isFav ? ICN.starFill : ICN.star}${short ? '' : (isFav ? ' Favorited' : ' Favorite')}</button>` : '';
-            const saveBtnHtml = currentUser ? `<button class="btn ${isSaved ? 'btn-fav active' : ''}" onclick="event.stopPropagation();toggleBookmark(${safeSpotIdJs})">${isSaved ? ICN.bookmarkFill : ICN.bookmark}${short ? '' : (isSaved ? ' Saved' : ' Save')}</button>` : '';
+            const quickUploadHtml = !s.image_url && !selectMode && showEdit ? `<button class="btn" onclick="event.stopPropagation();quickUpload(${safeSpotIdJs})">${ICN.camera}${short ? '' : ' 上傳圖片'}</button>` : '';
+            const favBtnHtml = currentUser ? `<button class="btn btn-fav ${isFav ? 'active' : ''}" onclick="event.stopPropagation();toggleFavorite(${safeSpotIdJs})">${isFav ? ICN.starFill : ICN.star}${short ? '' : (isFav ? ' 已收藏' : ' 收藏')}</button>` : '';
+            const saveBtnHtml = currentUser ? `<button class="btn ${isSaved ? 'btn-fav active' : ''}" onclick="event.stopPropagation();toggleBookmark(${safeSpotIdJs})">${isSaved ? ICN.bookmarkFill : ICN.bookmark}${short ? '' : (isSaved ? ' 已儲存' : ' 儲存')}</button>` : '';
             const actionsHtml = !selectMode ? `<div class="spot-actions">
-                <button class="btn" onclick="event.stopPropagation();copyCoords(${safeCoordsJs})">${ICN.copy}${short ? '' : ' Copy coordinates'}</button>
+                <button class="btn" onclick="event.stopPropagation();copyCoords(${safeCoordsJs})">${ICN.copy}${short ? '' : ' 複製座標'}</button>
                 ${favBtnHtml}
                 ${saveBtnHtml}
                 ${quickUploadHtml}
-                ${showEdit ? `<button class="btn" onclick="event.stopPropagation();editSpot(${safeSpotIdJs})">${ICN.pencil}${short ? '' : ' Edit'}</button>` : ''}
-                ${showDelete ? `<button class="btn" onclick="event.stopPropagation();deleteSpot(${safeSpotIdJs})">${ICN.trash}${short ? '' : ' Delete'}</button>` : ''}
+                ${showEdit ? `<button class="btn" onclick="event.stopPropagation();editSpot(${safeSpotIdJs})">${ICN.pencil}${short ? '' : ' 編輯'}</button>` : ''}
+                ${showDelete ? `<button class="btn" onclick="event.stopPropagation();deleteSpot(${safeSpotIdJs})">${ICN.trash}${short ? '' : ' 刪除'}</button>` : ''}
             </div>` : '';
 
             return `<div class="spot-card ${safeTypeClass}-card ${selectMode ? 'select-mode' : ''}" data-id="${safeSpotIdAttr}" onclick="openDetail(${safeSpotIdJs})" style="cursor:pointer;">
@@ -2927,29 +2927,29 @@
                 <div class="detail-modal-body">
                     <div class="detail-modal-name">${escapeHtml(s.name)}</div>
                     <div class="detail-modal-meta">
-                        ${s.country ? `<span class="spot-region">${escapeHtml(s.country)}</span>` : ''}
-                        ${s.city ? `<span class="spot-city">${escapeHtml(s.city)}</span>` : ''}
+                        ${s.country ? `<span class="spot-region">🌍 ${escapeHtml(s.country)}</span>` : ''}
+                        ${s.city ? `<span class="spot-city">🏙️ ${escapeHtml(s.city)}</span>` : ''}
                         <span class="spot-type-badge ${escapeHtml(s.type)}">${escapeHtml(getTypeLabel(s.type))}</span>
                     </div>
                     <div class="detail-modal-coords">
-                        <a href="${escapeHtml(mapsUrl)}" target="_blank" rel="noopener" style="color:#1565C0;text-decoration:none;">${escapeHtml(coordsText)}</a>
+                        <a href="${escapeHtml(mapsUrl)}" target="_blank" rel="noopener" style="color:#1565C0;text-decoration:none;">${escapeHtml(coordsText)} 📍</a>
                     </div>
                     ${s.tags && s.tags.length ? `<div class="spot-tags">${s.tags.map(t => `<span class="spot-tag">#${escapeHtml(t)}</span>`).join('')}</div>` : ''}
                     ${s.note ? `<div class="detail-modal-note">${escapeHtml(s.note)}</div>` : ''}
                     <div class="detail-modal-by">
                         ${buildByLine(s)}
-                        ${createdStr ? `<span style="font-size:0.72rem;color:#BBB;margin-left:6px;">Created ${escapeHtml(createdStr)}</span>` : ''}
+                        ${createdStr ? `<span style="font-size:0.72rem;color:#BBB;margin-left:6px;">建立於 ${escapeHtml(createdStr)}</span>` : ''}
                     </div>
                     <div class="detail-modal-actions">
-                        <button class="btn" onclick="copyCoords(${safeCoordsJs})" title="Copy coordinates">${ICN.copy}</button>
+                        <button class="btn" onclick="copyCoords(${safeCoordsJs})" title="複製座標">${ICN.copy}</button>
                         <button class="btn" onclick="window.open(${safeMapsUrlJs},'_blank','noopener,noreferrer')" title="Google Maps">${ICN.mapPin}</button>
-                        <button class="btn" onclick="shareSpot(${safeNameJs},${safeSpotIdJs})" title="Share">${ICN.share}</button>
-                        <button class="btn" onclick="addSpotToRouteEditor(${safeSpotIdJs})" title="Add route" style="background:#E8F5E9;border-color:#66BB6A;color:#2E7D32;">Route</button>
-                        ${currentUser ? `<button class="btn btn-fav ${isFav ? 'active' : ''}" onclick="toggleFavorite(${safeSpotIdJs});closeDetail();setTimeout(()=>{const sp=spots.find(x=>String(x.id)===String(${safeSpotIdJs}))||profileSpots.find(x=>String(x.id)===String(${safeSpotIdJs}));if(sp)renderDetailContent(sp);document.getElementById('detailModal').classList.add('active');},300);" title="Favorite">${isFav ? ICN.starFill : ICN.star}</button>` : ''}
-                        ${currentUser ? `<button class="btn ${isSaved ? 'btn-fav active' : ''}" onclick="toggleBookmark(${safeSpotIdJs});closeDetail();setTimeout(()=>{const sp=spots.find(x=>String(x.id)===String(${safeSpotIdJs}))||profileSpots.find(x=>String(x.id)===String(${safeSpotIdJs}));if(sp)renderDetailContent(sp);document.getElementById('detailModal').classList.add('active');},300);" title="Save">${isSaved ? ICN.bookmarkFill : ICN.bookmark}</button>` : ''}
-                        ${!showEdit && currentUser ? `<button class="btn" onclick="closeDetail();openSuggestionModal(${safeSpotIdJs})" title="Suggest edit">${ICN.lightbulb} Suggest edit</button>` : ''}
-                        ${showEdit ? `<button class="btn" onclick="closeDetail();editSpot(${safeSpotIdJs})" title="Edit">${ICN.pencil}</button>` : ''}
-                        ${showDelete ? `<button class="btn" onclick="closeDetail();deleteSpot(${safeSpotIdJs})" title="Delete">${ICN.trash}</button>` : ''}
+                        <button class="btn" onclick="shareSpot(${safeNameJs},${safeSpotIdJs})" title="分享">${ICN.share}</button>
+                        <button class="btn" onclick="addSpotToRouteEditor(${safeSpotIdJs})" title="加入路線" style="background:#E8F5E9;border-color:#66BB6A;color:#2E7D32;">🗺️</button>
+                        ${currentUser ? `<button class="btn btn-fav ${isFav ? 'active' : ''}" onclick="toggleFavorite(${safeSpotIdJs});closeDetail();setTimeout(()=>{const sp=spots.find(x=>String(x.id)===String(${safeSpotIdJs}))||profileSpots.find(x=>String(x.id)===String(${safeSpotIdJs}));if(sp)renderDetailContent(sp);document.getElementById('detailModal').classList.add('active');},300);" title="收藏">${isFav ? ICN.starFill : ICN.star}</button>` : ''}
+                        ${currentUser ? `<button class="btn ${isSaved ? 'btn-fav active' : ''}" onclick="toggleBookmark(${safeSpotIdJs});closeDetail();setTimeout(()=>{const sp=spots.find(x=>String(x.id)===String(${safeSpotIdJs}))||profileSpots.find(x=>String(x.id)===String(${safeSpotIdJs}));if(sp)renderDetailContent(sp);document.getElementById('detailModal').classList.add('active');},300);" title="儲存">${isSaved ? ICN.bookmarkFill : ICN.bookmark}</button>` : ''}
+                        ${!showEdit && currentUser ? `<button class="btn" onclick="closeDetail();openSuggestionModal(${safeSpotIdJs})" title="建議修改">${ICN.lightbulb} 建議修改</button>` : ''}
+                        ${showEdit ? `<button class="btn" onclick="closeDetail();editSpot(${safeSpotIdJs})" title="編輯">${ICN.pencil}</button>` : ''}
+                        ${showDelete ? `<button class="btn" onclick="closeDetail();deleteSpot(${safeSpotIdJs})" title="刪除">${ICN.trash}</button>` : ''}
                     </div>
                 </div>`;
             document.getElementById('detailModal').classList.add('active');
@@ -3266,7 +3266,7 @@
             const s = spots.find(x => String(x.id) === String(spotId)) || profileSpots.find(x => String(x.id) === String(spotId));
             const info = document.getElementById('suggestionCurrentInfo');
             if (s && info) {
-                info.innerHTML = `<strong>Current:</strong> ${escapeHtml(s.name)} | ${escapeHtml(s.country || '')} ${escapeHtml(s.city || '')} | ${escapeHtml(`${s.lat}, ${s.lng}`)}${s.tags?.length ? ' | #' + s.tags.map(escapeHtml).join(' #') : ''}`;
+                info.innerHTML = `<strong>目前資訊：</strong> ${escapeHtml(s.name)} | ${escapeHtml(s.country || '')} ${escapeHtml(s.city || '')} | ${escapeHtml(`${s.lat}, ${s.lng}`)}${s.tags?.length ? ' | #' + s.tags.map(escapeHtml).join(' #') : ''}`;
             }
             document.getElementById('suggestionModal').classList.add('active');
         }
@@ -3372,8 +3372,8 @@
                             <div style="display:flex;gap:4px;align-items:center;">
                                 <span style="font-size:0.75rem;font-weight:600;">${escapeHtml(statusLabels[sg.status] || sg.status)}</span>
                                 ${sg.status === 'pending' ? `
-                                    <button onclick="applySuggestion(${jsAttrString(sg.id)},${jsAttrString(sg.spot_id)})" style="padding:4px 10px;border:none;border-radius:8px;font-size:0.72rem;font-weight:700;cursor:pointer;background:#C8E6C9;color:#2E7D32;">Approve</button>
-                                    <button onclick="updateSuggestionStatus(${jsAttrString(sg.id)},'rejected')" style="padding:4px 10px;border:none;border-radius:8px;font-size:0.72rem;font-weight:700;cursor:pointer;background:#FFCDD2;color:#C62828;">Reject</button>
+                                    <button onclick="applySuggestion(${jsAttrString(sg.id)},${jsAttrString(sg.spot_id)})" style="padding:4px 10px;border:none;border-radius:8px;font-size:0.72rem;font-weight:700;cursor:pointer;background:#C8E6C9;color:#2E7D32;">✅ 採納並套用</button>
+                                    <button onclick="updateSuggestionStatus(${jsAttrString(sg.id)},'rejected')" style="padding:4px 10px;border:none;border-radius:8px;font-size:0.72rem;font-weight:700;cursor:pointer;background:#FFCDD2;color:#C62828;">❌ 拒絕</button>
                                 ` : ''}
                             </div>
                         </div>
@@ -3397,7 +3397,7 @@
 
         // 一鍵採納：將建議內容套用到純點，然後標記為 approved
         async function applySuggestion(suggestionId, spotId) {
-            if (!isAdmin) { showToast('Admin permission required'); return; }
+            if (!isAdmin) { showToast('❌ 需要管理員權限'); return; }
             try {
                 // 1. 讀取建議內容
                 const { data: sg, error: sgErr } = await supabaseClient.from('suggestions').select('content').eq('id', suggestionId).single();
@@ -3439,7 +3439,7 @@
         }
 
         async function updateSuggestionStatus(id, status) {
-            if (!isAdmin) { showToast('Admin permission required'); return; }
+            if (!isAdmin) { showToast('❌ 需要管理員權限'); return; }
             if (!['approved', 'rejected', 'pending'].includes(status)) { showToast('Invalid status'); return; }
             try {
                 await safeQuery(() => supabaseClient.from('suggestions').update({ status }).eq('id', id));
@@ -3662,9 +3662,9 @@
                             <div class="map-popup-meta">${regionText}</div>
                             <div class="map-popup-coords">${escapeHtml(coordsText)}</div>
                             <div class="map-popup-actions">
-                                <button onclick="navigator.clipboard.writeText(${safeCoordsJs});this.textContent='Copied'" class="map-popup-btn">Copy coords</button>
-                                <button onclick="addSpotToRouteEditor(${safeSpotIdJs})" class="map-popup-btn" style="background:#E8F5E9;border-color:#66BB6A;color:#2E7D32;">Add route</button>
-                                <button onclick="openDetailFromMap(${safeSpotIdJs})" class="map-popup-btn map-popup-btn-detail">Details</button>
+                                <button onclick="navigator.clipboard.writeText(${safeCoordsJs});this.textContent='✅ 已複製'" class="map-popup-btn">📋 複製座標</button>
+                                <button onclick="addSpotToRouteEditor(${safeSpotIdJs})" class="map-popup-btn" style="background:#E8F5E9;border-color:#66BB6A;color:#2E7D32;">🗺️ 加入路線</button>
+                                <button onclick="openDetailFromMap(${safeSpotIdJs})" class="map-popup-btn map-popup-btn-detail">查看更多</button>
                             </div>
                         </div>
                     </div>
@@ -4582,8 +4582,8 @@ CREATE POLICY "Users can delete own paths" ON paths FOR DELETE USING (auth.uid()
                             </div>
                             <div class="path-card-meta">${(p.spot_ids || []).length} 個純點 · ${new Date(p.created_at).toLocaleDateString('zh-TW')}</div>
                             <div class="path-card-actions">
-                                <button class="btn" onclick="event.stopPropagation();openPathModal(JSON.parse(${jsAttrString(JSON.stringify(p))}))">Edit</button>
-                                <button class="btn" onclick="event.stopPropagation();deletePath(${jsAttrString(p.id)})" style="color:#C62828;">Delete</button>
+                                <button class="btn" onclick="event.stopPropagation();openPathModal(JSON.parse(${jsAttrString(JSON.stringify(p))}))">✏️ 編輯</button>
+                                <button class="btn" onclick="event.stopPropagation();deletePath(${jsAttrString(p.id)})" style="color:#C62828;">🗑️ 刪除</button>
                             </div>
                         </div>`;
                     }).join('')}
