@@ -215,7 +215,7 @@
         /* Sort bar */
         .sort-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
         .sort-bar label { font-size: 0.75rem; color: var(--text-muted); font-weight: 700; white-space: nowrap; }
-        .sort-select { padding: 8px 12px; border: 1.5px solid #E0E8E4; border-radius: 10px; font-size: 0.88rem; font-family: inherit; background: white; color: var(--text-primary); cursor: pointer; min-height: 40px; }
+        .sort-select { padding: 8px 12px; border: 1.5px solid #E0E8E4; border-radius: 10px; font-size: 0.88rem; font-family: inherit; background: white; color: var(--text-primary); cursor: pointer; min-height: 40px; white-space: nowrap; flex: 0 0 auto; }
         .sort-select:focus { outline: none; border-color: var(--primary-light); }
 
         .type-pills { display: flex; gap: 6px; flex-wrap: wrap; }
@@ -254,12 +254,33 @@
         .select-option.no-results:hover { background: transparent; }
 
         /* ===== VIEW MODE BAR ===== */
-        .view-mode-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; background: var(--card-bg); border-radius: 12px; padding: 10px 12px; box-shadow: var(--card-shadow); }
-        .view-mode-btns { display: flex; gap: 6px; }
-        .view-mode-btn { padding: 8px 14px; border: 1.5px solid #E0E8E4; border-radius: 8px; font-size: 0.88rem; font-weight: 600; cursor: pointer; background: white; color: var(--text-secondary); transition: all 0.2s; font-family: inherit; min-height: 40px; }
+        .view-mode-bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; background: var(--card-bg); border-radius: 12px; padding: 10px 12px; box-shadow: var(--card-shadow); }
+        .toolbar-main, .toolbar-secondary { display: flex; align-items: center; gap: 6px; flex-wrap: nowrap; min-width: 0; }
+        .toolbar-secondary { margin-left: auto; }
+        .view-mode-btns { display: flex; gap: 6px; flex-wrap: nowrap; flex: 0 0 auto; }
+        .view-mode-btn { padding: 8px 14px; border: 1.5px solid #E0E8E4; border-radius: 8px; font-size: 0.88rem; font-weight: 600; cursor: pointer; background: white; color: var(--text-secondary); transition: all 0.2s; font-family: inherit; min-height: 40px; white-space: nowrap; flex: 0 0 auto; }
         .view-mode-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
-        .view-mode-info { font-size: 0.82rem; color: var(--text-muted); font-weight: 600; }
+        .view-mode-info { font-size: 0.82rem; color: var(--text-muted); font-weight: 600; white-space: nowrap; flex: 0 0 auto; }
         #boundsFilterToggle { font-size: 0.88rem !important; }
+        .view-mode-bar .pagination-bar { flex-wrap: nowrap; flex: 0 0 auto; padding: 0; }
+        .view-mode-bar .page-btn { flex: 0 0 auto; }
+        .toolbar-compact-control { display: none; position: relative; flex: 0 0 auto; }
+        .toolbar-menu { display: none; position: absolute; right: 0; top: calc(100% + 6px); z-index: 120; min-width: 180px; padding: 10px; background: white; border: 1.5px solid #E0E8E4; border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
+        .toolbar-menu.active { display: block; }
+        .toolbar-menu-label { display: block; font-size: 0.72rem; color: var(--text-muted); font-weight: 700; margin: 4px 0; }
+        .toolbar-menu .sort-select { width: 100%; margin-bottom: 8px; }
+
+        @media (max-width: 900px) {
+            .view-mode-bar { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 8px; padding: 10px; }
+            .toolbar-main, .toolbar-secondary { display: contents; }
+            .toolbar-desktop-control, .toolbar-pagination { display: none !important; }
+            .toolbar-compact-control { display: block; grid-column: 2; }
+            .view-mode-btns { grid-column: 1; min-width: 0; gap: 4px; }
+            .view-mode-btns .view-mode-btn { flex: 1 1 0; min-width: 0; padding: 8px 6px; font-size: 0.8rem; }
+            #toolbarCompactBtn, #boundsFilterToggle { padding: 8px 10px; font-size: 0.8rem !important; min-height: 40px; }
+            #boundsFilterToggle { grid-column: 3; }
+            .view-mode-info { grid-column: 1 / -1; font-size: 0.8rem; padding-left: 2px; }
+        }
 
         /* ===== SPOT CARDS (Postcard Style) ===== */
         .spot-list { display: flex; flex-direction: column; gap: 12px; }
@@ -888,29 +909,48 @@
             </div><!-- end filters-body -->
         </div>
         <!-- Toolbar: view mode + sort + page size + pagination -->
-        <div class="view-mode-bar" style="flex-wrap:wrap;gap:8px;">
-            <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
+        <div class="view-mode-bar">
+            <div class="toolbar-main">
                 <div class="view-mode-btns">
                     <button class="view-mode-btn active" data-mode="large" onclick="setViewMode('large')">🖼️ 大圖</button>
                     <button class="view-mode-btn" data-mode="grid" onclick="setViewMode('grid')">🔲 縮圖</button>
                     <button class="view-mode-btn" data-mode="list" onclick="setViewMode('list')">📋 清單</button>
                 </div>
-                <select class="sort-select" id="sortSelect" onchange="setSortOrder(this.value)" style="margin-left:4px;">
+                <select class="sort-select toolbar-desktop-control" id="sortSelect" onchange="setSortOrder(this.value)">
                     <option value="newest">最新</option>
                     <option value="oldest">最舊</option>
                     <option value="name_asc">名稱 A→Z</option>
                     <option value="name_desc">名稱 Z→A</option>
                 </select>
-                <select class="sort-select" id="pageSizeSelect" onchange="setPageSize(parseInt(this.value))">
+                <select class="sort-select toolbar-desktop-control" id="pageSizeSelect" onchange="setPageSize(parseInt(this.value))">
                     <option value="20">20 筆</option>
                     <option value="40" selected>40 筆</option>
                     <option value="80">80 筆</option>
                     <option value="120">120 筆</option>
                 </select>
             </div>
-            <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
-                <div class="pagination-bar" id="paginationBar" style="padding:0;"></div>
-                <button class="view-mode-btn" id="boundsFilterToggle" onclick="toggleBoundsFilter()" title="切換地圖範圍/篩選器優先模式" style="font-size:0.7rem;">📋 篩選優先</button>
+            <div class="toolbar-secondary">
+                <div class="pagination-bar toolbar-pagination" id="paginationBar"></div>
+                <div class="toolbar-compact-control">
+                    <button class="view-mode-btn" id="toolbarCompactBtn" onclick="toggleToolbarMenu(event)">最新 · 40筆</button>
+                    <div class="toolbar-menu" id="toolbarCompactMenu">
+                        <label class="toolbar-menu-label" for="mobileSortSelect">排序</label>
+                        <select class="sort-select" id="mobileSortSelect" onchange="setSortOrder(this.value)">
+                            <option value="newest">最新</option>
+                            <option value="oldest">最舊</option>
+                            <option value="name_asc">名稱 A→Z</option>
+                            <option value="name_desc">名稱 Z→A</option>
+                        </select>
+                        <label class="toolbar-menu-label" for="mobilePageSizeSelect">每頁筆數</label>
+                        <select class="sort-select" id="mobilePageSizeSelect" onchange="setPageSize(parseInt(this.value))">
+                            <option value="20">20 筆</option>
+                            <option value="40" selected>40 筆</option>
+                            <option value="80">80 筆</option>
+                            <option value="120">120 筆</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="view-mode-btn" id="boundsFilterToggle" onclick="toggleBoundsFilter()" title="切換地圖範圍/篩選器優先模式">📋 篩選優先</button>
                 <div class="view-mode-info" id="viewModeInfo"></div>
             </div>
         </div>
@@ -2264,6 +2304,35 @@
             // Page-number pagination: no sentinel needed
         }
 
+        function getSortLabel(val) {
+            return { newest: '最新', oldest: '最舊', name_asc: '名稱 A→Z', name_desc: '名稱 Z→A' }[val] || '最新';
+        }
+
+        function syncToolbarControls() {
+            const sortSelect = document.getElementById('sortSelect');
+            const mobileSortSelect = document.getElementById('mobileSortSelect');
+            const pageSizeSelect = document.getElementById('pageSizeSelect');
+            const mobilePageSizeSelect = document.getElementById('mobilePageSizeSelect');
+            const compactBtn = document.getElementById('toolbarCompactBtn');
+            if (sortSelect) sortSelect.value = currentSort;
+            if (mobileSortSelect) mobileSortSelect.value = currentSort;
+            if (pageSizeSelect) pageSizeSelect.value = String(PAGE_SIZE);
+            if (mobilePageSizeSelect) mobilePageSizeSelect.value = String(PAGE_SIZE);
+            if (compactBtn) compactBtn.textContent = `${getSortLabel(currentSort)} · ${PAGE_SIZE}筆`;
+        }
+
+        function toggleToolbarMenu(event) {
+            event.stopPropagation();
+            const menu = document.getElementById('toolbarCompactMenu');
+            if (menu) menu.classList.toggle('active');
+        }
+
+        document.addEventListener('click', (event) => {
+            const menu = document.getElementById('toolbarCompactMenu');
+            if (!menu || !menu.classList.contains('active')) return;
+            if (!event.target.closest('.toolbar-compact-control')) menu.classList.remove('active');
+        });
+
         function setSyncStatus(s) { syncStatus.className = `sync-status ${s}`; syncStatus.textContent = { syncing: '⏳ 同步中...', synced: '✨ 已同步', error: '❌ 同步失敗' }[s] || ''; }
 
         // ==================== 篩選條件記憶 (sessionStorage) ====================
@@ -2285,7 +2354,8 @@
                 if (saved.currentTag) currentTag = saved.currentTag;
                 if (saved.searchQuery) { searchQuery = saved.searchQuery; document.getElementById('searchInput').value = saved.searchQuery; }
                 if (saved.currentViewMode) currentViewMode = saved.currentViewMode;
-                if (saved.currentSort) { currentSort = saved.currentSort; const sel = document.getElementById('sortSelect'); if (sel) sel.value = currentSort; }
+                if (saved.currentSort) currentSort = saved.currentSort;
+                syncToolbarControls();
                 // Update UI to reflect restored state
                 document.querySelectorAll('.stat-card[data-filter]').forEach(c => c.classList.toggle('active', c.dataset.filter === currentFilter));
                 document.querySelectorAll('.view-mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === currentViewMode));
@@ -3627,12 +3697,16 @@
         function setSortOrder(val) {
             currentSort = val;
             currentPage = 0;
+            syncToolbarControls();
+            document.getElementById('toolbarCompactMenu')?.classList.remove('active');
             loadSpots();
         }
 
         function setPageSize(val) {
             PAGE_SIZE = val;
             currentPage = 0;
+            syncToolbarControls();
+            document.getElementById('toolbarCompactMenu')?.classList.remove('active');
             loadSpots();
         }
 
