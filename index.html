@@ -2628,7 +2628,8 @@
                 .replace(/&/g, '\\u0026');
         }
         function jsAttrString(s) {
-            return escapeHtml(jsString(s));
+            // jsString already escapes <, >, & as \uXXXX; we only need to encode " for HTML double-quoted attributes
+            return jsString(s).replace(/"/g, '&quot;');
         }
         function safeImageUrl(url) {
             if (!url) return '';
