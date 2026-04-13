@@ -43,6 +43,7 @@
 
         /* ===== RESPONSIVE LAYOUT ===== */
         .app-layout { display: flex; flex-direction: column; min-height: 100vh; }
+        .content-panel { container-type: inline-size; }
 
         /* Desktop: map left, content right */
         @media (min-width: 1024px) {
@@ -254,14 +255,16 @@
         .select-option.no-results:hover { background: transparent; }
 
         /* ===== VIEW MODE BAR ===== */
-        .view-mode-bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; background: var(--card-bg); border-radius: 12px; padding: 10px 12px; box-shadow: var(--card-shadow); }
+        .view-mode-bar { container-type: inline-size; display: flex; align-items: center; justify-content: flex-start; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; background: var(--card-bg); border-radius: 12px; padding: 10px 12px; box-shadow: var(--card-shadow); }
         .toolbar-main, .toolbar-secondary { display: flex; align-items: center; gap: 6px; flex-wrap: nowrap; min-width: 0; }
-        .toolbar-secondary { margin-left: auto; }
+        .toolbar-secondary { margin-left: 0; }
         .view-mode-btns { display: flex; gap: 6px; flex-wrap: nowrap; flex: 0 0 auto; }
         .view-mode-btn { padding: 8px 14px; border: 1.5px solid #E0E8E4; border-radius: 8px; font-size: 0.88rem; font-weight: 600; cursor: pointer; background: white; color: var(--text-secondary); transition: all 0.2s; font-family: inherit; min-height: 40px; white-space: nowrap; flex: 0 0 auto; }
         .view-mode-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
         .view-mode-info { font-size: 0.82rem; color: var(--text-muted); font-weight: 600; white-space: nowrap; flex: 0 0 auto; }
-        #boundsFilterToggle { font-size: 0.88rem !important; }
+        #boundsFilterToggle { font-size: 0.88rem !important; display: inline-flex; align-items: center; gap: 6px; }
+        .toolbar-count-badge { display: none; min-width: 22px; padding: 2px 7px; border-radius: 999px; background: var(--primary-bg); color: var(--primary-dark); font-size: 0.72rem; font-weight: 800; line-height: 1.35; }
+        .toolbar-count-suffix { display: none; margin-left: 2px; }
         .view-mode-bar .pagination-bar { flex-wrap: nowrap; flex: 0 0 auto; padding: 0; }
         .view-mode-bar .page-btn { flex: 0 0 auto; }
         .toolbar-compact-control { display: none; position: relative; flex: 0 0 auto; }
@@ -270,16 +273,61 @@
         .toolbar-menu-label { display: block; font-size: 0.72rem; color: var(--text-muted); font-weight: 700; margin: 4px 0; }
         .toolbar-menu .sort-select { width: 100%; margin-bottom: 8px; }
 
-        @media (max-width: 900px) {
-            .view-mode-bar { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 8px; padding: 10px; }
-            .toolbar-main, .toolbar-secondary { display: contents; }
+        @container (max-width: 900px) {
+            .view-mode-bar { justify-content: flex-start; gap: 6px; padding: 10px; }
+            .toolbar-main, .toolbar-secondary { margin-left: 0; gap: 6px; flex: 0 0 auto; }
             .toolbar-desktop-control, .toolbar-pagination { display: none !important; }
-            .toolbar-compact-control { display: block; grid-column: 2; }
-            .view-mode-btns { grid-column: 1; min-width: 0; gap: 4px; }
-            .view-mode-btns .view-mode-btn { flex: 1 1 0; min-width: 0; padding: 8px 6px; font-size: 0.8rem; }
+            .toolbar-compact-control { display: block; }
+            .view-mode-btns { min-width: 0; gap: 4px; justify-content: flex-start; }
+            .view-mode-btns .view-mode-btn { flex: 0 0 auto; min-width: 0; padding: 8px 10px; font-size: 0.8rem; }
             #toolbarCompactBtn, #boundsFilterToggle { padding: 8px 10px; font-size: 0.8rem !important; min-height: 40px; }
-            #boundsFilterToggle { grid-column: 3; }
-            .view-mode-info { grid-column: 1 / -1; font-size: 0.8rem; padding-left: 2px; }
+            .view-mode-info { display: none; }
+            .toolbar-count-badge { display: inline-block; }
+            .toolbar-count-suffix { display: inline; }
+        }
+
+        @container (max-width: 560px) {
+            .toolbar-main { flex: 0 1 auto; flex-wrap: nowrap; }
+            .view-mode-btns { flex: 0 0 auto; }
+            .toolbar-compact-control { flex: 0 0 auto; }
+            .toolbar-count-suffix { display: none; }
+        }
+
+        @container (max-width: 420px) {
+            .toolbar-secondary { flex: 1 1 100%; min-width: 0; }
+            #boundsFilterToggle { width: 100%; justify-content: center; }
+        }
+
+        @media (max-width: 900px) {
+            .view-mode-bar { justify-content: flex-start; gap: 6px; padding: 10px; }
+            .toolbar-main, .toolbar-secondary { margin-left: 0; gap: 6px; flex: 0 0 auto; }
+            .toolbar-desktop-control, .toolbar-pagination { display: none !important; }
+            .toolbar-compact-control { display: block; }
+            .view-mode-btns { min-width: 0; gap: 4px; justify-content: flex-start; }
+            .view-mode-btns .view-mode-btn { flex: 0 0 auto; min-width: 0; padding: 8px 10px; font-size: 0.8rem; }
+            #toolbarCompactBtn, #boundsFilterToggle { padding: 8px 10px; font-size: 0.8rem !important; min-height: 40px; }
+            .view-mode-info { display: none; }
+            .toolbar-count-badge { display: inline-block; }
+            .toolbar-count-suffix { display: inline; }
+        }
+
+        @media (max-width: 560px) {
+            .toolbar-main { flex: 0 1 auto; flex-wrap: nowrap; }
+            .view-mode-btns { flex: 0 0 auto; }
+            .toolbar-compact-control { flex: 0 0 auto; }
+            .toolbar-count-suffix { display: none; }
+        }
+
+        @container (max-width: 420px) {
+            .toolbar-secondary { flex: 1 1 100%; min-width: 0; }
+            #boundsFilterToggle { width: 100%; justify-content: center; }
+            .view-mode-btns .view-mode-btn, #toolbarCompactBtn, #boundsFilterToggle { padding: 8px 8px; font-size: 0.78rem !important; }
+        }
+
+        @media (max-width: 420px) {
+            .toolbar-secondary { flex: 1 1 100%; min-width: 0; }
+            #boundsFilterToggle { width: 100%; justify-content: center; }
+            .view-mode-btns .view-mode-btn, #toolbarCompactBtn, #boundsFilterToggle { padding: 8px 8px; font-size: 0.78rem !important; }
         }
 
         /* ===== SPOT CARDS (Postcard Style) ===== */
@@ -950,7 +998,7 @@
                         </select>
                     </div>
                 </div>
-                <button class="view-mode-btn" id="boundsFilterToggle" onclick="toggleBoundsFilter()" title="切換地圖範圍/篩選器優先模式">📋 篩選優先</button>
+                <button class="view-mode-btn" id="boundsFilterToggle" onclick="toggleBoundsFilter()" title="切換地圖範圍/篩選器優先模式"><span id="boundsFilterLabel">📋 篩選優先</span><span class="toolbar-count-badge"><span id="toolbarCountBadge">0</span><span class="toolbar-count-suffix">在範圍中</span></span></button>
                 <div class="view-mode-info" id="viewModeInfo"></div>
             </div>
         </div>
@@ -2321,6 +2369,20 @@
             if (compactBtn) compactBtn.textContent = `${getSortLabel(currentSort)} · ${PAGE_SIZE}筆`;
         }
 
+        function setToolbarInfo(text, count) {
+            const infoEl = document.getElementById('viewModeInfo');
+            const badge = document.getElementById('toolbarCountBadge');
+            if (infoEl) infoEl.textContent = text || '';
+            if (badge) badge.textContent = String(count ?? 0);
+        }
+
+        function updateBoundsFilterLabel() {
+            const label = document.getElementById('boundsFilterLabel');
+            if (label) label.textContent = boundsFilterActive ? '📋 篩選優先' : '🗺️ 地圖優先';
+            const toggleBtn = document.getElementById('boundsFilterToggle');
+            if (toggleBtn) toggleBtn.classList.toggle('active', !boundsFilterActive);
+        }
+
         function toggleToolbarMenu(event) {
             event.stopPropagation();
             const menu = document.getElementById('toolbarCompactMenu');
@@ -2509,7 +2571,7 @@
             }
 
             // Update view mode info
-            document.getElementById('viewModeInfo').textContent = totalCount > 0 ? `${(currentPage * PAGE_SIZE) + 1}-${Math.min((currentPage + 1) * PAGE_SIZE, totalCount)} / ${totalCount} 筆` : '0 筆';
+            setToolbarInfo(totalCount > 0 ? `${(currentPage * PAGE_SIZE) + 1}-${Math.min((currentPage + 1) * PAGE_SIZE, totalCount)} / ${totalCount} 筆` : '0 筆', totalCount);
 
             if (!fs.length) {
                 spotList.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🌱</div><div class="empty-state-text">${'找不到符合的純點 🔍<br><button onclick=\"clearAllFilters()\" style=\"margin-top:10px;padding:8px 20px;background:var(--light-green);color:white;border:none;border-radius:10px;font-weight:700;cursor:pointer;font-family:inherit;\">清除篩選</button>'}</div></div>`;
@@ -3938,8 +4000,7 @@
             leafletMap.on('moveend', onMapMoveEnd);
             leafletMap.on('zoomend', onMapMoveEnd);
             // Trigger initial bounds filter after data loads
-            const toggleBtn = document.getElementById('boundsFilterToggle');
-            if (toggleBtn) toggleBtn.textContent = '📋 篩選優先';
+            updateBoundsFilterLabel();
             setTimeout(() => filterSpotsByMapBounds(), 500);
         }
 
@@ -3960,10 +4021,7 @@
             if (countEl) countEl.textContent = `(${visibleSpots.length} 個在視野中)`;
 
             // Update toggle button
-            const toggleBtn = document.getElementById('boundsFilterToggle');
-            if (toggleBtn) {
-                toggleBtn.textContent = boundsFilterActive ? '📋 篩選優先' : '🗺️ 地圖優先';
-            }
+            updateBoundsFilterLabel();
 
             if (boundsFilterActive) {
                 renderBoundsFilteredSpots(visibleSpots);
@@ -3984,17 +4042,10 @@
                 renderPagination();
                 document.getElementById('paginationBar').style.display = '';
                 document.getElementById('paginationBarBottom').style.display = '';
-                const infoEl = document.getElementById('viewModeInfo');
-                if (infoEl) {
-                    infoEl.textContent = totalCount > 0 ? `${(currentPage * PAGE_SIZE) + 1}-${Math.min((currentPage + 1) * PAGE_SIZE, totalCount)} / ${totalCount} 筆` : '0 筆';
-                }
+                setToolbarInfo(totalCount > 0 ? `${(currentPage * PAGE_SIZE) + 1}-${Math.min((currentPage + 1) * PAGE_SIZE, totalCount)} / ${totalCount} 筆` : '0 筆', totalCount);
                 showToast('📋 篩選器優先模式');
             }
-            const toggleBtn = document.getElementById('boundsFilterToggle');
-            if (toggleBtn) {
-                toggleBtn.classList.toggle('active', !boundsFilterActive);
-                toggleBtn.textContent = boundsFilterActive ? '📋 篩選優先' : '🗺️ 地圖優先';
-            }
+            updateBoundsFilterLabel();
         }
 
         function renderBoundsFilteredSpots(visibleSpots) {
@@ -4047,10 +4098,7 @@
             }
 
             // Update info
-            const infoEl = document.getElementById('viewModeInfo');
-            if (infoEl) {
-                infoEl.textContent = `${filtered.length} 個在地圖範圍中`;
-            }
+            setToolbarInfo(`${filtered.length} 個在地圖範圍中`, filtered.length);
 
             // Hide pagination when bounds filter is active
             document.getElementById('paginationBar').style.display = boundsFilterActive ? 'none' : '';
