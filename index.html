@@ -215,7 +215,7 @@
         /* Sort bar */
         .sort-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
         .sort-bar label { font-size: 0.75rem; color: var(--text-muted); font-weight: 700; white-space: nowrap; }
-        .sort-select { padding: 6px 10px; border: 1.5px solid #E0E8E4; border-radius: 10px; font-size: 0.82rem; font-family: inherit; background: white; color: var(--text-primary); cursor: pointer; }
+        .sort-select { padding: 8px 12px; border: 1.5px solid #E0E8E4; border-radius: 10px; font-size: 0.88rem; font-family: inherit; background: white; color: var(--text-primary); cursor: pointer; min-height: 40px; }
         .sort-select:focus { outline: none; border-color: var(--primary-light); }
 
         .type-pills { display: flex; gap: 6px; flex-wrap: wrap; }
@@ -254,11 +254,12 @@
         .select-option.no-results:hover { background: transparent; }
 
         /* ===== VIEW MODE BAR ===== */
-        .view-mode-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; background: var(--card-bg); border-radius: 12px; padding: 8px 12px; box-shadow: var(--card-shadow); }
-        .view-mode-btns { display: flex; gap: 3px; }
-        .view-mode-btn { padding: 5px 12px; border: 1.5px solid #E0E8E4; border-radius: 8px; font-size: 0.75rem; font-weight: 600; cursor: pointer; background: white; color: var(--text-secondary); transition: all 0.2s; font-family: inherit; }
+        .view-mode-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; background: var(--card-bg); border-radius: 12px; padding: 10px 12px; box-shadow: var(--card-shadow); }
+        .view-mode-btns { display: flex; gap: 6px; }
+        .view-mode-btn { padding: 8px 14px; border: 1.5px solid #E0E8E4; border-radius: 8px; font-size: 0.88rem; font-weight: 600; cursor: pointer; background: white; color: var(--text-secondary); transition: all 0.2s; font-family: inherit; min-height: 40px; }
         .view-mode-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
-        .view-mode-info { font-size: 0.72rem; color: var(--text-muted); font-weight: 600; }
+        .view-mode-info { font-size: 0.82rem; color: var(--text-muted); font-weight: 600; }
+        #boundsFilterToggle { font-size: 0.88rem !important; }
 
         /* ===== SPOT CARDS (Postcard Style) ===== */
         .spot-list { display: flex; flex-direction: column; gap: 12px; }
@@ -499,6 +500,7 @@
         .detail-modal-body { padding: 18px; }
         .detail-modal-name { font-size: 1.1rem; font-weight: 800; color: var(--text-primary); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
         .detail-modal-meta { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; }
+        .detail-modal-meta .spot-type-badge { font-size: 0.82rem; padding: 5px 10px; }
         .detail-modal-coords { font-size: 0.78rem; color: var(--text-muted); font-family: 'Courier New', monospace; background: #F5F8F6; padding: 5px 8px; border-radius: 6px; display: inline-block; margin-bottom: 6px; }
         .detail-modal-note { font-size: 0.85rem; color: var(--text-secondary); padding: 8px 10px; background: #F8FAF9; border-radius: 8px; border-left: 2px solid #D0DCD4; margin: 8px 0; }
         .detail-modal-by { font-size: 0.72rem; color: #AAA; margin-top: 6px; }
@@ -1505,11 +1507,6 @@
                         await loadFavorites(); await loadBookmarks();
                         updateUserInfo();
                         renderSpots();
-                        // 已登入 + 沒暱稱 → 溫和提示（不用每次都跳 modal）
-                        // 只在 sessionStorage 沒有 "已跳過暱稱" 記錄時才提示
-                        if (!userDisplayNameCached && !sessionStorage.getItem('pikmin_nickname_skipped')) {
-                            setTimeout(() => showNicknameModal(true), 800);
-                        }
                     }
                 }
                 else if (event === 'SIGNED_IN') {
@@ -1525,14 +1522,10 @@
                     updateUserInfo();
                     renderSpots();
                     showToast('✅ 登入成功！');
-                    // 新登入且沒暱稱 → 才彈 modal
-                    if (!userDisplayNameCached) {
-                        sessionStorage.removeItem('pikmin_nickname_skipped'); // 重置跳過記錄
-                        setTimeout(() => showNicknameModal(true), 600);
-                    }
                     if (pendingSpotSubmit) {
                         const saved = pendingSpotSubmit;
                         pendingSpotSubmit = null;
+                        promptNicknameIfNeeded();
                         showToast('⏳ 正在發布你的純點...');
                         await doSubmitSpot(saved);
                     }
@@ -2407,12 +2400,12 @@
                 </div>`;
             }
 
-            const quickUploadHtml = !s.image_url && !selectMode && showEdit ? `<button class="btn" onclick="event.stopPropagation();quickUpload(${safeSpotIdJs})">${ICN.camera}${short ? '' : ' 上傳圖片'}</button>` : '';
+            const quickUploadHtml = !s.image_url && !selectMode && showEdit ? `<button class="btn" onclick="event.stopPropagation();quickUpload(${safeSpotIdJs})">${ICN.camera}${short ? '' : ' 上傳'}</button>` : '';
             const favBtnHtml = currentUser ? `<button class="btn btn-fav ${isFav ? 'active' : ''}" onclick="event.stopPropagation();toggleFavorite(${safeSpotIdJs})">${isFav ? ICN.starFill : ICN.star}${short ? '' : (isFav ? ' 已收藏' : ' 收藏')}</button>` : '';
             const saveBtnHtml = currentUser ? `<button class="btn ${isSaved ? 'btn-fav active' : ''}" onclick="event.stopPropagation();toggleBookmark(${safeSpotIdJs})">${isSaved ? ICN.bookmarkFill : ICN.bookmark}${short ? '' : (isSaved ? ' 已儲存' : ' 儲存')}</button>` : '';
             const actionsHtml = !selectMode ? `<div class="spot-actions">
-                <button class="btn" onclick="event.stopPropagation();copyCoords(${safeCoordsJs})">${ICN.copy}${short ? '' : ' 複製座標'}</button>
-                <button class="btn" onclick="event.stopPropagation();addSpotToRouteEditor(${safeSpotIdJs})" style="background:#E8F5E9;border-color:#66BB6A;color:#2E7D32;">🗺️${short ? '' : ' 加入路線'}</button>
+                <button class="btn" onclick="event.stopPropagation();copyCoords(${safeCoordsJs})">${ICN.copy}${short ? '' : ' 複製'}</button>
+                <button class="btn" onclick="event.stopPropagation();addSpotToRouteEditor(${safeSpotIdJs})" style="background:#E8F5E9;border-color:#66BB6A;color:#2E7D32;">🗺️${short ? '' : ' 路線'}</button>
                 ${favBtnHtml}
                 ${saveBtnHtml}
                 ${quickUploadHtml}
@@ -2796,6 +2789,7 @@
                 return;
             }
 
+            promptNicknameIfNeeded();
             await doSubmitSpot();
         });
 
@@ -3029,6 +3023,7 @@
 
         async function toggleFavorite(spotId) {
             if (!currentUser) { showToast('👤 請先登入才能收藏'); showLoginModal(); return; }
+            promptNicknameIfNeeded();
             spotId = String(spotId);
             const isFav = userFavorites.has(spotId);
             try {
@@ -3069,6 +3064,7 @@
 
         async function toggleBookmark(spotId) {
             if (!currentUser) { showToast('👤 請先登入'); showLoginModal(); return; }
+            promptNicknameIfNeeded();
             spotId = String(spotId);
             const isSaved = userBookmarks.has(spotId);
             try {
@@ -3097,6 +3093,7 @@
 
         async function openProfile() {
             if (!currentUser) { showLoginModal(); return; }
+            promptNicknameIfNeeded();
             document.getElementById('profileAvatar').src = getUserAvatar(currentUser) || '';
             // 個人頁面：顯示公開暱稱 + 下方顯示 Google 帳號
             const displayName = getUserDisplayName(currentUser);
@@ -3264,6 +3261,11 @@
         }
 
         // ==================== 暱稱設定 ====================
+        function promptNicknameIfNeeded() {
+            if (!currentUser || userDisplayNameCached) return;
+            if (sessionStorage.getItem('pikmin_nickname_skipped')) return;
+            showNicknameModal(true);
+        }
         function showNicknameModal(isFirstTime) {
             const input = document.getElementById('nicknameInput');
             input.value = userDisplayNameCached || '';
@@ -3335,6 +3337,7 @@
         async function submitSuggestion() {
             const spotId = document.getElementById('suggestionSpotId').value;
             if (!currentUser) { showToast('👤 請先登入'); showLoginModal(); return; }
+            promptNicknameIfNeeded();
 
             // 收集所有有填寫的欄位
             const fields = {};
@@ -4229,6 +4232,7 @@
 
         async function saveRouteFromEditor() {
             if (!currentUser) { showToast('👤 請先登入才能儲存路線'); showLoginModal(); return; }
+            promptNicknameIfNeeded();
             if (routeEditorSpots.length < 2) { showToast('⚠️ 至少需要 2 個純點'); return; }
             const name = document.getElementById('routeEditorName').value.trim() || '我的路線';
             const spotIds = routeEditorSpots.map(s => s.id);
@@ -4283,6 +4287,7 @@
 
         function openPathModal(editPath) {
             if (!currentUser) { showToast('👤 請先登入'); showLoginModal(); return; }
+            promptNicknameIfNeeded();
             editingPathId = null;
             pathSelectedSpots = [];
             document.getElementById('pathNameInput').value = '';
@@ -4430,6 +4435,7 @@
             if (!name) { showToast('⚠️ 請輸入路線名稱'); return; }
             if (pathSelectedSpots.length < 2) { showToast('⚠️ 至少需要 2 個純點'); return; }
             if (!currentUser) { showToast('👤 請先登入'); return; }
+            promptNicknameIfNeeded();
 
             const isPublic = document.querySelector('input[name="pathVisibility"]:checked').value === 'public';
             const spotIds = pathSelectedSpots.map(s => s.id);
