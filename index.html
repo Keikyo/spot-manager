@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://byeyuxfhmackhmngksij.supabase.co https://api.qrserver.com; connect-src 'self' https://byeyuxfhmackhmngksij.supabase.co https://nominatim.openstreetmap.org; frame-ancestors 'none'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://byeyuxfhmackhmngksij.supabase.co https://api.qrserver.com https://*.tile.openstreetmap.org https://unpkg.com; connect-src 'self' https://byeyuxfhmackhmngksij.supabase.co https://nominatim.openstreetmap.org; frame-ancestors 'none'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests">
     <title>皮克敏純點管理器</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -2330,6 +2330,7 @@
             if (isGrid) {
                 const gridActions = !selectMode ? `<div class="spot-actions">
                     <button class="btn" onclick="event.stopPropagation();copyCoords(${safeCoordsJs})" title="複製座標">${ICN.copy}</button>
+                    <button class="btn" onclick="event.stopPropagation();addSpotToRouteEditor(${safeSpotIdJs})" title="加入路線" style="background:#E8F5E9;border-color:#66BB6A;color:#2E7D32;">🗺️</button>
                     ${currentUser ? `<button class="btn btn-fav ${isFav ? 'active' : ''}" onclick="event.stopPropagation();toggleFavorite(${safeSpotIdJs})" title="收藏">${isFav ? ICN.starFill : ICN.star}</button>` : ''}
                     ${currentUser ? `<button class="btn ${isSaved ? 'btn-fav active' : ''}" onclick="event.stopPropagation();toggleBookmark(${safeSpotIdJs})" title="儲存">${isSaved ? ICN.bookmarkFill : ICN.bookmark}</button>` : ''}
                     ${showEdit ? `<button class="btn" onclick="event.stopPropagation();editSpot(${safeSpotIdJs})" title="編輯">${ICN.pencil}</button>` : ''}
@@ -2355,6 +2356,7 @@
             const saveBtnHtml = currentUser ? `<button class="btn ${isSaved ? 'btn-fav active' : ''}" onclick="event.stopPropagation();toggleBookmark(${safeSpotIdJs})">${isSaved ? ICN.bookmarkFill : ICN.bookmark}${short ? '' : (isSaved ? ' 已儲存' : ' 儲存')}</button>` : '';
             const actionsHtml = !selectMode ? `<div class="spot-actions">
                 <button class="btn" onclick="event.stopPropagation();copyCoords(${safeCoordsJs})">${ICN.copy}${short ? '' : ' 複製座標'}</button>
+                <button class="btn" onclick="event.stopPropagation();addSpotToRouteEditor(${safeSpotIdJs})" style="background:#E8F5E9;border-color:#66BB6A;color:#2E7D32;">🗺️${short ? '' : ' 加入路線'}</button>
                 ${favBtnHtml}
                 ${saveBtnHtml}
                 ${quickUploadHtml}
