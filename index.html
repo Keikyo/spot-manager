@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://byeyuxfhmackhmngksij.supabase.co https://nominatim.openstreetmap.org; frame-ancestors 'none'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://byeyuxfhmackhmngksij.supabase.co https://api.qrserver.com; connect-src 'self' https://byeyuxfhmackhmngksij.supabase.co https://nominatim.openstreetmap.org; frame-ancestors 'none'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests">
     <title>皮克敏純點管理器</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -539,7 +539,7 @@
         .profile-spot-img { width: 42px; height: 42px; border-radius: 6px; object-fit: cover; flex-shrink: 0; }
         .profile-spot-info { flex: 1; min-width: 0; }
         .profile-spot-name { font-size: 0.82rem; font-weight: 700; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .profile-spot-sub { font-size: 0.68rem; color: #999; }
+        .profile-spot-sub { font-size: 0.72rem; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .profile-empty { text-align: center; padding: 24px; color: #CCC; font-size: 0.82rem; }
 
         /* Tag search */
@@ -600,7 +600,7 @@
         .path-spot-img { width: 36px; height: 36px; border-radius: 6px; object-fit: cover; flex-shrink: 0; }
         .path-spot-info { flex: 1; min-width: 0; }
         .path-spot-name { font-size: 0.82rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .path-spot-sub { font-size: 0.68rem; color: #999; }
+        .path-spot-sub { font-size: 0.68rem; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .path-spot-remove { background: none; border: none; color: #CCC; font-size: 1rem; cursor: pointer; padding: 2px; flex-shrink: 0; }
         .path-spot-remove:hover { color: #E05050; }
         .path-search-item { display: flex; align-items: center; gap: 8px; padding: 8px 12px; cursor: pointer; transition: background 0.15s; border-bottom: 1px solid #F0F0F0; }
@@ -680,7 +680,7 @@
         .route-editor-item-img { width: 32px; height: 32px; border-radius: 6px; object-fit: cover; flex-shrink: 0; }
         .route-editor-item-info { flex: 1; min-width: 0; }
         .route-editor-item-name { font-size: 0.78rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .route-editor-item-sub { font-size: 0.62rem; color: #AAA; }
+        .route-editor-item-sub { font-size: 0.65rem; color: #999; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .route-editor-item-remove { background: none; border: none; color: #CCC; cursor: pointer; font-size: 0.9rem; padding: 2px; flex-shrink: 0; }
         .route-editor-item-remove:hover { color: #E05050; }
         .route-editor-footer {
@@ -1512,9 +1512,14 @@
 
         // ==================== 圖片上傳 (Supabase Storage) ====================
         const STORAGE_BUCKET = 'spot-images';
+        const ALLOWED_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
+        const IMAGE_EXT_BY_TYPE = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif' };
 
         async function uploadImageToStorage(file) {
-            const ext = file.name.split('.').pop() || 'jpg';
+            if (!file || !ALLOWED_IMAGE_TYPES.has(file.type)) {
+                throw new Error('Only JPG, PNG, WebP, and GIF images are allowed');
+            }
+            const ext = IMAGE_EXT_BY_TYPE[file.type];
             const fileName = `${Date.now()}_${Math.random().toString(36).slice(2,8)}.${ext}`;
             const { data, error } = await supabaseClient.storage
                 .from(STORAGE_BUCKET)
@@ -1863,7 +1868,7 @@
             const filtered = countries.filter(c => c === 'all' || c.toLowerCase().includes(search.toLowerCase()));
             const container = document.getElementById('countryOptions');
             if (!filtered.length) { container.innerHTML = '<div class="select-option no-results">找不到結果</div>'; return; }
-            container.innerHTML = filtered.map(c => `<div class="select-option ${c === currentCountry ? 'active' : ''}" onclick="selectCountry('${c}')">${c === 'all' ? '🌍 全部國家' : c}</div>`).join('');
+            container.innerHTML = filtered.map(c => `<div class="select-option ${c === currentCountry ? 'active' : ''}" onclick="selectCountry(${jsString(c)})">${c === 'all' ? 'All countries' : escapeHtml(c)}</div>`).join('');
         }
         function renderCityOptions(search = '') {
             const src = allSpotsMeta.length ? allSpotsMeta : spots;
@@ -1872,7 +1877,7 @@
             const filtered = cities.filter(c => c === 'all' || c.toLowerCase().includes(search.toLowerCase()));
             const container = document.getElementById('cityOptions');
             if (!filtered.length) { container.innerHTML = '<div class="select-option no-results">找不到結果</div>'; return; }
-            container.innerHTML = filtered.map(c => `<div class="select-option ${c === currentCity ? 'active' : ''}" onclick="selectCity('${c}')">${c === 'all' ? '🏙️ 全部縣市' : c}</div>`).join('');
+            container.innerHTML = filtered.map(c => `<div class="select-option ${c === currentCity ? 'active' : ''}" onclick="selectCity(${jsString(c)})">${c === 'all' ? 'All cities' : escapeHtml(c)}</div>`).join('');
         }
         function selectCountry(c) { currentCountry = c; currentCity = 'all'; document.getElementById('countryInput').value = c === 'all' ? '🌍 全部國家' : c; document.getElementById('cityInput').value = '🏙️ 全部縣市'; closeAllDropdowns(); loadSpots(); }
         function selectCity(c) { currentCity = c; document.getElementById('cityInput').value = c === 'all' ? '🏙️ 全部縣市' : c; closeAllDropdowns(); loadSpots(); }
@@ -2307,10 +2312,14 @@
             const short = isGrid || isList;
             const tagsHtml = s.tags && s.tags.length ? `<div class="spot-tags">${s.tags.map(t => `<span class="spot-tag">#${escapeHtml(t)}</span>`).join('')}</div>` : '';
             const byLine = buildByLine(s);
+            const safeSpotIdJs = jsString(s.id);
+            const safeCoordsJs = jsString(`${s.lat}, ${s.lng}`);
+            const safeSpotIdAttr = escapeHtml(s.id);
+            const safeTypeClass = escapeHtml(s.type);
             const badgesHtml = `<div class="spot-badges">
-                ${s.country ? `<span class="spot-region">🌍 ${escapeHtml(s.country)}</span>` : ''}
-                ${s.city ? `<span class="spot-city">🏙️ ${escapeHtml(s.city)}</span>` : ''}
-                <span class="spot-type-badge ${s.type}">${getTypeLabel(s.type)}</span>
+                ${s.country ? `<span class="spot-region">${escapeHtml(s.country)}</span>` : ''}
+                ${s.city ? `<span class="spot-city">${escapeHtml(s.city)}</span>` : ''}
+                <span class="spot-type-badge ${safeTypeClass}">${escapeHtml(getTypeLabel(s.type))}</span>
             </div>`;
             const imgHtml = s.image_url ? `<div class="spot-image-container"><img src="${escapeHtml(safeImageUrl(s.image_url))}" alt="${escapeHtml(s.name)}" onclick="event.stopPropagation();openLightbox(this.src)" loading="lazy"></div>` : '';
             const showEdit = canEditSpot(s);
@@ -2318,17 +2327,16 @@
             const isFav = userFavorites.has(String(s.id));
             const isSaved = userBookmarks.has(String(s.id));
 
-            // Grid: compact horizontal card (image left, info right, icon-only buttons)
             if (isGrid) {
                 const gridActions = !selectMode ? `<div class="spot-actions">
-                    <button class="btn" onclick="event.stopPropagation();copyCoords('${s.lat}, ${s.lng}')" title="複製座標">${ICN.copy}</button>
-                    ${currentUser ? `<button class="btn btn-fav ${isFav ? 'active' : ''}" onclick="event.stopPropagation();toggleFavorite('${s.id}')" title="收藏">${isFav ? ICN.starFill : ICN.star}</button>` : ''}
-                    ${currentUser ? `<button class="btn ${isSaved ? 'btn-fav active' : ''}" onclick="event.stopPropagation();toggleBookmark('${s.id}')" title="儲存">${isSaved ? ICN.bookmarkFill : ICN.bookmark}</button>` : ''}
-                    ${showEdit ? `<button class="btn" onclick="event.stopPropagation();editSpot('${s.id}')" title="編輯">${ICN.pencil}</button>` : ''}
-                    ${showDelete ? `<button class="btn" onclick="event.stopPropagation();deleteSpot('${s.id}')" title="刪除">${ICN.trash}</button>` : ''}
+                    <button class="btn" onclick="event.stopPropagation();copyCoords(${safeCoordsJs})" title="Copy coordinates">${ICN.copy}</button>
+                    ${currentUser ? `<button class="btn btn-fav ${isFav ? 'active' : ''}" onclick="event.stopPropagation();toggleFavorite(${safeSpotIdJs})" title="Favorite">${isFav ? ICN.starFill : ICN.star}</button>` : ''}
+                    ${currentUser ? `<button class="btn ${isSaved ? 'btn-fav active' : ''}" onclick="event.stopPropagation();toggleBookmark(${safeSpotIdJs})" title="Save">${isSaved ? ICN.bookmarkFill : ICN.bookmark}</button>` : ''}
+                    ${showEdit ? `<button class="btn" onclick="event.stopPropagation();editSpot(${safeSpotIdJs})" title="Edit">${ICN.pencil}</button>` : ''}
+                    ${showDelete ? `<button class="btn" onclick="event.stopPropagation();deleteSpot(${safeSpotIdJs})" title="Delete">${ICN.trash}</button>` : ''}
                 </div>` : '';
 
-                return `<div class="spot-card ${s.type}-card ${selectMode ? 'select-mode' : ''}" data-id="${s.id}" onclick="openDetail('${s.id}')" style="cursor:pointer;">
+                return `<div class="spot-card ${safeTypeClass}-card ${selectMode ? 'select-mode' : ''}" data-id="${safeSpotIdAttr}" onclick="openDetail(${safeSpotIdJs})" style="cursor:pointer;">
                     ${selectMode ? `<input type="checkbox" class="spot-checkbox" ${selectedSpots.has(s.id) ? 'checked' : ''}>` : ''}
                     ${imgHtml}
                     <div class="spot-content">
@@ -2336,26 +2344,25 @@
                             <div class="spot-name">${escapeHtml(s.name)} ${byLine}</div>
                             ${badgesHtml}
                         </div>
-                        <div class="spot-coords">${s.lat}, ${s.lng}</div>
+                        <div class="spot-coords">${escapeHtml(`${s.lat}, ${s.lng}`)}</div>
                         ${gridActions}
                     </div>
                 </div>`;
             }
 
-            // Large / List view
-            const quickUploadHtml = !s.image_url && !selectMode && showEdit ? `<button class="btn" onclick="event.stopPropagation();quickUpload('${s.id}')">${ICN.camera}${short ? '' : ' 上傳圖片'}</button>` : '';
-            const favBtnHtml = currentUser ? `<button class="btn btn-fav ${isFav ? 'active' : ''}" onclick="event.stopPropagation();toggleFavorite('${s.id}')">${isFav ? ICN.starFill : ICN.star}${short ? '' : (isFav ? ' 已收藏' : ' 收藏')}</button>` : '';
-            const saveBtnHtml = currentUser ? `<button class="btn ${isSaved ? 'btn-fav active' : ''}" onclick="event.stopPropagation();toggleBookmark('${s.id}')">${isSaved ? ICN.bookmarkFill : ICN.bookmark}${short ? '' : (isSaved ? ' 已儲存' : ' 儲存')}</button>` : '';
+            const quickUploadHtml = !s.image_url && !selectMode && showEdit ? `<button class="btn" onclick="event.stopPropagation();quickUpload(${safeSpotIdJs})">${ICN.camera}${short ? '' : ' Upload image'}</button>` : '';
+            const favBtnHtml = currentUser ? `<button class="btn btn-fav ${isFav ? 'active' : ''}" onclick="event.stopPropagation();toggleFavorite(${safeSpotIdJs})">${isFav ? ICN.starFill : ICN.star}${short ? '' : (isFav ? ' Favorited' : ' Favorite')}</button>` : '';
+            const saveBtnHtml = currentUser ? `<button class="btn ${isSaved ? 'btn-fav active' : ''}" onclick="event.stopPropagation();toggleBookmark(${safeSpotIdJs})">${isSaved ? ICN.bookmarkFill : ICN.bookmark}${short ? '' : (isSaved ? ' Saved' : ' Save')}</button>` : '';
             const actionsHtml = !selectMode ? `<div class="spot-actions">
-                <button class="btn" onclick="event.stopPropagation();copyCoords('${s.lat}, ${s.lng}')">${ICN.copy}${short ? '' : ' 複製座標'}</button>
+                <button class="btn" onclick="event.stopPropagation();copyCoords(${safeCoordsJs})">${ICN.copy}${short ? '' : ' Copy coordinates'}</button>
                 ${favBtnHtml}
                 ${saveBtnHtml}
                 ${quickUploadHtml}
-                ${showEdit ? `<button class="btn" onclick="event.stopPropagation();editSpot('${s.id}')">${ICN.pencil}${short ? '' : ' 編輯'}</button>` : ''}
-                ${showDelete ? `<button class="btn" onclick="event.stopPropagation();deleteSpot('${s.id}')">${ICN.trash}${short ? '' : ' 刪除'}</button>` : ''}
+                ${showEdit ? `<button class="btn" onclick="event.stopPropagation();editSpot(${safeSpotIdJs})">${ICN.pencil}${short ? '' : ' Edit'}</button>` : ''}
+                ${showDelete ? `<button class="btn" onclick="event.stopPropagation();deleteSpot(${safeSpotIdJs})">${ICN.trash}${short ? '' : ' Delete'}</button>` : ''}
             </div>` : '';
 
-            return `<div class="spot-card ${s.type}-card ${selectMode ? 'select-mode' : ''}" data-id="${s.id}" onclick="openDetail('${s.id}')" style="cursor:pointer;">
+            return `<div class="spot-card ${safeTypeClass}-card ${selectMode ? 'select-mode' : ''}" data-id="${safeSpotIdAttr}" onclick="openDetail(${safeSpotIdJs})" style="cursor:pointer;">
                 ${selectMode ? `<input type="checkbox" class="spot-checkbox" ${selectedSpots.has(s.id) ? 'checked' : ''}>` : ''}
                 ${imgHtml}
                 <div class="spot-content">
@@ -2364,15 +2371,14 @@
                         ${badgesHtml}
                     </div>
                     <div class="spot-coords-row">
-                        <div class="spot-coords">${s.lat}, ${s.lng}</div>
+                        <div class="spot-coords">${escapeHtml(`${s.lat}, ${s.lng}`)}</div>
                         ${tagsHtml}
                     </div>
                     ${!isList && s.note ? `<div class="spot-note">${escapeHtml(s.note)}</div>` : ''}
                     ${actionsHtml}
                 </div>
-            </div>`
+            </div>`;
         }
-
         function renderSpots(reset = true) {
             // 多標籤 AND 過濾（Server query 只篩第一個，其餘在 client 端過濾）
             let fs = spots;
@@ -2539,9 +2545,9 @@
             } else {
                 dropdown.innerHTML = filtered.map(s =>
                     `<div style="padding:8px 12px;cursor:pointer;font-size:0.82rem;transition:background 0.15s;" 
-                        onmousedown="selectBatchSpot(${idx},'${s.id}','${escapeHtml(s.name).replace(/'/g, "\\'")}','${escapeHtml(s.country || '').replace(/'/g, "\\'")}')"
+                        onmousedown="selectBatchSpot(${idx},${jsString(s.id)},${jsString(s.name)},${jsString(s.country || '')})"
                         onmouseover="this.style.background='#F0F9F0'" onmouseout="this.style.background='white'">
-                        ${escapeHtml(s.name)} <span style="color:#888;font-size:0.75rem;">(${s.country || ''}${s.city ? ' ' + s.city : ''})</span>
+                        ${escapeHtml(s.name)} <span style="color:#888;font-size:0.75rem;">(${escapeHtml(s.country || '')}${s.city ? ' ' + escapeHtml(s.city) : ''})</span>
                     </div>`
                 ).join('');
             }
@@ -2904,7 +2910,12 @@
             const isSaved = userBookmarks.has(String(s.id));
             const showEdit = canEditSpot(s);
             const showDelete = canDeleteSpot(s);
-            const mapsUrl = `https://www.google.com/maps?q=${s.lat},${s.lng}`;
+            const coordsText = `${s.lat}, ${s.lng}`;
+            const mapsUrl = `https://www.google.com/maps?q=${encodeURIComponent(coordsText)}`;
+            const safeSpotIdJs = jsString(s.id);
+            const safeCoordsJs = jsString(coordsText);
+            const safeNameJs = jsString(s.name || '');
+            const safeMapsUrlJs = jsString(mapsUrl);
             const createdDate = s.created_at ? new Date(s.created_at) : null;
             const createdStr = createdDate ? `${createdDate.getFullYear()}/${String(createdDate.getMonth()+1).padStart(2,'0')}/${String(createdDate.getDate()).padStart(2,'0')}` : '';
             const container = document.getElementById('detailModalContent');
@@ -2913,29 +2924,29 @@
                 <div class="detail-modal-body">
                     <div class="detail-modal-name">${escapeHtml(s.name)}</div>
                     <div class="detail-modal-meta">
-                        ${s.country ? `<span class="spot-region">🌍 ${escapeHtml(s.country)}</span>` : ''}
-                        ${s.city ? `<span class="spot-city">🏙️ ${escapeHtml(s.city)}</span>` : ''}
-                        <span class="spot-type-badge ${s.type}">${getTypeLabel(s.type)}</span>
+                        ${s.country ? `<span class="spot-region">${escapeHtml(s.country)}</span>` : ''}
+                        ${s.city ? `<span class="spot-city">${escapeHtml(s.city)}</span>` : ''}
+                        <span class="spot-type-badge ${escapeHtml(s.type)}">${escapeHtml(getTypeLabel(s.type))}</span>
                     </div>
                     <div class="detail-modal-coords">
-                        <a href="${mapsUrl}" target="_blank" rel="noopener" style="color:#1565C0;text-decoration:none;">${s.lat}, ${s.lng} 📍</a>
+                        <a href="${escapeHtml(mapsUrl)}" target="_blank" rel="noopener" style="color:#1565C0;text-decoration:none;">${escapeHtml(coordsText)}</a>
                     </div>
                     ${s.tags && s.tags.length ? `<div class="spot-tags">${s.tags.map(t => `<span class="spot-tag">#${escapeHtml(t)}</span>`).join('')}</div>` : ''}
                     ${s.note ? `<div class="detail-modal-note">${escapeHtml(s.note)}</div>` : ''}
                     <div class="detail-modal-by">
                         ${buildByLine(s)}
-                        ${createdStr ? `<span style="font-size:0.72rem;color:#BBB;margin-left:6px;">建立於 ${createdStr}</span>` : ''}
+                        ${createdStr ? `<span style="font-size:0.72rem;color:#BBB;margin-left:6px;">Created ${escapeHtml(createdStr)}</span>` : ''}
                     </div>
                     <div class="detail-modal-actions">
-                        <button class="btn" onclick="copyCoords('${s.lat}, ${s.lng}')" title="複製座標">${ICN.copy}</button>
-                        <button class="btn" onclick="window.open('${mapsUrl}','_blank')" title="Google Maps">${ICN.mapPin}</button>
-                        <button class="btn" onclick="shareSpot('${escapeHtml(s.name).replace(/'/g,"\\'")}','${s.id}')" title="分享">${ICN.share}</button>
-                        <button class="btn" onclick="addSpotToRouteEditor('${s.id}')" title="加入路線" style="background:#E8F5E9;border-color:#66BB6A;color:#2E7D32;">🗺️</button>
-                        ${currentUser ? `<button class="btn btn-fav ${isFav ? 'active' : ''}" onclick="toggleFavorite('${s.id}');closeDetail();setTimeout(()=>{const sp=spots.find(x=>String(x.id)==='${s.id}')||profileSpots.find(x=>String(x.id)==='${s.id}');if(sp)renderDetailContent(sp);document.getElementById('detailModal').classList.add('active');},300);" title="收藏">${isFav ? ICN.starFill : ICN.star}</button>` : ''}
-                        ${currentUser ? `<button class="btn ${isSaved ? 'btn-fav active' : ''}" onclick="toggleBookmark('${s.id}');closeDetail();setTimeout(()=>{const sp=spots.find(x=>String(x.id)==='${s.id}')||profileSpots.find(x=>String(x.id)==='${s.id}');if(sp)renderDetailContent(sp);document.getElementById('detailModal').classList.add('active');},300);" title="儲存">${isSaved ? ICN.bookmarkFill : ICN.bookmark}</button>` : ''}
-                        ${!showEdit && currentUser ? `<button class="btn" onclick="closeDetail();openSuggestionModal('${s.id}')" title="建議修改">${ICN.lightbulb} 建議修改</button>` : ''}
-                        ${showEdit ? `<button class="btn" onclick="closeDetail();editSpot('${s.id}')" title="編輯">${ICN.pencil}</button>` : ''}
-                        ${showDelete ? `<button class="btn" onclick="closeDetail();deleteSpot('${s.id}')" title="刪除">${ICN.trash}</button>` : ''}
+                        <button class="btn" onclick="copyCoords(${safeCoordsJs})" title="Copy coordinates">${ICN.copy}</button>
+                        <button class="btn" onclick="window.open(${safeMapsUrlJs},'_blank','noopener,noreferrer')" title="Google Maps">${ICN.mapPin}</button>
+                        <button class="btn" onclick="shareSpot(${safeNameJs},${safeSpotIdJs})" title="Share">${ICN.share}</button>
+                        <button class="btn" onclick="addSpotToRouteEditor(${safeSpotIdJs})" title="Add route" style="background:#E8F5E9;border-color:#66BB6A;color:#2E7D32;">Route</button>
+                        ${currentUser ? `<button class="btn btn-fav ${isFav ? 'active' : ''}" onclick="toggleFavorite(${safeSpotIdJs});closeDetail();setTimeout(()=>{const sp=spots.find(x=>String(x.id)===String(${safeSpotIdJs}))||profileSpots.find(x=>String(x.id)===String(${safeSpotIdJs}));if(sp)renderDetailContent(sp);document.getElementById('detailModal').classList.add('active');},300);" title="Favorite">${isFav ? ICN.starFill : ICN.star}</button>` : ''}
+                        ${currentUser ? `<button class="btn ${isSaved ? 'btn-fav active' : ''}" onclick="toggleBookmark(${safeSpotIdJs});closeDetail();setTimeout(()=>{const sp=spots.find(x=>String(x.id)===String(${safeSpotIdJs}))||profileSpots.find(x=>String(x.id)===String(${safeSpotIdJs}));if(sp)renderDetailContent(sp);document.getElementById('detailModal').classList.add('active');},300);" title="Save">${isSaved ? ICN.bookmarkFill : ICN.bookmark}</button>` : ''}
+                        ${!showEdit && currentUser ? `<button class="btn" onclick="closeDetail();openSuggestionModal(${safeSpotIdJs})" title="Suggest edit">${ICN.lightbulb} Suggest edit</button>` : ''}
+                        ${showEdit ? `<button class="btn" onclick="closeDetail();editSpot(${safeSpotIdJs})" title="Edit">${ICN.pencil}</button>` : ''}
+                        ${showDelete ? `<button class="btn" onclick="closeDetail();deleteSpot(${safeSpotIdJs})" title="Delete">${ICN.trash}</button>` : ''}
                     </div>
                 </div>`;
             document.getElementById('detailModal').classList.add('active');
@@ -3084,11 +3095,11 @@
                     return;
                 }
                 list.innerHTML = items.map(s => `
-                    <div class="profile-spot-item" onclick="openDetailFromProfile('${s.id}')">
+                    <div class="profile-spot-item" onclick="openDetailFromProfile(${jsString(s.id)})">
                         ${s.image_url ? `<img class="profile-spot-img" src="${escapeHtml(safeImageUrl(s.image_url))}">` : `<div class="profile-spot-img" style="background:#F0F0F0;display:flex;align-items:center;justify-content:center;font-size:1.2rem;">${getTypeLabel(s.type).split(' ')[0]}</div>`}
                         <div class="profile-spot-info">
                             <div class="profile-spot-name">${escapeHtml(s.name)}</div>
-                            <div class="profile-spot-sub">${s.country || ''}${s.city ? ' · ' + s.city : ''}</div>
+                            <div class="profile-spot-sub">${escapeHtml(s.country || '')}${s.city ? ' · ' + escapeHtml(s.city) : ''}</div>
                         </div>
                     </div>
                 `).join('');
@@ -3252,7 +3263,7 @@
             const s = spots.find(x => String(x.id) === String(spotId)) || profileSpots.find(x => String(x.id) === String(spotId));
             const info = document.getElementById('suggestionCurrentInfo');
             if (s && info) {
-                info.innerHTML = `<strong>目前資訊：</strong> ${escapeHtml(s.name)} | ${s.country || ''} ${s.city || ''} | ${s.lat}, ${s.lng}${s.tags?.length ? ' | #' + s.tags.join(' #') : ''}`;
+                info.innerHTML = `<strong>Current:</strong> ${escapeHtml(s.name)} | ${escapeHtml(s.country || '')} ${escapeHtml(s.city || '')} | ${escapeHtml(`${s.lat}, ${s.lng}`)}${s.tags?.length ? ' | #' + s.tags.map(escapeHtml).join(' #') : ''}`;
             }
             document.getElementById('suggestionModal').classList.add('active');
         }
@@ -3354,12 +3365,12 @@
                         </div>
                         <div style="background:white;border-radius:8px;padding:8px 10px;margin-bottom:8px;">${fieldsHtml}</div>
                         <div style="display:flex;justify-content:space-between;align-items:center;">
-                            <span style="font-size:0.72rem;color:#AAA;">Spot: ${sg.spot_id ? sg.spot_id.slice(0,8) + '...' : 'N/A'}</span>
+                            <span style="font-size:0.72rem;color:#AAA;">Spot: ${sg.spot_id ? escapeHtml(sg.spot_id.slice(0,8)) + '...' : 'N/A'}</span>
                             <div style="display:flex;gap:4px;align-items:center;">
-                                <span style="font-size:0.75rem;font-weight:600;">${statusLabels[sg.status] || sg.status}</span>
+                                <span style="font-size:0.75rem;font-weight:600;">${escapeHtml(statusLabels[sg.status] || sg.status)}</span>
                                 ${sg.status === 'pending' ? `
-                                    <button onclick="applySuggestion('${sg.id}','${sg.spot_id}')" style="padding:4px 10px;border:none;border-radius:8px;font-size:0.72rem;font-weight:700;cursor:pointer;background:#C8E6C9;color:#2E7D32;">✅ 採納並套用</button>
-                                    <button onclick="updateSuggestionStatus('${sg.id}','rejected')" style="padding:4px 10px;border:none;border-radius:8px;font-size:0.72rem;font-weight:700;cursor:pointer;background:#FFCDD2;color:#C62828;">❌ 拒絕</button>
+                                    <button onclick="applySuggestion(${jsString(sg.id)},${jsString(sg.spot_id)})" style="padding:4px 10px;border:none;border-radius:8px;font-size:0.72rem;font-weight:700;cursor:pointer;background:#C8E6C9;color:#2E7D32;">Approve</button>
+                                    <button onclick="updateSuggestionStatus(${jsString(sg.id)},'rejected')" style="padding:4px 10px;border:none;border-radius:8px;font-size:0.72rem;font-weight:700;cursor:pointer;background:#FFCDD2;color:#C62828;">Reject</button>
                                 ` : ''}
                             </div>
                         </div>
@@ -3425,6 +3436,8 @@
         }
 
         async function updateSuggestionStatus(id, status) {
+            if (!isAdmin) { showToast('Admin permission required'); return; }
+            if (!['approved', 'rejected', 'pending'].includes(status)) { showToast('Invalid status'); return; }
             try {
                 await safeQuery(() => supabaseClient.from('suggestions').update({ status }).eq('id', id));
                 showToast(status === 'approved' ? '✅ 已採納' : '❌ 已拒絕');
@@ -3527,7 +3540,7 @@
                     shareUrl = `mailto:?subject=${name}&body=${text}`;
                     break;
             }
-            if (shareUrl) window.open(shareUrl, '_blank');
+            if (shareUrl) window.open(shareUrl, '_blank', 'noopener,noreferrer');
         }
 
         async function shareNative() {
@@ -4059,7 +4072,7 @@
                     ${s.image_url ? `<img class="route-editor-item-img" src="${escapeHtml(safeImageUrl(s.image_url))}" loading="lazy">` : ''}
                     <div class="route-editor-item-info">
                         <div class="route-editor-item-name">${escapeHtml(s.name)}</div>
-                        <div class="route-editor-item-sub">${s.country || ''}${s.city ? ' · ' + s.city : ''}</div>
+                        <div class="route-editor-item-sub">${escapeHtml(s.country || '')}${s.city ? ' · ' + escapeHtml(s.city) : ''}</div>
                     </div>
                     <button class="route-editor-item-remove" onclick="removeSpotFromRouteEditor(${i})" title="移除">✕</button>
                 </div>`;
@@ -4132,7 +4145,7 @@
 
         function openRouteInGoogleMaps() {
             const url = buildRouteGoogleMapsUrl();
-            if (url) window.open(url, '_blank');
+            if (url) window.open(url, '_blank', 'noopener,noreferrer');
             else showToast('⚠️ 至少需要 2 個純點');
         }
 
@@ -4273,11 +4286,11 @@
                 container.innerHTML = '<div style="padding:12px;text-align:center;color:#AAA;font-size:0.82rem;">找不到純點</div>';
             } else {
                 container.innerHTML = filtered.map(s => `
-                    <div class="path-search-item" onclick="addSpotToPath('${s.id}')">
+                    <div class="path-search-item" onclick="addSpotToPath(${jsString(s.id)})">
                         ${s.image_url ? `<img class="path-search-img" src="${escapeHtml(safeImageUrl(s.image_url))}" loading="lazy">` : `<div class="path-search-img" style="background:#F0F0F0;display:flex;align-items:center;justify-content:center;font-size:0.9rem;">${{flower:'🌸',pikmin:'🌱',mushroom:'🍄',postcard:'🏠'}[s.type]||'📍'}</div>`}
                         <div style="flex:1;min-width:0;">
                             <div style="font-size:0.82rem;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(s.name)}</div>
-                            <div style="font-size:0.68rem;color:#999;">${s.country || ''}${s.city ? ' · ' + s.city : ''}</div>
+                            <div style="font-size:0.68rem;color:#999;">${escapeHtml(s.country || '')}${s.city ? ' · ' + escapeHtml(s.city) : ''}</div>
                         </div>
                         <div style="color:var(--primary);font-size:0.82rem;font-weight:700;">+ 加入</div>
                     </div>
@@ -4317,7 +4330,7 @@
                     ${s.image_url ? `<img class="path-spot-img" src="${escapeHtml(safeImageUrl(s.image_url))}" loading="lazy">` : ''}
                     <div class="path-spot-info">
                         <div class="path-spot-name">${escapeHtml(s.name)}</div>
-                        <div class="path-spot-sub">${s.country || ''}${s.city ? ' · ' + s.city : ''}</div>
+                        <div class="path-spot-sub">${escapeHtml(s.country || '')}${s.city ? ' · ' + escapeHtml(s.city) : ''}</div>
                     </div>
                     <button class="path-spot-remove" onclick="removeSpotFromPath(${i})" title="移除">✕</button>
                 </div>
@@ -4366,7 +4379,7 @@
                 if (editingPathId) {
                     await safeQuery(() => supabaseClient.from('paths').update({
                         name, spot_ids: spotIds, is_public: isPublic, updated_at: new Date().toISOString()
-                    }).eq('id', editingPathId));
+                    }).eq('id', editingPathId).eq('created_by', currentUser.id));
                     showToast('✏️ 路線已更新！');
                 } else {
                     await safeQuery(() => supabaseClient.from('paths').insert([{
@@ -4409,7 +4422,7 @@ CREATE POLICY "Users can delete own paths" ON paths FOR DELETE USING (auth.uid()
         async function deletePath(pathId) {
             if (!confirm('確定要刪除這條路線嗎？')) return;
             try {
-                await safeQuery(() => supabaseClient.from('paths').delete().eq('id', pathId));
+                await safeQuery(() => supabaseClient.from('paths').delete().eq('id', pathId).eq('created_by', currentUser.id));
                 showToast('🗑️ 路線已刪除');
                 if (profileTab === 'paths') await renderProfileList();
                 clearPathFromMap();
@@ -4440,7 +4453,7 @@ CREATE POLICY "Users can delete own paths" ON paths FOR DELETE USING (auth.uid()
                     html += `<div style="display:flex;align-items:center;gap:8px;padding:6px 8px;background:#F8FAF9;border-radius:8px;">
                         <div class="path-spot-num">${i + 1}</div>
                         ${s.image_url ? `<img src="${escapeHtml(safeImageUrl(s.image_url))}" style="width:32px;height:32px;border-radius:6px;object-fit:cover;" loading="lazy">` : ''}
-                        <div style="flex:1;min-width:0;"><div style="font-size:0.82rem;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(s.name)}</div><div style="font-size:0.65rem;color:#999;">${s.country || ''}${s.city ? ' · ' + s.city : ''}</div></div>
+                        <div style="flex:1;min-width:0;"><div style="font-size:0.82rem;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(s.name)}</div><div style="font-size:0.65rem;color:#999;">${escapeHtml(s.country || '')}${s.city ? ' · ' + escapeHtml(s.city) : ''}</div></div>
                     </div>`;
                 });
                 html += '</div>';
@@ -4502,7 +4515,7 @@ CREATE POLICY "Users can delete own paths" ON paths FOR DELETE USING (auth.uid()
         function openPathInGoogleMaps() {
             if (!currentViewPath || !currentViewPath.spots) return;
             const url = buildGoogleMapsUrl(currentViewPath.spots);
-            if (url) window.open(url, '_blank');
+            if (url) window.open(url, '_blank', 'noopener,noreferrer');
             else showToast('⚠️ 路線資料不足');
         }
 
@@ -4555,7 +4568,7 @@ CREATE POLICY "Users can delete own paths" ON paths FOR DELETE USING (auth.uid()
                     ${userPaths.map(p => {
                         const pathSpots = (p.spot_ids || []).map(id => spotMap[id]).filter(Boolean);
                         const thumbs = pathSpots.filter(s => s.image_url).slice(0, 5);
-                        return `<div class="path-card" onclick="viewPath('${p.id}')">
+                        return `<div class="path-card" onclick="viewPath(${jsString(p.id)})">
                             <div class="path-card-header">
                                 <div class="path-card-name">${escapeHtml(p.name)}</div>
                                 <span class="path-card-badge ${p.is_public ? 'public' : 'private'}">${p.is_public ? '🌍 公開' : '🔒 私人'}</span>
@@ -4566,8 +4579,8 @@ CREATE POLICY "Users can delete own paths" ON paths FOR DELETE USING (auth.uid()
                             </div>
                             <div class="path-card-meta">${(p.spot_ids || []).length} 個純點 · ${new Date(p.created_at).toLocaleDateString('zh-TW')}</div>
                             <div class="path-card-actions">
-                                <button class="btn" onclick="event.stopPropagation();openPathModal(${JSON.stringify(p).replace(/"/g,'&quot;')})">✏️ 編輯</button>
-                                <button class="btn" onclick="event.stopPropagation();deletePath('${p.id}')" style="color:#C62828;">🗑️ 刪除</button>
+                                <button class="btn" onclick="event.stopPropagation();openPathModal(JSON.parse(${escapeHtml(jsString(JSON.stringify(p))) }))">Edit</button>
+                                <button class="btn" onclick="event.stopPropagation();deletePath(${jsString(p.id)})" style="color:#C62828;">Delete</button>
                             </div>
                         </div>`;
                     }).join('')}
