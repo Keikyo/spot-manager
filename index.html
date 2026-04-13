@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://byeyuxfhmackhmngksij.supabase.co https://nominatim.openstreetmap.org; frame-ancestors 'none'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests">
     <title>皮克敏純點管理器</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha384-sHL9NAb7lN7rfvG5lfHpm643Xkcjzp4jFvuavGOndn6pjVqS6ny56CAt3nsEVT4H" crossorigin="anonymous" />
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         :root {
@@ -1218,12 +1219,13 @@
     </div>
     </div><!-- end app-layout -->
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.min.js" integrity="sha384-YieCqqg9gQufX7+5HcFvCEg/n3KUEdl8/Jb+A6J0npf1mB740VayvwKjTrtCeUoy" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH" crossorigin="anonymous"></script>
     <script>
         const SUPABASE_URL = 'https://byeyuxfhmackhmngksij.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ5ZXl1eGZobWFja2htbmdrc2lqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyNTcyMDgsImV4cCI6MjA4NTgzMzIwOH0.ckXTWnDCksvDJMdd8MR9iykh6iu1IBtKi4zuLF4W87I';
         const ADMIN_EMAIL = 'hangonroku@gmail.com';
+        const SUPABASE_STORAGE_HOST = new URL(SUPABASE_URL).hostname;
         const { createClient } = supabase;
         const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
             auth: {
@@ -1905,17 +1907,17 @@
 
             if (tagSearchQuery) {
                 let html = `<div class="tag-pill ${isAllTagActive()?'active':''}" onclick="setTagFilter('all')">全部</div>${multiHint}`;
-                html += filtered.map(([t,n]) => `<div class="tag-pill ${isTagActive(t)?'active':''}" onclick="setTagFilter('${escapeHtml(t)}')">#${escapeHtml(t)} (${n})</div>`).join('');
+                html += filtered.map(([t,n]) => `<div class="tag-pill ${isTagActive(t)?'active':''}" onclick="setTagFilter(${jsString(t)})">#${escapeHtml(t)} (${n})</div>`).join('');
                 if (!filtered.length) html += '<span style="font-size:0.78rem;color:#AAA;">找不到標籤</span>';
                 c.innerHTML = html;
             } else {
                 const top3 = filtered.slice(0, 3);
                 const rest = filtered.slice(3);
                 let html = `<div class="tag-pill ${isAllTagActive()?'active':''}" onclick="setTagFilter('all')">全部</div>${multiHint}`;
-                html += top3.map(([t,n]) => `<div class="tag-pill ${isTagActive(t)?'active':''}" onclick="setTagFilter('${escapeHtml(t)}')">#${escapeHtml(t)} (${n})</div>`).join('');
+                html += top3.map(([t,n]) => `<div class="tag-pill ${isTagActive(t)?'active':''}" onclick="setTagFilter(${jsString(t)})">#${escapeHtml(t)} (${n})</div>`).join('');
                 if (rest.length > 0) {
                     if (tagExpanded) {
-                        html += rest.map(([t,n]) => `<div class="tag-pill ${isTagActive(t)?'active':''}" onclick="setTagFilter('${escapeHtml(t)}')">#${escapeHtml(t)} (${n})</div>`).join('');
+                        html += rest.map(([t,n]) => `<div class="tag-pill ${isTagActive(t)?'active':''}" onclick="setTagFilter(${jsString(t)})">#${escapeHtml(t)} (${n})</div>`).join('');
                         html += `<div class="tag-pill" onclick="toggleTagExpand()" style="background:#F5F5F5;border-color:#CCC;color:#888;">▲ 收合</div>`;
                     } else {
                         html += `<div class="tag-pill" onclick="toggleTagExpand()" style="background:#F5F5F5;border-color:#CCC;color:#888;">▼ 更多 (${rest.length})</div>`;
@@ -1941,16 +1943,16 @@
         }
 
         async function loginAsAdmin() {
-            // Create a temporary password input overlay
+            // Admin accounts and roles must be provisioned server-side.
             const overlay = document.createElement('div');
             overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:2000;display:flex;align-items:center;justify-content:center;padding:16px;';
             overlay.innerHTML = `
                 <div style="background:white;border-radius:16px;padding:24px;max-width:340px;width:100%;text-align:center;">
-                    <div style="font-size:1.1rem;font-weight:800;color:var(--dark-green);margin-bottom:12px;">🔑 管理員登入</div>
-                    <input type="password" id="adminPwInput" placeholder="輸入管理員密碼" style="width:100%;padding:12px;border:2px solid #E8E8E8;border-radius:12px;font-size:0.95rem;font-family:inherit;margin-bottom:12px;">
+                    <div style="font-size:1.1rem;font-weight:800;color:var(--dark-green);margin-bottom:12px;">Admin login</div>
+                    <input type="password" id="adminPwInput" placeholder="Admin password" autocomplete="current-password" style="width:100%;padding:12px;border:2px solid #E8E8E8;border-radius:12px;font-size:0.95rem;font-family:inherit;margin-bottom:12px;">
                     <div style="display:flex;gap:10px;">
-                        <button id="adminPwCancel" style="flex:1;padding:10px;background:#F5F5F5;border:none;border-radius:10px;font-weight:700;cursor:pointer;font-family:inherit;color:#666;">取消</button>
-                        <button id="adminPwSubmit" style="flex:2;padding:10px;background:linear-gradient(135deg,#FF6B35,#F7931A);border:none;border-radius:10px;font-weight:700;cursor:pointer;font-family:inherit;color:white;">登入</button>
+                        <button id="adminPwCancel" style="flex:1;padding:10px;background:#F5F5F5;border:none;border-radius:10px;font-weight:700;cursor:pointer;font-family:inherit;color:#666;">Cancel</button>
+                        <button id="adminPwSubmit" style="flex:2;padding:10px;background:linear-gradient(135deg,#FF6B35,#F7931A);border:none;border-radius:10px;font-weight:700;cursor:pointer;font-family:inherit;color:white;">Login</button>
                     </div>
                 </div>`;
             document.body.appendChild(overlay);
@@ -1963,28 +1965,30 @@
                 overlay.onclick = (e) => { if (e.target === overlay) cleanup(); };
 
                 const doLogin = async () => {
-                    const pw = pwInput.value; if (!pw) return;
+                    const pw = pwInput.value;
+                    if (!pw) return;
                     try {
                         setSyncStatus('syncing');
-                        const { data, error } = await supabaseClient.auth.signInWithPassword({ email: ADMIN_EMAIL, password: pw });
-                        if (error) {
-                            if (error.message.includes('Invalid login credentials')) {
-                                if (!confirm('帳號尚未建立，是否使用此密碼建立管理員帳號？')) { setSyncStatus('synced'); cleanup(); return; }
-                                const { data: sd, error: se } = await supabaseClient.auth.signUp({ email: ADMIN_EMAIL, password: pw });
-                                if (se) throw se;
-                                if (sd.user) await supabaseClient.from('users').upsert({ id: sd.user.id, email: ADMIN_EMAIL, role: 'admin' }, { onConflict: 'id' });
-                                showToast('✅ 管理員帳號已建立！');
-                            } else throw error;
+                        const { error } = await supabaseClient.auth.signInWithPassword({ email: ADMIN_EMAIL, password: pw });
+                        if (error) throw error;
+                        await checkAdminStatus();
+                        if (!isAdmin) {
+                            await supabaseClient.auth.signOut();
+                            throw new Error('Admin role is not authorized by the backend');
                         }
+                        updateUserInfo();
                         setSyncStatus('synced');
-                    } catch (e) { console.error(e); setSyncStatus('error'); showToast('❌ 登入失敗：' + e.message); }
+                    } catch (e) {
+                        console.error(e);
+                        setSyncStatus('error');
+                        showToast('Admin login failed: ' + (e.message || ''));
+                    }
                     cleanup();
                 };
                 document.getElementById('adminPwSubmit').onclick = doLogin;
                 pwInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') doLogin(); });
             });
         }
-
         async function logout() {
             try { await supabaseClient.auth.signOut(); currentUser = null; isAdmin = false; userDisplayNameCached = ''; updateUserInfo(); renderSpots(); showToast('👋 已登出'); } catch (e) { console.error(e); }
         }
@@ -1992,34 +1996,19 @@
         async function checkAdminStatus() {
             if (!currentUser) { isAdmin = false; userDisplayNameCached = ''; return; }
             try {
-                // 從 users 表讀取 role 和 display_name
                 const { data, error } = await supabaseClient.from('users')
                     .select('role, display_name')
                     .eq('id', currentUser.id)
                     .single();
 
-                if (!error && data) {
-                    isAdmin = (data.role === 'admin');
-                    userDisplayNameCached = data.display_name || '';
-                } else {
-                    // users 表中還沒有此人 → 新增一筆
-                    const newRow = {
-                        id: currentUser.id,
-                        email: currentUser.email,
-                        role: currentUser.email === ADMIN_EMAIL ? 'admin' : 'user'
-                    };
-                    await supabaseClient.from('users').upsert(newRow, { onConflict: 'id' });
-                    isAdmin = (currentUser.email === ADMIN_EMAIL);
-                    userDisplayNameCached = '';
-                }
+                isAdmin = (!error && data && data.role === 'admin');
+                userDisplayNameCached = (!error && data && data.display_name) ? data.display_name : '';
             } catch (e) {
                 console.error('checkAdminStatus error:', e);
-                isAdmin = (currentUser.email === ADMIN_EMAIL);
+                isAdmin = false;
                 userDisplayNameCached = '';
             }
         }
-
-        // 取得顯示名稱：自訂暱稱 > Google 名字的第一個字+匿名化 > email 前綴
         function getUserDisplayName(user) {
             if (!user) return '訪客';
             // 最優先：使用者自訂的暱稱
@@ -2323,7 +2312,7 @@
                 ${s.city ? `<span class="spot-city">🏙️ ${escapeHtml(s.city)}</span>` : ''}
                 <span class="spot-type-badge ${s.type}">${getTypeLabel(s.type)}</span>
             </div>`;
-            const imgHtml = s.image_url ? `<div class="spot-image-container"><img src="${escapeHtml(s.image_url)}" alt="${escapeHtml(s.name)}" onclick="event.stopPropagation();openLightbox(this.src)" loading="lazy"></div>` : '';
+            const imgHtml = s.image_url ? `<div class="spot-image-container"><img src="${escapeHtml(safeImageUrl(s.image_url))}" alt="${escapeHtml(s.name)}" onclick="event.stopPropagation();openLightbox(this.src)" loading="lazy"></div>` : '';
             const showEdit = canEditSpot(s);
             const showDelete = canDeleteSpot(s);
             const isFav = userFavorites.has(String(s.id));
@@ -2442,10 +2431,15 @@
                 if (btn) { btn.classList.add('uploading'); btn.textContent = '⏳'; }
 
                 try {
-                    const imageUrl = await uploadImageToStorage(file);
-                    await safeQuery(() => supabaseClient.from('spots').update({ image_url: imageUrl }).eq('id', spotId));
-
                     const spot = spots.find(s => String(s.id) === String(spotId));
+                    if (!spot || !canEditSpot(spot)) { showToast('❌ 你沒有權限編輯此純點'); return; }
+                    const imageUrl = await uploadImageToStorage(file);
+                    await safeQuery(() => {
+                        let q = supabaseClient.from('spots').update({ image_url: imageUrl }).eq('id', spotId);
+                        if (!isAdmin) q = q.eq('created_by', currentUser.id);
+                        return q;
+                    });
+
                     if (spot) spot.image_url = imageUrl;
                     if (card) card.outerHTML = renderSpotCard(spot);
                     showToast('📷 圖片已上傳！');
@@ -2578,7 +2572,11 @@
                 progress.textContent = `上傳中 ${i + 1} / ${validItems.length}...`;
                 try {
                     const imageUrl = await uploadImageToStorage(item.file);
-                    await safeQuery(() => supabaseClient.from('spots').update({ image_url: imageUrl }).eq('id', item.spotId));
+                    await safeQuery(() => {
+                        let q = supabaseClient.from('spots').update({ image_url: imageUrl }).eq('id', item.spotId);
+                        if (!isAdmin) q = q.eq('created_by', currentUser.id);
+                        return q;
+                    });
                     ok++;
                 } catch { fail++; }
             }
@@ -2617,6 +2615,25 @@
 
         function getTypeLabel(t) { return { flower: '🌸 大花', pikmin: '🌱 皮克敏', mushroom: '🍄 蘑菇', postcard: '🏠 明信片' }[t] || t; }
         function escapeHtml(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+        function jsString(s) {
+            return JSON.stringify(String(s ?? ''))
+                .replace(/</g, '\\u003c')
+                .replace(/>/g, '\\u003e')
+                .replace(/&/g, '\\u0026');
+        }
+        function safeImageUrl(url) {
+            if (!url) return '';
+            const raw = String(url).trim();
+            if (/^data:image\/(?:png|jpe?g|gif|webp);base64,[a-z0-9+/=\s]+$/i.test(raw)) return raw;
+            try {
+                const parsed = new URL(raw, window.location.origin);
+                if (parsed.protocol !== 'https:') return '';
+                if (parsed.hostname !== SUPABASE_STORAGE_HOST) return '';
+                return parsed.href;
+            } catch {
+                return '';
+            }
+        }
 
         // ==================== SVG Icons (Lucide-style, 20x20, stroke-width 2) ====================
         const ICN = {
@@ -2749,7 +2766,7 @@
                     imageUrl = existing?.image_url || null;
                 }
 
-                const spotData = { name, country, city, lat, lng, type, note, tags, image_url: imageUrl };
+                const spotData = { name, country, city, lat, lng, type, note, tags, image_url: safeImageUrl(imageUrl) || null };
 
                 if (eid) {
                     spotData.updated_at = new Date().toISOString();
@@ -2759,8 +2776,13 @@
                     } else {
                         spotData.updated_by_name = null;
                     }
-                    // Use safeQuery for auto-retry on token expiry
-                    await safeQuery(() => supabaseClient.from('spots').update(spotData).eq('id', eid));
+                    if (!originalSpot || !canEditSpot(originalSpot)) { showToast('❌ 你沒有權限編輯此純點'); return; }
+                    // Use safeQuery for auto-retry on token expiry. RLS must still enforce this server-side.
+                    await safeQuery(() => {
+                        let q = supabaseClient.from('spots').update(spotData).eq('id', eid);
+                        if (!isAdmin) q = q.eq('created_by', currentUser.id);
+                        return q;
+                    });
                     showToast('✏️ 純點已更新！');
                 } else {
                     spotData.created_by = currentUser.id;
@@ -2798,7 +2820,7 @@
             document.getElementById('inputCoords').value = `${s.lat}, ${s.lng}`;
             document.getElementById('inputNote').value = s.note || '';
             currentImageFile = null; // No new file yet
-            if (s.image_url) { showImagePreview(s.image_url); }
+            if (s.image_url) { showImagePreview(safeImageUrl(s.image_url)); }
             else { document.getElementById('imageUploadPlaceholder').style.display = 'block'; document.getElementById('imagePreviewContainer').style.display = 'none'; document.getElementById('imageUploadArea').classList.remove('has-image'); }
             currentTags = s.tags ? [...s.tags] : []; renderFormTags();
             selectType(s.type); modalOverlay.classList.add('active');
@@ -2809,7 +2831,11 @@
             if (!confirm('確定要刪除這個純點嗎？')) return;
             try {
                 setSyncStatus('syncing');
-                await safeQuery(() => supabaseClient.from('spots').delete().eq('id', id));
+                await safeQuery(() => {
+                    let q = supabaseClient.from('spots').delete().eq('id', id);
+                    if (!isAdmin) q = q.eq('created_by', currentUser.id);
+                    return q;
+                });
                 await loadSpots(); showToast('🗑️ 純點已刪除');
             } catch (e) { console.error(e); setSyncStatus('error'); showToast('❌ 刪除失敗：' + e.message); }
         };
@@ -2854,7 +2880,7 @@
                     if (!Array.isArray(data)) { showToast('❌ JSON 格式錯誤'); return; }
                     if (!window.confirm(`即將匯入 ${data.length} 筆，繼續？`)) return;
                     setSyncStatus('syncing'); let ok = 0, fail = 0;
-                    for (const s of data) { try { const { error } = await supabaseClient.from('spots').insert([{ name: s.name, country: s.country||null, city: s.city||null, lat: parseFloat(s.lat), lng: parseFloat(s.lng), type: s.type, note: s.note||null, tags: s.tags||null, image_url: s.image_url||null }]); error ? fail++ : ok++; } catch { fail++; } }
+                    for (const s of data) { try { const { error } = await supabaseClient.from('spots').insert([{ name: s.name, country: s.country||null, city: s.city||null, lat: parseFloat(s.lat), lng: parseFloat(s.lng), type: s.type, note: s.note||null, tags: s.tags||null, image_url: safeImageUrl(s.image_url)||null }]); error ? fail++ : ok++; } catch { fail++; } }
                     await loadSpots(); setSyncStatus('synced'); showToast(fail ? `⚠️ 成功 ${ok}，失敗 ${fail}` : `🎉 成功匯入 ${ok} 筆！`);
                 } catch { setSyncStatus('error'); showToast('❌ 匯入失敗'); }
             }; inp.click();
@@ -2883,7 +2909,7 @@
             const createdStr = createdDate ? `${createdDate.getFullYear()}/${String(createdDate.getMonth()+1).padStart(2,'0')}/${String(createdDate.getDate()).padStart(2,'0')}` : '';
             const container = document.getElementById('detailModalContent');
             container.innerHTML = `
-                ${s.image_url ? `<img class="detail-modal-img" src="${escapeHtml(s.image_url)}" onclick="openLightbox(this.src)" style="cursor:zoom-in;">` : '<div style="height:40px;"></div>'}
+                ${s.image_url ? `<img class="detail-modal-img" src="${escapeHtml(safeImageUrl(s.image_url))}" onclick="openLightbox(this.src)" style="cursor:zoom-in;">` : '<div style="height:40px;"></div>'}
                 <div class="detail-modal-body">
                     <div class="detail-modal-name">${escapeHtml(s.name)}</div>
                     <div class="detail-modal-meta">
@@ -3059,7 +3085,7 @@
                 }
                 list.innerHTML = items.map(s => `
                     <div class="profile-spot-item" onclick="openDetailFromProfile('${s.id}')">
-                        ${s.image_url ? `<img class="profile-spot-img" src="${escapeHtml(s.image_url)}">` : `<div class="profile-spot-img" style="background:#F0F0F0;display:flex;align-items:center;justify-content:center;font-size:1.2rem;">${getTypeLabel(s.type).split(' ')[0]}</div>`}
+                        ${s.image_url ? `<img class="profile-spot-img" src="${escapeHtml(safeImageUrl(s.image_url))}">` : `<div class="profile-spot-img" style="background:#F0F0F0;display:flex;align-items:center;justify-content:center;font-size:1.2rem;">${getTypeLabel(s.type).split(' ')[0]}</div>`}
                         <div class="profile-spot-info">
                             <div class="profile-spot-name">${escapeHtml(s.name)}</div>
                             <div class="profile-spot-sub">${s.country || ''}${s.city ? ' · ' + s.city : ''}</div>
@@ -3357,6 +3383,7 @@
 
         // 一鍵採納：將建議內容套用到純點，然後標記為 approved
         async function applySuggestion(suggestionId, spotId) {
+            if (!isAdmin) { showToast('Admin permission required'); return; }
             try {
                 // 1. 讀取建議內容
                 const { data: sg, error: sgErr } = await supabaseClient.from('suggestions').select('content').eq('id', suggestionId).single();
@@ -3575,55 +3602,60 @@
 
         function updateMapWithData(data) {
             if (!leafletMap) return;
-            // Clear existing markers
             mapMarkers.forEach(m => leafletMap.removeLayer(m));
             mapMarkers = [];
 
             const typeIcons = {
-                flower: '🌸', pikmin: '🌱', mushroom: '🍄', postcard: '🏠'
+                flower: 'F', pikmin: 'P', mushroom: 'M', postcard: 'H'
             };
 
             const bounds = [];
             data.forEach(s => {
                 if (!s.lat || !s.lng) return;
 
-                // Use photo thumbnail as marker if image exists
+                const imageUrl = safeImageUrl(s.image_url);
+                const nameText = escapeHtml(s.name || 'Untitled');
+                const regionText = escapeHtml(`${s.country || ''}${s.city ? ' · ' + s.city : ''}`);
+                const coordsText = `${s.lat}, ${s.lng}`;
+                const safeCoordsJs = jsString(coordsText);
+                const safeSpotIdJs = jsString(s.id);
+                const typeIcon = escapeHtml(typeIcons[s.type] || 'P');
+
                 let icon;
-                if (s.image_url) {
+                if (imageUrl) {
                     icon = L.divIcon({
-                        html: `<div class="map-photo-marker"><img src="${s.image_url}" alt="" loading="lazy"><div class="map-photo-badge">${typeIcons[s.type] || '📍'}</div></div>`,
+                        html: `<div class="map-photo-marker"><img src="${escapeHtml(imageUrl)}" alt="" loading="lazy"><div class="map-photo-badge">${typeIcon}</div></div>`,
                         className: 'map-photo-icon',
                         iconSize: [52, 52],
                         iconAnchor: [26, 26]
                     });
                 } else {
                     icon = L.divIcon({
-                        html: `<div style="font-size:1.4rem;text-align:center;filter:drop-shadow(0 1px 3px rgba(0,0,0,0.3));">${typeIcons[s.type] || '📍'}</div>`,
+                        html: `<div style="font-size:1.4rem;text-align:center;filter:drop-shadow(0 1px 3px rgba(0,0,0,0.3));">${typeIcon}</div>`,
                         className: 'map-emoji-icon',
                         iconSize: [32, 32],
                         iconAnchor: [16, 16]
                     });
                 }
 
-                // Rich popup with photo
                 const popupContent = `
                     <div class="map-popup-card">
-                        ${s.image_url ? `<img src="${s.image_url}" class="map-popup-img" alt="${s.name || ''}" loading="lazy">` : ''}
+                        ${imageUrl ? `<img src="${escapeHtml(imageUrl)}" class="map-popup-img" alt="${nameText}" loading="lazy">` : ''}
                         <div class="map-popup-body">
-                            <div class="map-popup-name">${s.name || '未命名'}</div>
-                            <div class="map-popup-meta">${s.country || ''}${s.city ? ' · ' + s.city : ''}</div>
-                            <div class="map-popup-coords">${s.lat}, ${s.lng}</div>
+                            <div class="map-popup-name">${nameText}</div>
+                            <div class="map-popup-meta">${regionText}</div>
+                            <div class="map-popup-coords">${escapeHtml(coordsText)}</div>
                             <div class="map-popup-actions">
-                                <button onclick="navigator.clipboard.writeText('${s.lat}, ${s.lng}');this.textContent='✅ 已複製'" class="map-popup-btn">📋 複製座標</button>
-                                <button onclick="addSpotToRouteEditor('${s.id}')" class="map-popup-btn" style="background:#E8F5E9;border-color:#66BB6A;color:#2E7D32;">🗺️ 加入路線</button>
-                                <button onclick="openDetailFromMap('${s.id}')" class="map-popup-btn map-popup-btn-detail">查看更多</button>
+                                <button onclick="navigator.clipboard.writeText(${safeCoordsJs});this.textContent='Copied'" class="map-popup-btn">Copy coords</button>
+                                <button onclick="addSpotToRouteEditor(${safeSpotIdJs})" class="map-popup-btn" style="background:#E8F5E9;border-color:#66BB6A;color:#2E7D32;">Add route</button>
+                                <button onclick="openDetailFromMap(${safeSpotIdJs})" class="map-popup-btn map-popup-btn-detail">Details</button>
                             </div>
                         </div>
                     </div>
                 `;
                 const marker = L.marker([s.lat, s.lng], { icon })
                     .bindPopup(popupContent, { maxWidth: 320, minWidth: 260, className: 'map-custom-popup' });
-                marker.spotData = s; // Store reference
+                marker.spotData = s;
                 marker.addTo(leafletMap);
                 mapMarkers.push(marker);
                 bounds.push([s.lat, s.lng]);
@@ -3633,7 +3665,6 @@
                 leafletMap.fitBounds(bounds, { padding: [30, 30], maxZoom: 12 });
             }
         }
-
         // Open detail modal from map popup
         function openDetailFromMap(spotId) {
             const s = allMapSpots.find(x => String(x.id) === String(spotId));
@@ -4025,7 +4056,7 @@
                 const numClass = i === 0 ? 'first' : i === n - 1 && n > 1 ? 'last' : 'mid';
                 return `<div class="route-editor-item" draggable="true" data-route-idx="${i}">
                     <div class="route-editor-item-num ${numClass}">${i + 1}</div>
-                    ${s.image_url ? `<img class="route-editor-item-img" src="${escapeHtml(s.image_url)}" loading="lazy">` : ''}
+                    ${s.image_url ? `<img class="route-editor-item-img" src="${escapeHtml(safeImageUrl(s.image_url))}" loading="lazy">` : ''}
                     <div class="route-editor-item-info">
                         <div class="route-editor-item-name">${escapeHtml(s.name)}</div>
                         <div class="route-editor-item-sub">${s.country || ''}${s.city ? ' · ' + s.city : ''}</div>
@@ -4243,7 +4274,7 @@
             } else {
                 container.innerHTML = filtered.map(s => `
                     <div class="path-search-item" onclick="addSpotToPath('${s.id}')">
-                        ${s.image_url ? `<img class="path-search-img" src="${escapeHtml(s.image_url)}" loading="lazy">` : `<div class="path-search-img" style="background:#F0F0F0;display:flex;align-items:center;justify-content:center;font-size:0.9rem;">${{flower:'🌸',pikmin:'🌱',mushroom:'🍄',postcard:'🏠'}[s.type]||'📍'}</div>`}
+                        ${s.image_url ? `<img class="path-search-img" src="${escapeHtml(safeImageUrl(s.image_url))}" loading="lazy">` : `<div class="path-search-img" style="background:#F0F0F0;display:flex;align-items:center;justify-content:center;font-size:0.9rem;">${{flower:'🌸',pikmin:'🌱',mushroom:'🍄',postcard:'🏠'}[s.type]||'📍'}</div>`}
                         <div style="flex:1;min-width:0;">
                             <div style="font-size:0.82rem;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(s.name)}</div>
                             <div style="font-size:0.68rem;color:#999;">${s.country || ''}${s.city ? ' · ' + s.city : ''}</div>
@@ -4283,7 +4314,7 @@
                 <div class="path-spot-item" draggable="true" data-path-idx="${i}">
                     <div class="path-spot-drag">☰</div>
                     <div class="path-spot-num">${i + 1}</div>
-                    ${s.image_url ? `<img class="path-spot-img" src="${escapeHtml(s.image_url)}" loading="lazy">` : ''}
+                    ${s.image_url ? `<img class="path-spot-img" src="${escapeHtml(safeImageUrl(s.image_url))}" loading="lazy">` : ''}
                     <div class="path-spot-info">
                         <div class="path-spot-name">${escapeHtml(s.name)}</div>
                         <div class="path-spot-sub">${s.country || ''}${s.city ? ' · ' + s.city : ''}</div>
@@ -4408,7 +4439,7 @@ CREATE POLICY "Users can delete own paths" ON paths FOR DELETE USING (auth.uid()
                 orderedSpots.forEach((s, i) => {
                     html += `<div style="display:flex;align-items:center;gap:8px;padding:6px 8px;background:#F8FAF9;border-radius:8px;">
                         <div class="path-spot-num">${i + 1}</div>
-                        ${s.image_url ? `<img src="${escapeHtml(s.image_url)}" style="width:32px;height:32px;border-radius:6px;object-fit:cover;" loading="lazy">` : ''}
+                        ${s.image_url ? `<img src="${escapeHtml(safeImageUrl(s.image_url))}" style="width:32px;height:32px;border-radius:6px;object-fit:cover;" loading="lazy">` : ''}
                         <div style="flex:1;min-width:0;"><div style="font-size:0.82rem;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(s.name)}</div><div style="font-size:0.65rem;color:#999;">${s.country || ''}${s.city ? ' · ' + s.city : ''}</div></div>
                     </div>`;
                 });
@@ -4530,7 +4561,7 @@ CREATE POLICY "Users can delete own paths" ON paths FOR DELETE USING (auth.uid()
                                 <span class="path-card-badge ${p.is_public ? 'public' : 'private'}">${p.is_public ? '🌍 公開' : '🔒 私人'}</span>
                             </div>
                             <div class="path-card-spots">
-                                ${thumbs.map(s => `<img class="path-card-spot-thumb" src="${escapeHtml(s.image_url)}" loading="lazy">`).join('')}
+                                ${thumbs.map(s => `<img class="path-card-spot-thumb" src="${escapeHtml(safeImageUrl(s.image_url))}" loading="lazy">`).join('')}
                                 ${pathSpots.length > 5 ? `<div style="width:28px;height:28px;border-radius:6px;background:#F0F0F0;display:flex;align-items:center;justify-content:center;font-size:0.65rem;font-weight:700;color:#888;">+${pathSpots.length - 5}</div>` : ''}
                             </div>
                             <div class="path-card-meta">${(p.spot_ids || []).length} 個純點 · ${new Date(p.created_at).toLocaleDateString('zh-TW')}</div>
