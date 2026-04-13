@@ -280,7 +280,7 @@
         .spot-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; gap: 8px; }
         .spot-name { font-size: 0.95rem; font-weight: 700; color: var(--text-primary); flex: 1; line-height: 1.3; }
         .spot-badges { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
-        .spot-region, .spot-city { font-size: 0.65rem; padding: 2px 7px; border-radius: 8px; font-weight: 600; }
+        .spot-region, .spot-city { font-size: 0.82rem; padding: 5px 10px; border-radius: 8px; font-weight: 600; }
         .spot-region { background: var(--badge-bg); color: var(--badge-text); }
         .spot-city { background: #EDF2F7; color: #4A6A8A; }
         .spot-type-badge { font-size: 0.65rem; padding: 2px 8px; border-radius: 8px; font-weight: 700; background: var(--badge-bg); color: var(--badge-text); }
@@ -295,7 +295,7 @@
         .spot-image-container img:hover { transform: scale(1.03); }
         .spot-tags { display: flex; gap: 4px; flex-wrap: wrap; margin: 6px 0; }
         .spot-tag { font-size: 0.68rem; padding: 2px 8px; border-radius: 10px; font-weight: 600; background: var(--badge-bg); color: var(--primary-dark); border: 1px solid #D0E0D4; }
-        .spot-actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+        .spot-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; align-items: center; }
         .btn { padding: 7px 12px; border: none; border-radius: 8px; font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; }
         .btn-copy { background: var(--primary-bg); color: var(--primary-dark); flex: 1; }
         .btn-copy:hover { background: #D4EDDC; }
@@ -311,15 +311,15 @@
         .btn-quick-upload.uploading { opacity: 0.6; pointer-events: none; }
 
         /* ===== GRID VIEW (compact horizontal cards) ===== */
-        .spot-list.grid-view { display: flex; flex-direction: column; gap: 6px; }
+        .spot-list.grid-view { display: flex; flex-direction: column; gap: 8px; }
         .spot-list.grid-view .spot-card { border-top: none; border-left: 3px solid var(--primary-light); border-radius: 12px; display: flex; flex-direction: row; align-items: center; gap: 10px; padding: 8px 10px 8px 10px; }
         .spot-list.grid-view .spot-card.flower-card { border-top: none; border-left-color: var(--flower-color); }
         .spot-list.grid-view .spot-card.pikmin-card { border-top: none; border-left-color: var(--pikmin-color); }
         .spot-list.grid-view .spot-card.mushroom-card { border-top: none; border-left-color: var(--mushroom-color); }
         .spot-list.grid-view .spot-card.postcard-card { border-top: none; border-left-color: var(--postcard-color); }
         .spot-list.grid-view .spot-card .spot-content { padding: 8px 10px 8px 0; }
-        .spot-list.grid-view .spot-image-container { margin: 0; flex-shrink: 0; width: 64px; height: 64px; border-radius: 8px; overflow: hidden; margin-left: 4px; }
-        .spot-list.grid-view .spot-image-container img { width: 64px; height: 64px; max-height: 64px; object-fit: cover; border-radius: 8px; }
+        .spot-list.grid-view .spot-image-container { margin: 0; flex-shrink: 0; width: 72px; height: 72px; border-radius: 10px; overflow: hidden; margin-left: 4px; }
+        .spot-list.grid-view .spot-image-container img { width: 72px; height: 72px; max-height: 72px; object-fit: cover; border-radius: 10px; }
         .spot-list.grid-view .spot-content { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
         .spot-list.grid-view .spot-header { margin-bottom: 0; }
         .spot-list.grid-view .spot-name { font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -328,13 +328,13 @@
         .spot-list.grid-view .spot-note { display: none; }
         .spot-list.grid-view .spot-tags { display: none; }
         .spot-list.grid-view .spot-coords-row { margin-bottom: 0; }
-        .spot-list.grid-view .spot-actions { margin-top: 2px; gap: 2px; }
-        .spot-list.grid-view .spot-actions .btn { font-size: 0.68rem; padding: 3px 5px; }
-        .spot-list.grid-view .spot-actions .btn svg { width: 14px; height: 14px; }
+        .spot-list.grid-view .spot-actions { margin-top: 4px; gap: 6px; }
+        .spot-list.grid-view .spot-actions .btn { min-width: 38px; min-height: 38px; padding: 7px 10px; font-size: 0.78rem; }
+        .spot-list.grid-view .spot-actions .btn svg { width: 16px; height: 16px; }
 
         /* ===== Unified button style for actions ===== */
-        .spot-actions .btn { background: white; color: var(--text-secondary); border: 1.5px solid #E0E8E4; display: inline-flex; align-items: center; gap: 3px; }
-        .spot-actions .btn svg { flex-shrink: 0; }
+        .spot-actions .btn { background: #F8FAF9; color: var(--text-secondary); border: 1.5px solid #E0E8E4; display: inline-flex; align-items: center; justify-content: center; gap: 4px; min-width: 42px; min-height: 42px; padding: 8px 12px; border-radius: 22px; font-size: 0.82rem; transition: all 0.15s; -webkit-tap-highlight-color: transparent; }
+        .spot-actions .btn svg { flex-shrink: 0; width: 18px; height: 18px; }
         .spot-actions .btn:hover { background: var(--primary-bg); border-color: var(--primary-light); color: var(--primary-dark); }
         .spot-actions .btn.btn-fav { border-color: #E0E8E4; color: var(--text-secondary); background: white; }
         .spot-actions .btn.btn-fav.active { background: #FFFAE8; border-color: #E8D888; color: #B08820; }
@@ -502,9 +502,9 @@
         .detail-modal-coords { font-size: 0.78rem; color: var(--text-muted); font-family: 'Courier New', monospace; background: #F5F8F6; padding: 5px 8px; border-radius: 6px; display: inline-block; margin-bottom: 6px; }
         .detail-modal-note { font-size: 0.85rem; color: var(--text-secondary); padding: 8px 10px; background: #F8FAF9; border-radius: 8px; border-left: 2px solid #D0DCD4; margin: 8px 0; }
         .detail-modal-by { font-size: 0.72rem; color: #AAA; margin-top: 6px; }
-        .detail-modal-actions { display: flex; gap: 6px; margin-top: 12px; flex-wrap: wrap; }
-        .detail-modal-actions .btn { background: white; color: var(--text-secondary); border: 1.5px solid #E0E8E4; padding: 7px 12px; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 4px; }
-        .detail-modal-actions .btn svg { flex-shrink: 0; }
+        .detail-modal-actions { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+        .detail-modal-actions .btn { background: #F8FAF9; color: var(--text-secondary); border: 1.5px solid #E0E8E4; padding: 10px 16px; font-size: 0.85rem; display: inline-flex; align-items: center; justify-content: center; gap: 5px; min-height: 44px; border-radius: 22px; transition: all 0.15s; -webkit-tap-highlight-color: transparent; }
+        .detail-modal-actions .btn svg { flex-shrink: 0; width: 18px; height: 18px; }
         .detail-modal-actions .btn:hover { background: var(--primary-bg); border-color: var(--primary-light); color: var(--primary-dark); }
         .detail-modal-actions .btn.btn-fav.active { background: #FFFAE8; border-color: #E8D888; color: #B08820; }
 
@@ -578,7 +578,7 @@
         .map-popup-meta { font-size: 0.72rem; color: #888; margin-bottom: 4px; }
         .map-popup-coords { font-size: 0.68rem; color: #AAA; font-family: 'Courier New', monospace; margin-bottom: 8px; }
         .map-popup-actions { display: flex; gap: 4px; }
-        .map-popup-btn { padding: 6px 10px; border: 1.5px solid var(--primary-light); border-radius: 8px; background: var(--primary-bg); color: var(--primary-dark); font-size: 0.72rem; font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.2s; text-align: center; white-space: nowrap; }
+        .map-popup-btn { padding: 8px 14px; border: 1.5px solid var(--primary-light); border-radius: 20px; background: var(--primary-bg); color: var(--primary-dark); font-size: 0.82rem; font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.2s; text-align: center; white-space: nowrap; min-height: 40px; }
         .map-popup-btn:hover { background: #D4EDDC; }
         .map-popup-btn-detail { background: var(--primary); color: white; border-color: var(--primary); }
         .map-popup-btn-detail:hover { background: var(--primary-dark); }
@@ -688,6 +688,63 @@
             display: flex; flex-direction: column; gap: 6px;
         }
         .route-editor-count { font-size: 0.72rem; color: var(--text-muted); font-weight: 600; }
+
+        @media (max-width: 1023px) {
+            /* 卡片操作按鈕 - 加大觸控目標 */
+            .spot-actions {
+                gap: 8px;
+            }
+            .spot-actions .btn {
+                min-width: 40px;
+                min-height: 40px;
+                padding: 8px 10px;
+                font-size: 0.82rem;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .spot-actions .btn svg {
+                width: 18px;
+                height: 18px;
+            }
+
+            /* Grid 檢視的按鈕也要加大 */
+            .spot-list.grid-view .spot-actions {
+                gap: 6px;
+            }
+            .spot-list.grid-view .spot-actions .btn {
+                min-width: 36px;
+                min-height: 36px;
+                padding: 6px 8px;
+                font-size: 0.75rem;
+            }
+            .spot-list.grid-view .spot-actions .btn svg {
+                width: 16px;
+                height: 16px;
+            }
+
+            /* 詳情彈窗的操作按鈕也加大 */
+            .detail-modal-actions {
+                gap: 8px;
+            }
+            .detail-modal-actions .btn {
+                min-width: 42px;
+                min-height: 42px;
+                padding: 9px 12px;
+                font-size: 0.82rem;
+            }
+            .detail-modal-actions .btn svg {
+                width: 18px;
+                height: 18px;
+            }
+
+            /* 地圖 popup 按鈕也加大 */
+            .map-popup-btn {
+                min-height: 40px;
+                padding: 10px 12px !important;
+                font-size: 0.82rem !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -775,7 +832,7 @@
             <div class="stat-card flower-card" data-filter="flower" onclick="setFilter('flower')"><div class="stat-icon">🌸</div><div class="stat-label">大花</div><div class="stat-number" id="stat-flower">0</div></div>
             <div class="stat-card pikmin-card" data-filter="pikmin" onclick="setFilter('pikmin')"><div class="stat-icon">🌱</div><div class="stat-label">皮克敏</div><div class="stat-number" id="stat-pikmin">0</div></div>
             <div class="stat-card mushroom-card" data-filter="mushroom" onclick="setFilter('mushroom')"><div class="stat-icon">🍄</div><div class="stat-label">蘑菇</div><div class="stat-number" id="stat-mushroom">0</div></div>
-            <div class="stat-card postcard-card" data-filter="postcard" onclick="setFilter('postcard')"><div class="stat-icon">🏠</div><div class="stat-label">明信片</div><div class="stat-number" id="stat-postcard">0</div></div>
+            <div class="stat-card postcard-card" data-filter="postcard" onclick="setFilter('postcard')"><div class="stat-icon">🎯</div><div class="stat-label">隱藏版</div><div class="stat-number" id="stat-postcard">0</div></div>
         </div>
         <div class="filters-section" id="filtersSection">
             <div class="filters-toggle" onclick="toggleFilters()">
@@ -945,7 +1002,7 @@
                         <div class="type-option flower" data-type="flower" onclick="selectType('flower')">🌸 大花</div>
                         <div class="type-option pikmin selected" data-type="pikmin" onclick="selectType('pikmin')">🌱 皮克敏</div>
                         <div class="type-option mushroom" data-type="mushroom" onclick="selectType('mushroom')">🍄 蘑菇</div>
-                        <div class="type-option postcard" data-type="postcard" onclick="selectType('postcard')">🏠 明信片</div>
+                        <div class="type-option postcard" data-type="postcard" onclick="selectType('postcard')">🎯 隱藏版</div>
                     </div>
                 </div>
                 <div class="form-group">
@@ -2316,10 +2373,10 @@
             const safeCoordsJs = jsAttrString(`${s.lat}, ${s.lng}`);
             const safeSpotIdAttr = escapeHtml(s.id);
             const safeTypeClass = escapeHtml(s.type);
+            const typeIcon = getTypeIcon(s.type);
             const badgesHtml = `<div class="spot-badges">
                 ${s.country ? `<span class="spot-region">🌍 ${escapeHtml(s.country)}</span>` : ''}
                 ${s.city ? `<span class="spot-city">🏙️ ${escapeHtml(s.city)}</span>` : ''}
-                <span class="spot-type-badge ${safeTypeClass}">${escapeHtml(getTypeLabel(s.type))}</span>
             </div>`;
             const imgHtml = s.image_url ? `<div class="spot-image-container"><img src="${escapeHtml(safeImageUrl(s.image_url))}" alt="${escapeHtml(s.name)}" onclick="event.stopPropagation();openLightbox(this.src)" loading="lazy"></div>` : '';
             const showEdit = canEditSpot(s);
@@ -2342,10 +2399,9 @@
                     ${imgHtml}
                     <div class="spot-content">
                         <div class="spot-header" style="margin-bottom:2px;">
-                            <div class="spot-name">${escapeHtml(s.name)} ${byLine}</div>
+                            <div class="spot-name"><span style="font-size:1.1rem;margin-right:4px;">${typeIcon}</span>${escapeHtml(s.name)}</div>
                             ${badgesHtml}
                         </div>
-                        <div class="spot-coords">${escapeHtml(`${s.lat}, ${s.lng}`)}</div>
                         ${gridActions}
                     </div>
                 </div>`;
@@ -2369,14 +2425,12 @@
                 ${imgHtml}
                 <div class="spot-content">
                     <div class="spot-header">
-                        <div class="spot-name">${escapeHtml(s.name)} ${byLine}</div>
+                        <div class="spot-name"><span style="font-size:1.1rem;margin-right:4px;">${typeIcon}</span>${escapeHtml(s.name)}</div>
                         ${badgesHtml}
                     </div>
                     <div class="spot-coords-row">
-                        <div class="spot-coords">${escapeHtml(`${s.lat}, ${s.lng}`)}</div>
                         ${tagsHtml}
                     </div>
-                    ${!isList && s.note ? `<div class="spot-note">${escapeHtml(s.note)}</div>` : ''}
                     ${actionsHtml}
                 </div>
             </div>`;
@@ -2621,7 +2675,8 @@
             return `<span style="font-size:0.7rem;color:#999;font-weight:600;">${parts.join(' · ')}</span>`;
         }
 
-        function getTypeLabel(t) { return { flower: '🌸 大花', pikmin: '🌱 皮克敏', mushroom: '🍄 蘑菇', postcard: '🏠 明信片' }[t] || t; }
+        function getTypeLabel(t) { return { flower: '🌸 大花', pikmin: '🌱 皮克敏', mushroom: '🍄 蘑菇', postcard: '🎯 隱藏版' }[t] || t; }
+        function getTypeIcon(t) { return { flower: '🌸', pikmin: '🌱', mushroom: '🍄', postcard: '🎯' }[t] || '📍'; }
         function escapeHtml(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
         function jsString(s) {
             return JSON.stringify(String(s ?? ''))
@@ -3625,7 +3680,7 @@
             mapMarkers = [];
 
             const typeIcons = {
-                flower: '🌸', pikmin: '🌱', mushroom: '🍄', postcard: '🏠'
+                flower: '🌸', pikmin: '🌱', mushroom: '🍄', postcard: '🎯'
             };
 
             const bounds = [];
@@ -4293,7 +4348,7 @@
             } else {
                 container.innerHTML = filtered.map(s => `
                     <div class="path-search-item" onclick="addSpotToPath(${jsAttrString(s.id)})">
-                        ${s.image_url ? `<img class="path-search-img" src="${escapeHtml(safeImageUrl(s.image_url))}" loading="lazy">` : `<div class="path-search-img" style="background:#F0F0F0;display:flex;align-items:center;justify-content:center;font-size:0.9rem;">${{flower:'🌸',pikmin:'🌱',mushroom:'🍄',postcard:'🏠'}[s.type]||'📍'}</div>`}
+                        ${s.image_url ? `<img class="path-search-img" src="${escapeHtml(safeImageUrl(s.image_url))}" loading="lazy">` : `<div class="path-search-img" style="background:#F0F0F0;display:flex;align-items:center;justify-content:center;font-size:0.9rem;">${{flower:'🌸',pikmin:'🌱',mushroom:'🍄',postcard:'🎯'}[s.type]||'📍'}</div>`}
                         <div style="flex:1;min-width:0;">
                             <div style="font-size:0.82rem;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(s.name)}</div>
                             <div style="font-size:0.68rem;color:#999;">${escapeHtml(s.country || '')}${s.city ? ' · ' + escapeHtml(s.city) : ''}</div>
